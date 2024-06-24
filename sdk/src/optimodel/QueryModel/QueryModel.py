@@ -17,6 +17,8 @@ async def queryModel(
     speedPriority: SpeedPriority = None,
     validator: Callable[[str], bool] = None,
     fallbackModels: list[ModelTypes] = [],
+    maxGenLen: int = 1024,
+    temperature: float = 0.2,
 ):
     """
     Query a model
@@ -44,6 +46,8 @@ async def queryModel(
                             "modelToUse": modelToUse,
                             "messages": messages,
                             "speedPriority": speedPriority,
+                            "maxGenLen": maxGenLen,
+                            "temperature": temperature,
                         },
                     ) as response:
                         jsonResponse = await response.json()
@@ -69,4 +73,6 @@ async def queryModel(
 
 class ObjectEncoder(json.JSONEncoder):
     def default(self, o):
-        return o.__dict__
+        if isinstance(o, ModelMessage):
+            return o.__dict__
+        return o

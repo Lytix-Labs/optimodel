@@ -36,6 +36,7 @@ async def main():
         speedPriority="low",
         validator=validator,
         fallbackModels=[ModelTypes.llama3_70b_instruct],
+        maxGenLen=10000,
     )
     print("Got response:", response)
 
