@@ -32,7 +32,13 @@ class BedrockProvider(BaseProviderClass):
             return False
         return True
 
-    def makeQuery(self, messages: list[ModelMessage], model: ModelTypes):
+    def makeQuery(
+        self,
+        messages: list[ModelMessage],
+        model: ModelTypes,
+        temperature: int = 0.2,
+        maxGenLen: int = 1024,
+    ):
         match model:
             case ModelTypes.llama3_8b_instruct.name:
                 modelId = "meta.llama3-8b-instruct-v1:0"
@@ -48,8 +54,8 @@ class BedrockProvider(BaseProviderClass):
 
         native_request = {
             "prompt": finalPrompt,
-            "max_gen_len": 512,
-            "temperature": 0.5,
+            "max_gen_len": maxGenLen,
+            "temperature": temperature,
         }
         # Convert the native request to JSON.
         request = json.dumps(native_request)

@@ -17,3 +17,5 @@ class QueryBody(BaseModel):
     messages: list[ModelMessage]
     modelToUse: str
     speedPriority: SpeedPriority | None = None
+    temperature: int = 0.2
+    maxGenLen: int = 1024

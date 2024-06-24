@@ -21,7 +21,11 @@ class BaseProviderClass:
         pass
 
     def makeQuery(
-        self, messages: list[ModelMessage], model: ModelTypes
+        self,
+        messages: list[ModelMessage],
+        model: ModelTypes,
+        temperature: int = 0.2,
+        maxGenLen: int = 1024,
     ) -> QueryResponse:
         """
         Make a query to the provider given a model

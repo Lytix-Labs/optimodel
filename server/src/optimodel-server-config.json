@@ -4,24 +4,28 @@
       {
         "name": "llama3_8b_instruct",
         "pricePer1M": 0.2,
-        "speed": 119.88
+        "speed": 119.88,
+        "maxGenLen": 4000
       },
       {
         "name": "llama3_70b_instruct",
         "pricePer1M": 0.9,
-        "speed": 270.17
+        "speed": 270.17,
+        "maxGenLen": 4000
       }
     ],
     "aws-bedrock": [
       {
         "name": "llama3_8b_instruct",
         "pricePer1M": 0.3,
-        "speed": 78.91
+        "speed": 78.91,
+        "maxGenLen": 8192
       },
       {
         "name": "llama3_70b_instruct",
         "pricePer1M": 3.075,
-        "speed": 48.31
+        "speed": 48.31,
+        "maxGenLen": 8192
       }
     ]
   }

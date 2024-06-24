@@ -24,18 +24,26 @@ class TogetherProvider(BaseProviderClass):
             return False
         return True
 
-    def makeQuery(self, messages: list[ModelMessage], model: ModelTypes):
+    def makeQuery(
+        self,
+        messages: list[ModelMessage],
+        model: ModelTypes,
+        temperature: int = 0.2,
+        maxGenLen: int = 1024,
+    ):
         match model:
             case ModelTypes.llama3_8b_instruct.name:
                 modelId = "meta-llama/Llama-3-8b-chat-hf"
             case ModelTypes.llama3_70b_instruct.name:
-                modelId = "meta-llama/Meta-Llama-3-70B-Instruct"
+                modelId = "meta-llama/Llama-3-70b-chat-hf"
             case _:
                 raise Exception(f"Model {model} not supported")
 
         response = self.togetherClient.chat.completions.create(
             model=modelId,
             messages=[{"role": x.role, "content": x.content} for x in messages],
+            temperature=temperature,
+            max_tokens=maxGenLen,
         )
         promptTokenCount = response.usage.prompt_tokens
         generationTokenCount = response.usage.completion_tokens

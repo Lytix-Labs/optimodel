@@ -27,6 +27,10 @@ async def main():
     response = await queryModel(
         model=ModelTypes.llama3_8b_instruct,
         messages=[
+            ModelMessage(
+                role="system",
+                content="You are a helpful assistant. Always respond in JSON syntax",
+            ),
             ModelMessage(role="user", content=prompt),
         ],
         speedPriority="low",
