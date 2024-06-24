@@ -72,3 +72,4 @@ cython_debug/
 .vscode/
 *.sublime-workspace
 *.sublime-project
+*.DS_Store
