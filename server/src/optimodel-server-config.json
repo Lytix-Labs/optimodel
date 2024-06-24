@@ -1,0 +1,28 @@
+{
+  "availableModels": {
+    "together": [
+      {
+        "name": "llama3_8b_instruct",
+        "pricePer1M": 0.2,
+        "speed": 119.88
+      },
+      {
+        "name": "llama3_70b_instruct",
+        "pricePer1M": 0.9,
+        "speed": 270.17
+      }
+    ],
+    "aws-bedrock": [
+      {
+        "name": "llama3_8b_instruct",
+        "pricePer1M": 0.3,
+        "speed": 78.91
+      },
+      {
+        "name": "llama3_70b_instruct",
+        "pricePer1M": 3.075,
+        "speed": 48.31
+      }
+    ]
+  }
+}

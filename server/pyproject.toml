@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "optimodel-server"
+version = "0.0.1"
+authors = [
+  { name="Lytix", email="support@lytix.com" },
+]
+description = "A smart framework for calling models in the most efficient way possible"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "requests==2.31.0",
+  "urllib3==2.2.1",
+  "fastapi==0.111.0",
+  "together===1.2.1",
+  "boto3==1.34.131",
+]
+
+[project.urls]
+Homepage = "https://github.com/Lytix-Labs/optimodel"
+Issues = "https://github.com/Lytix-Labs/optimodel/issues"
+
