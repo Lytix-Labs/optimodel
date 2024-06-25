@@ -2,8 +2,8 @@ import json
 
 import asyncio
 
-from optimodel import queryModel, ModelTypes
-from optimodel_server import ModelMessage
+from optimodel import queryModel, ModelTypes, listModels
+from optimodel_server_types import ModelMessage
 
 import logging
 
@@ -41,5 +41,10 @@ async def main():
     print("Got response:", response)
 
 
+async def listModelsMain():
+    models = await listModels()
+    print(f"All models: {json.dumps(models, indent=4)}")
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(listModelsMain())

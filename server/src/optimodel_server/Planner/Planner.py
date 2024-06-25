@@ -1,5 +1,5 @@
 from optimodel_server.Config import config
-from optimodel_server.RequestTypes import (
+from optimodel_server_types import (
     QueryBody,
     SpeedPriority,
     TogetherAICredentials,

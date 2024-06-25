@@ -3,7 +3,7 @@ import os
 
 from together import Together
 
-from optimodel_server.RequestTypes import ModelMessage, TogetherAICredentials
+from optimodel_server_types import ModelMessage, TogetherAICredentials
 from optimodel_server.Config.types import SAAS_MODE, ModelTypes
 from optimodel_server.Providers.BaseProviderClass import (
     BaseProviderClass,

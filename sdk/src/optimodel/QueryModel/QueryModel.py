@@ -5,7 +5,7 @@ import aiohttp
 
 from optimodel.Consts import BASE_URL
 from optimodel.QueryModel.types import ModelTypes
-from optimodel_server import ModelMessage, SpeedPriority
+from optimodel_server_types import ModelMessage, SpeedPriority
 
 
 logger = logging.getLogger(__name__)

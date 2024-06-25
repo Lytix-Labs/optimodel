@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 
 from optimodel_server.Config import config
 from optimodel_server.Planner import getAllAvailableProviders, orderProviders
-from optimodel_server.RequestTypes import QueryBody
+from optimodel_server_types import QueryBody
 from optimodel_server.Config.types import SAAS_MODE
 
 import logging
@@ -74,3 +74,13 @@ async def read_root(data: QueryBody):
         return JSONResponse(
             status_code=500, content={"error": "Failed to retrieve providers"}
         )
+
+
+@app.get("/list-models")
+async def listModels():
+    return {"models": config.modelToProvider}
+
+
+@app.get("/health")
+async def getHealth():
+    return {"status": "ok"}
