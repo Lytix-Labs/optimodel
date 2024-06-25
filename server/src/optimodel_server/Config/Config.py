@@ -18,7 +18,7 @@ class Config:
     def __init__(self):
         self.providerInstances = {}
         with open(
-            (os.path.dirname(__file__) + "/../../optimodel-server-config.json"), "r"
+            (os.path.dirname(__file__) + "/../optimodel-server-config.json"), "r"
         ) as config:
             """
             First lets validate the config
