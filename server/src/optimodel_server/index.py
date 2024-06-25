@@ -68,6 +68,7 @@ async def read_root(data: QueryBody):
                         "promptTokens": response.promptTokens,
                         "generationTokens": response.generationTokens,
                         "cost": cost,
+                        "provider": potentialProvider["provider"],
                     }
             except Exception as e:
                 logger.error(
