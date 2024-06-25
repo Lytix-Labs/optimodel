@@ -36,7 +36,7 @@ async def main():
         speedPriority="low",
         validator=validator,
         fallbackModels=[ModelTypes.llama3_70b_instruct],
-        maxGenLen=10000,
+        maxGenLen=256,
     )
     print("Got response:", response)
 
@@ -47,4 +47,4 @@ async def listModelsMain():
 
 
 if __name__ == "__main__":
-    asyncio.run(listModelsMain())
+    asyncio.run(main())

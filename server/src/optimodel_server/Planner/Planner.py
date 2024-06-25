@@ -26,6 +26,8 @@ def getAllAvailableProviders(body: QueryBody):
     If we are running in SAAS mode, filter our any that we dont have creds for
     """
     if SAAS_MODE is not None:
+        if body.credentials is None:
+            raise ValueError("No credentials provided")
         filteredProviders = []
         for provider in allAvailableProviders:
             # Make sure we have the creds for this provider

@@ -3,7 +3,7 @@ import logging
 from typing import Callable
 import aiohttp
 
-from optimodel.Consts import BASE_URL, LY_API_KEY
+from optimodel.Consts import BASE_URL, LX_API_KEY
 from optimodel.QueryModel.types import ModelTypes
 from optimodel_server_types import ModelMessage, SpeedPriority
 
@@ -39,7 +39,6 @@ async def queryModel(
                     Convert model int to string
                     """
                     modelToUse = ModelTypes(model).name
-
                     async with session.post(
                         url=f"{BASE_URL.rstrip('/')}/query",
                         json={
@@ -49,15 +48,18 @@ async def queryModel(
                             "maxGenLen": maxGenLen,
                             "temperature": temperature,
                         },
-                        headers={"Authorization": f"Bearer {LY_API_KEY}"},
+                        headers={"Authorization": f"Bearer {LX_API_KEY}"},
                     ) as response:
                         jsonResponse = await response.json()
+                        if jsonResponse.get("modelResponse", None) is None:
+                            raise Exception(f"Bad request: {jsonResponse}")
                         if validator:
                             if not validator(jsonResponse["modelResponse"]):
                                 logger.warn(
                                     f"Failed validation when trying model {model}"
                                 )
                                 raise Exception("Validation failed")
+
                         return jsonResponse["modelResponse"]
                 except Exception as e:
                     """

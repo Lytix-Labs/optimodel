@@ -82,7 +82,7 @@ async def read_root(data: QueryBody):
     except Exception as e:
         logger.error(f"Error getting all available providers: {e}")
         return JSONResponse(
-            status_code=500, content={"error": "Failed to retrieve providers"}
+            status_code=503, content={"error": f"Failed to retrieve providers: {e}"}
         )
 
 
