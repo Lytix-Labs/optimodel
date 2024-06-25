@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "optimodel-server"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
   { name="Lytix", email="support@lytix.com" },
 ]
@@ -26,7 +26,7 @@ dependencies = [
 ]
 
 [project.scripts]
-optimodel-server = "cli:main"
+optimodel-server = "optimodel_server.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/Lytix-Labs/optimodel"
