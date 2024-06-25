@@ -3,7 +3,7 @@ import logging
 from typing import Callable
 import aiohttp
 
-from optimodel.Consts import BASE_URL
+from optimodel.Consts import BASE_URL, LY_API_KEY
 from optimodel.QueryModel.types import ModelTypes
 from optimodel_server_types import ModelMessage, SpeedPriority
 
@@ -49,6 +49,7 @@ async def queryModel(
                             "maxGenLen": maxGenLen,
                             "temperature": temperature,
                         },
+                        headers={"Authorization": f"Bearer {LY_API_KEY}"},
                     ) as response:
                         jsonResponse = await response.json()
                         if validator:

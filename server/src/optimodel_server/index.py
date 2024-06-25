@@ -15,8 +15,10 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
+baseURL = "/optimodel/api/v1"
 
-@app.post("/query")
+
+@app.post(f"{baseURL}/query")
 async def read_root(data: QueryBody):
     """
     Now its time to decide what model to use, first lets get a list of available
@@ -84,11 +86,11 @@ async def read_root(data: QueryBody):
         )
 
 
-@app.get("/list-models")
+@app.get(f"{baseURL}/list-models")
 async def listModels():
     return {"models": config.modelToProvider}
 
 
-@app.get("/health")
+@app.get(f"{baseURL}/health")
 async def getHealth():
     return {"status": "ok"}
