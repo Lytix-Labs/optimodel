@@ -35,6 +35,9 @@ class Config:
                 for model in models:
                     # Save the provider with this metadata
                     model["provider"] = provider
+
+                    # Also save the price per token, so we dont need to ask the provider for it
+                    model["costPerToken"] = model["pricePer1M"] / 1_000_000
                     if model["name"] in self.modelToProvider:
                         self.modelToProvider[model["name"]].append(model)
                     else:

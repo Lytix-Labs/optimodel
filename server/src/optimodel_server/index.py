@@ -54,10 +54,18 @@ async def read_root(data: QueryBody):
                     logger.info(
                         f"Query successful with {potentialProvider['provider']}"
                     )
+                    try:
+                        cost = (
+                            response.generationTokens + response.promptTokens
+                        ) * potentialProvider["costPerToken"]
+                    except Exception as e:
+                        logger.error(f"Error getting cost: {e}")
+                        cost = None
                     return {
                         "modelResponse": response.modelOutput,
                         "promptTokens": response.promptTokens,
                         "generationTokens": response.generationTokens,
+                        "cost": cost,
                     }
             except Exception as e:
                 logger.error(
