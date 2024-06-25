@@ -4,8 +4,9 @@ import logging
 import os
 
 from optimodel_server.Providers.BaseProviderClass import BaseProviderClass
-from optimodel_server.Providers import BedrockProvider, TogetherProvider
-from optimodel_server.Config.types import SAAS_MODE, ModelTypes
+from optimodel_server.Providers import BedrockProvider, TogetherProvider, OpenAIProvider
+from optimodel_server.Config.types import SAAS_MODE
+from optimodel_server_types import ModelTypes
 
 
 logger = logging.getLogger(__name__)
@@ -65,6 +66,8 @@ class Config:
                     providerClient = BedrockProvider()
                 case "together":
                     providerClient = TogetherProvider()
+                case "openai":
+                    providerClient = OpenAIProvider()
                 case _:
                     logger.warn(f"Provider {provider} is not supported")
                     continue

@@ -1,9 +1,9 @@
 import json
 import os
 
-from together import Together
+from openai import OpenAI
 
-from optimodel_server_types import ModelMessage, TogetherAICredentials, ModelTypes
+from optimodel_server_types import ModelMessage, OpenAICredentials, ModelTypes
 from optimodel_server.Config.types import SAAS_MODE
 from optimodel_server.Providers.BaseProviderClass import (
     BaseProviderClass,
@@ -11,19 +11,19 @@ from optimodel_server.Providers.BaseProviderClass import (
 )
 
 
-class TogetherProvider(BaseProviderClass):
+class OpenAIProvider(BaseProviderClass):
     supportSAASMode = True
 
     def __init__(self):
-        if os.environ.get("TOGETHER_API_KEY", None):
-            self.togetherClient = Together(api_key=os.environ.get("TOGETHER_API_KEY"))
+        if os.environ.get("OPEN_AI_KEY", None):
+            self.openAIClient = OpenAI(api_key=os.environ.get("OPEN_AI_KEY"))
 
     def validateProvider(self):
         """
         Validate the accounts API works
         @TODO This should be a more robust check
         """
-        if os.environ.get("TOGETHER_API_KEY", None) is None:
+        if os.environ.get("OPEN_AI_KEY", None) is None:
             return False
         return True
 
@@ -33,7 +33,7 @@ class TogetherProvider(BaseProviderClass):
         model: ModelTypes,
         temperature: int = 0.2,
         maxGenLen: int = 1024,
-        credentials: TogetherAICredentials | None = None,
+        credentials: OpenAICredentials | None = None,
     ):
         if SAAS_MODE is not None:
             if credentials is None:
@@ -41,24 +41,24 @@ class TogetherProvider(BaseProviderClass):
                 raise Exception("Together credentials not provided")
 
             # Try to find the together credentials
-            togetherCreds = next(
-                (x for x in credentials if type(x) == TogetherAICredentials), None
+            openAICreds = next(
+                (x for x in credentials if type(x) == OpenAICredentials), None
             )
-            if togetherCreds is None:
+            if openAICreds is None:
                 # This should have been filtered out in the planner
-                raise Exception("Together credentials not found")
+                raise Exception("OpenAI credentials not found")
 
-            client = Together(api_key=togetherCreds.togetherApiKey)
+            client = OpenAI(api_key=openAICreds.openAiKey)
         else:
-            if self.togetherClient is None:
-                raise Exception("Together client not initialized")
-            client = self.togetherClient
+            if self.openAIClient is None:
+                raise Exception("OpenAI client not initialized")
+            client = self.openAIClient
 
         match model:
-            case ModelTypes.llama_3_8b_instruct.name:
-                modelId = "meta-llama/Llama-3-8b-chat-hf"
-            case ModelTypes.llama_3_70b_instruct.name:
-                modelId = "meta-llama/Llama-3-70b-chat-hf"
+            case ModelTypes.gpt_4.name:
+                modelId = "gpt-4"
+            case ModelTypes.gpt_3_5_turbo.name:
+                modelId = "gpt-3.5-turbo"
             case _:
                 raise Exception(f"Model {model} not supported")
 

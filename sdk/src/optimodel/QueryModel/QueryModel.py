@@ -4,8 +4,7 @@ from typing import Callable
 import aiohttp
 
 from optimodel.Consts import BASE_URL, LX_API_KEY
-from optimodel.QueryModel.types import ModelTypes
-from optimodel_server_types import ModelMessage, SpeedPriority
+from optimodel_server_types import ModelMessage, SpeedPriority, ModelTypes
 
 
 logger = logging.getLogger(__name__)

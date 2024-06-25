@@ -3,8 +3,8 @@ import os
 
 import boto3
 
-from optimodel_server_types import ModelMessage, TogetherAICredentials
-from optimodel_server.Config.types import SAAS_MODE, ModelTypes
+from optimodel_server_types import ModelMessage, AWSBedrockCredentials, ModelTypes
+from optimodel_server.Config.types import SAAS_MODE
 from optimodel_server.Providers.BaseProviderClass import (
     BaseProviderClass,
     QueryResponse,
@@ -15,11 +15,11 @@ class BedrockProvider(BaseProviderClass):
     supportSAASMode = False
 
     def __init__(self):
-        self.stsClient = boto3.client("sts")
-        self.bedrockClient = boto3.client(
-            "bedrock-runtime", region_name=os.environ.get("AWS_REGION", "us-east-1")
-        )
-        pass
+        if SAAS_MODE is None:
+            self.stsClient = boto3.client("sts")
+            self.bedrockClient = boto3.client(
+                "bedrock-runtime", region_name=os.environ.get("AWS_REGION", "us-east-1")
+            )
 
     def validateProvider(self):
         """
@@ -40,18 +40,41 @@ class BedrockProvider(BaseProviderClass):
         model: ModelTypes,
         temperature: int = 0.2,
         maxGenLen: int = 1024,
-        credentials: TogetherAICredentials | None = None,
+        credentials: AWSBedrockCredentials | None = None,
     ):
         """
         Currently bedrock does not support SAAS mode
         """
         if SAAS_MODE is not None:
+            if credentials is None:
+                # This should have been filtered out in the planner
+                raise Exception("Together credentials not provided")
+
+            # Try to find the together credentials
+            bedrockCreds = next(
+                (x for x in credentials if type(x) == AWSBedrockCredentials), None
+            )
+            if bedrockCreds is None:
+                # This should have been filtered out in the planner
+                raise Exception("Bedrock credentials not found")
+
+            session = boto3.Session(
+                aws_access_key_id=bedrockCreds.awsAccessKeyId,
+                aws_secret_access_key=bedrockCreds.awsSecretKey,
+            )
+            client = session.client("bedrock-runtime")
+        else:
+            if self.bedrockClient is None:
+                raise Exception("Bedrock client not initialized")
+            client = self.bedrockClient
+
+        if SAAS_MODE is not None:
             raise Exception("Bedrock does not support SAAS mode")
 
         match model:
-            case ModelTypes.llama3_8b_instruct.name:
+            case ModelTypes.llama_3_8b_instruct.name:
                 modelId = "meta.llama3-8b-instruct-v1:0"
-            case ModelTypes.llama3_70b_instruct.name:
+            case ModelTypes.llama_3_70b_instruct.name:
                 modelId = "meta.llama3-70b-instruct-v1:0"
             case _:
                 raise Exception(f"Model {model} not supported")
@@ -69,7 +92,7 @@ class BedrockProvider(BaseProviderClass):
         # Convert the native request to JSON.
         request = json.dumps(native_request)
 
-        response = self.bedrockClient.invoke_model(modelId=modelId, body=request)
+        response = client.invoke_model(modelId=modelId, body=request)
 
         # Decode the response body.
         model_response = json.loads(response["body"].read())

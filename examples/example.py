@@ -2,8 +2,8 @@ import json
 
 import asyncio
 
-from optimodel import queryModel, ModelTypes, listModels
-from optimodel_server_types import ModelMessage
+from optimodel import queryModel, listModels
+from optimodel_server_types import ModelMessage, ModelTypes
 
 import logging
 
@@ -25,7 +25,7 @@ async def main():
     prompt = "Hello How are you?"
 
     response = await queryModel(
-        model=ModelTypes.llama3_8b_instruct,
+        model=ModelTypes.llama_3_8b_instruct,
         messages=[
             ModelMessage(
                 role="system",
@@ -35,7 +35,7 @@ async def main():
         ],
         speedPriority="low",
         validator=validator,
-        fallbackModels=[ModelTypes.llama3_70b_instruct],
+        fallbackModels=[ModelTypes.llama_3_70b_instruct],
         maxGenLen=256,
     )
     print("Got response:", response)

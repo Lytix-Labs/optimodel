@@ -1,5 +1,4 @@
-from optimodel_server.Config.types import ModelTypes
-from optimodel_server_types import ModelMessage, TogetherAICredentials
+from optimodel_server_types import ModelMessage, TogetherAICredentials, ModelTypes
 
 
 class QueryResponse:
