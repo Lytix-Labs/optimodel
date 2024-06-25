@@ -13,7 +13,8 @@ from optimodel_server.Providers.BaseProviderClass import (
 
 class TogetherProvider(BaseProviderClass):
     def __init__(self):
-        self.togetherClient = Together(api_key=os.environ.get("TOGETHER_API_KEY"))
+        if os.environ.get("TOGETHER_API_KEY", None):
+            self.togetherClient = Together(api_key=os.environ.get("TOGETHER_API_KEY"))
 
     def validateProvider(self):
         """

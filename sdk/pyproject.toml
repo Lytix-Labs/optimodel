@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "optimodel"
-version = "0.0.1"
+name = "optimodel-py"
+version = "0.1.0"
 authors = [
   { name="Lytix", email="support@lytix.com" },
 ]
