@@ -3,8 +3,8 @@ import os
 
 from together import Together
 
-from optimodel_server.RequestTypes import ModelMessage
-from optimodel_server.Config.types import ModelTypes
+from optimodel_server.RequestTypes import ModelMessage, TogetherAICredentials
+from optimodel_server.Config.types import SAAS_MODE, ModelTypes
 from optimodel_server.Providers.BaseProviderClass import (
     BaseProviderClass,
     QueryResponse,
@@ -12,6 +12,8 @@ from optimodel_server.Providers.BaseProviderClass import (
 
 
 class TogetherProvider(BaseProviderClass):
+    supportSAASMode = True
+
     def __init__(self):
         if os.environ.get("TOGETHER_API_KEY", None):
             self.togetherClient = Together(api_key=os.environ.get("TOGETHER_API_KEY"))
@@ -31,7 +33,26 @@ class TogetherProvider(BaseProviderClass):
         model: ModelTypes,
         temperature: int = 0.2,
         maxGenLen: int = 1024,
+        credentials: TogetherAICredentials | None = None,
     ):
+        if SAAS_MODE is not None:
+            if credentials is None:
+                # This should have been filtered out in the planner
+                raise Exception("Together credentials not provided")
+
+            # Try to find the together credentials
+            togetherCreds = next(
+                (x for x in credentials if type(x) == TogetherAICredentials), None
+            )
+            if togetherCreds is None:
+                # This should have been filtered out in the planner
+                raise Exception("Together credentials not found")
+
+            client = Together(api_key=togetherCreds.togetherApiKey)
+        else:
+            if self.togetherClient is None:
+                raise Exception("Together client not initialized")
+            client = self.togetherClient
         match model:
             case ModelTypes.llama3_8b_instruct.name:
                 modelId = "meta-llama/Llama-3-8b-chat-hf"
@@ -40,7 +61,7 @@ class TogetherProvider(BaseProviderClass):
             case _:
                 raise Exception(f"Model {model} not supported")
 
-        response = self.togetherClient.chat.completions.create(
+        response = client.chat.completions.create(
             model=modelId,
             messages=[{"role": x.role, "content": x.content} for x in messages],
             temperature=temperature,

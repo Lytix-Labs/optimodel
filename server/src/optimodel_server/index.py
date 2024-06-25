@@ -4,9 +4,11 @@ from fastapi.responses import JSONResponse
 from optimodel_server.Config import config
 from optimodel_server.Planner import getAllAvailableProviders, orderProviders
 from optimodel_server.RequestTypes import QueryBody
+from optimodel_server.Config.types import SAAS_MODE
 
 import logging
 import sys
+
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -34,9 +36,19 @@ async def read_root(data: QueryBody):
         for potentialProvider in orderedProviders:
             try:
                 logger.info(f"Attempting query with {potentialProvider['provider']}...")
+
+                # If we're in SAAS mode, validate we have credentials
+                if SAAS_MODE is not None:
+                    if data.credentials is None:
+                        raise Exception("No credentials provided")
+
                 response = config.providerInstances[
                     potentialProvider["provider"]
-                ].makeQuery(messages=data.messages, model=potentialProvider["name"])
+                ].makeQuery(
+                    messages=data.messages,
+                    model=potentialProvider["name"],
+                    credentials=data.credentials,
+                )
 
                 if response:
                     logger.info(

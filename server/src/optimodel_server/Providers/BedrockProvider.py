@@ -3,8 +3,8 @@ import os
 
 import boto3
 
-from optimodel_server.RequestTypes import ModelMessage
-from optimodel_server.Config.types import ModelTypes
+from optimodel_server.RequestTypes import ModelMessage, TogetherAICredentials
+from optimodel_server.Config.types import SAAS_MODE, ModelTypes
 from optimodel_server.Providers.BaseProviderClass import (
     BaseProviderClass,
     QueryResponse,
@@ -12,6 +12,8 @@ from optimodel_server.Providers.BaseProviderClass import (
 
 
 class BedrockProvider(BaseProviderClass):
+    supportSAASMode = False
+
     def __init__(self):
         self.stsClient = boto3.client("sts")
         self.bedrockClient = boto3.client(
@@ -38,7 +40,14 @@ class BedrockProvider(BaseProviderClass):
         model: ModelTypes,
         temperature: int = 0.2,
         maxGenLen: int = 1024,
+        credentials: TogetherAICredentials | None = None,
     ):
+        """
+        Currently bedrock does not support SAAS mode
+        """
+        if SAAS_MODE is not None:
+            raise Exception("Bedrock does not support SAAS mode")
+
         match model:
             case ModelTypes.llama3_8b_instruct.name:
                 modelId = "meta.llama3-8b-instruct-v1:0"

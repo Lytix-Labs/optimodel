@@ -5,7 +5,7 @@ import os
 
 from optimodel_server.Providers.BaseProviderClass import BaseProviderClass
 from optimodel_server.Providers import BedrockProvider, TogetherProvider
-from optimodel_server.Config.types import ModelTypes
+from optimodel_server.Config.types import SAAS_MODE, ModelTypes
 
 
 logger = logging.getLogger(__name__)
@@ -66,7 +66,15 @@ class Config:
                     logger.warn(f"Provider {provider} is not supported")
                     continue
 
-            validProvider = providerClient.validateProvider()
+            """
+            In SAAS mode, each request will bring its own credentials
+            No need to check it here
+            """
+            if SAAS_MODE is None:
+                validProvider = providerClient.validateProvider()
+            else:
+                validProvider = providerClient.supportSAASMode
+
             if not validProvider:
                 logger.warn(
                     f"Provider {provider} is not valid (e.g. credentials not configured etc.)"

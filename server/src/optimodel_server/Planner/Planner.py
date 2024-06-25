@@ -1,5 +1,10 @@
 from optimodel_server.Config import config
-from optimodel_server.RequestTypes import QueryBody, SpeedPriority
+from optimodel_server.RequestTypes import (
+    QueryBody,
+    SpeedPriority,
+    TogetherAICredentials,
+)
+from optimodel_server.Config.types import SAAS_MODE
 
 
 def getAllAvailableProviders(body: QueryBody):
@@ -16,6 +21,23 @@ def getAllAvailableProviders(body: QueryBody):
         for provider in allAvailableProviders
         if provider["maxGenLen"] >= body.maxGenLen
     ]
+
+    """
+    If we are running in SAAS mode, filter our any that we dont have creds for
+    """
+    if SAAS_MODE is not None:
+        filteredProviders = []
+        for provider in allAvailableProviders:
+            # Make sure we have the creds for this provider
+            if provider["provider"] == "together":
+                credsForProvider = next(
+                    (x for x in body.credentials if type(x) == TogetherAICredentials),
+                    None,
+                )
+                if credsForProvider is not None:
+                    # Cool we have the creds for this provider, its valid 🙌
+                    filteredProviders.append(provider)
+        allAvailableProviders = filteredProviders
 
     # Bad luck, no providers for the model passed
     if len(allAvailableProviders) == 0:

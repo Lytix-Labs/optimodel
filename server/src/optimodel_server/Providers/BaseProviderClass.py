@@ -1,5 +1,5 @@
 from optimodel_server.Config.types import ModelTypes
-from optimodel_server.RequestTypes import ModelMessage
+from optimodel_server.RequestTypes import ModelMessage, TogetherAICredentials
 
 
 class QueryResponse:
@@ -14,6 +14,12 @@ class QueryResponse:
 
 
 class BaseProviderClass:
+    """
+    If the provider supports SAAS mode, set this to True
+    """
+
+    supportSAASMode: bool = False
+
     def validateProvider(self) -> bool:
         """
         Do we have the auth needed to validate this provider
@@ -26,6 +32,7 @@ class BaseProviderClass:
         model: ModelTypes,
         temperature: int = 0.2,
         maxGenLen: int = 1024,
+        credentials: list[TogetherAICredentials] | None = None,
     ) -> QueryResponse:
         """
         Make a query to the provider given a model
