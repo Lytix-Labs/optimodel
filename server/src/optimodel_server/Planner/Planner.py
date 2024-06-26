@@ -1,10 +1,17 @@
+import logging
+
 from optimodel_server.Config import config
 from optimodel_server_types import (
     QueryBody,
     SpeedPriority,
     TogetherAICredentials,
+    AWSBedrockCredentials,
+    OpenAICredentials,
 )
 from optimodel_server.Config.types import SAAS_MODE
+
+
+logger = logging.getLogger(__name__)
 
 
 def getAllAvailableProviders(body: QueryBody):
@@ -39,12 +46,30 @@ def getAllAvailableProviders(body: QueryBody):
                 if credsForProvider is not None:
                     # Cool we have the creds for this provider, its valid 🙌
                     filteredProviders.append(provider)
+
+            if provider["provider"] == "aws-bedrock":
+                credsForProvider = next(
+                    (x for x in body.credentials if type(x) == AWSBedrockCredentials),
+                    None,
+                )
+                if credsForProvider is not None:
+                    # Cool we have the creds for this provider, its valid 🙌
+                    filteredProviders.append(provider)
+
+            if provider["provider"] == "openai":
+                credsForProvider = next(
+                    (x for x in body.credentials if type(x) == OpenAICredentials),
+                    None,
+                )
+                if credsForProvider is not None:
+                    filteredProviders.append(provider)
+
         allAvailableProviders = filteredProviders
 
     # Bad luck, no providers for the model passed
     if len(allAvailableProviders) == 0:
         raise ValueError(
-            f"Model {body.modelToUse} not found or nothing matches criteria (e.g. maxGenLen)"
+            f"Model {body.modelToUse} not found or nothing matches criteria (e.g. maxGenLen or no available provider)"
         )
 
     return allAvailableProviders

@@ -32,6 +32,7 @@ class OpenAICredentials(BaseModel):
 class AWSBedrockCredentials(BaseModel):
     awsAccessKeyId: str
     awsSecretKey: str
+    awsRegion: str
 
 
 class QueryBody(BaseModel):
@@ -45,4 +46,6 @@ class QueryBody(BaseModel):
     If we are running in SAAS mode, we'll expect each request to bring their
     own credentials
     """
-    credentials: list[TogetherAICredentials | OpenAICredentials] | None = None
+    credentials: (
+        list[TogetherAICredentials | OpenAICredentials | AWSBedrockCredentials] | None
+    ) = None

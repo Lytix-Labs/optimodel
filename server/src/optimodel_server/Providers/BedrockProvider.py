@@ -12,7 +12,7 @@ from optimodel_server.Providers.BaseProviderClass import (
 
 
 class BedrockProvider(BaseProviderClass):
-    supportSAASMode = False
+    supportSAASMode = True
 
     def __init__(self):
         if SAAS_MODE is None:
@@ -42,9 +42,6 @@ class BedrockProvider(BaseProviderClass):
         maxGenLen: int = 1024,
         credentials: AWSBedrockCredentials | None = None,
     ):
-        """
-        Currently bedrock does not support SAAS mode
-        """
         if SAAS_MODE is not None:
             if credentials is None:
                 # This should have been filtered out in the planner
@@ -61,15 +58,15 @@ class BedrockProvider(BaseProviderClass):
             session = boto3.Session(
                 aws_access_key_id=bedrockCreds.awsAccessKeyId,
                 aws_secret_access_key=bedrockCreds.awsSecretKey,
+                region_name=bedrockCreds.awsRegion,
             )
-            client = session.client("bedrock-runtime")
+            client = session.client(
+                "bedrock-runtime", region_name=bedrockCreds.awsRegion
+            )
         else:
             if self.bedrockClient is None:
                 raise Exception("Bedrock client not initialized")
             client = self.bedrockClient
-
-        if SAAS_MODE is not None:
-            raise Exception("Bedrock does not support SAAS mode")
 
         match model:
             case ModelTypes.llama_3_8b_instruct.name:
