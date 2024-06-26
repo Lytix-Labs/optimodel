@@ -68,6 +68,10 @@ Just make sure to setup our `OPTIMODEL_BASE_URL` envvar correctly:
 $ OPTIMODEL_BASE_URL="http://localhost:8000/optimodel/api/v1/" python3 example.py
 ```
 
+## [Cloud Quickstart](#cloud-quickstart)
+
+You can also use lytix to host your server for you and interact with it from the cloud. See [here](http://docs.lytix.co/OptiModel/getting-started) for more information.
+
 ## [Supported Providers](#supported-providers)
 
 ### AWS Bedrock
