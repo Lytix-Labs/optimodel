@@ -27,6 +27,20 @@
         "speed": 48.31,
         "maxGenLen": 8192
       }
+    ],
+    "openai": [
+      {
+        "name": "gpt_4",
+        "pricePer1M": 30,
+        "speed": 22.77,
+        "maxGenLen": 8192
+      },
+      {
+        "name": "gpt_3_5_turbo",
+        "pricePer1M": 0.8,
+        "speed": 65.88,
+        "maxGenLen": 16385
+      }
     ]
   }
 }
