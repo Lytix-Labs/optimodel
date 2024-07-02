@@ -14,6 +14,9 @@ A smart framework for always calling models in the most efficient and cost effec
     <a href="https://badge.fury.io/py/optimodel-py">
         <img src="https://badge.fury.io/py/optimodel-py.svg" alt="PyPI version">
     </a>
+    <a href="https://discord.gg/8TCbHsSe">
+        <img src="https://img.shields.io/badge/Join%20our%20community-Discord-blue" alt="Discord Server">
+    </a>
 </p>
 
 ## [Quickstart](#quickstart)
