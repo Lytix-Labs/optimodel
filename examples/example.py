@@ -33,7 +33,7 @@ async def main():
             ),
             ModelMessage(role="user", content=prompt),
         ],
-        speedPriority="low",
+        speedPriority="high",
         validator=validator,
         fallbackModels=[ModelTypes.llama_3_70b_instruct],
         maxGenLen=256,

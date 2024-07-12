@@ -90,7 +90,9 @@ def orderProviders(allAvailableProviders: list, body: QueryBody) -> list:
         return allAvailableProviders
     else:
         """
-        Find the cheapest model
+        Find the cheapest model by avg the input/output price
         """
-        allAvailableProviders.sort(key=lambda x: x["pricePer1M"])
+        allAvailableProviders.sort(
+            key=lambda x: (x["pricePer1MInput"] + x["pricePer1MOutput"]) / 2
+        )
         return allAvailableProviders

@@ -73,19 +73,69 @@ class BedrockProvider(BaseProviderClass):
                 modelId = "meta.llama3-8b-instruct-v1:0"
             case ModelTypes.llama_3_70b_instruct.name:
                 modelId = "meta.llama3-70b-instruct-v1:0"
+            case ModelTypes.claude_3_5_sonnet.name:
+                modelId = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+            case ModelTypes.claude_3_opus.name:
+                modelId = "anthropic.claude-3-opus-20240229-v1:0"
+            case ModelTypes.claude_3_haiku.name:
+                modelId = "anthropic.claude-3-haiku-20240307-v1:0"
+            case ModelTypes.mistral_7b.name:
+                modelId = "mistral.mistral-7b-instruct-v0:2"
+            case ModelTypes.mistral_8x7b.name:
+                modelId = "mistral.mixtral-8x7b-instruct-v0:1"
             case _:
                 raise Exception(f"Model {model} not supported")
 
-        finalPrompt = "<|begin_of_text|>"
-        for message in messages:
-            finalPrompt += f"<|start_header_id|>{message.role}<|end_header_id|>{message.content}<|eot_id|>"
-        finalPrompt += "<|start_header_id|>assistant<|end_header_id|>"
+        match model:
+            case (
+                ModelTypes.llama_3_8b_instruct.name
+                | ModelTypes.llama_3_70b_instruct.name
+            ):
+                finalPrompt = "<|begin_of_text|>"
+                for message in messages:
+                    finalPrompt += f"<|start_header_id|>{message.role}<|end_header_id|>{message.content}<|eot_id|>"
+                finalPrompt += "<|start_header_id|>assistant<|end_header_id|>"
+                native_request = {
+                    "prompt": finalPrompt,
+                    "max_gen_len": maxGenLen,
+                    "temperature": temperature,
+                }
+            case (
+                ModelTypes.claude_3_5_sonnet.name
+                | ModelTypes.claude_3_opus.name
+                | ModelTypes.claude_3_haiku.name
+            ):
+                # Check if we have a system prompt in messages
+                systemPrompt = next((x for x in messages if x.role == "system"), None)
 
-        native_request = {
-            "prompt": finalPrompt,
-            "max_gen_len": maxGenLen,
-            "temperature": temperature,
-        }
+                # Filter our system role from messages
+                messagesNoSystem = [
+                    {
+                        "role": x.role,
+                        "content": [{"text": x.content, "type": "text"}],
+                    }
+                    for x in messages
+                    if x.role != "system"
+                ]
+                native_request = {
+                    "anthropic_version": "bedrock-2023-05-31",
+                    "max_tokens": maxGenLen,
+                    "temperature": temperature,
+                    "messages": messagesNoSystem,
+                }
+                if systemPrompt is not None:
+                    native_request["system"] = systemPrompt.content
+            case ModelTypes.mistral_7b.name | ModelTypes.mistral_8x7b.name:
+                formattedMessage = f"<s> [INST] "
+                for message in messages:
+                    formattedMessage += f"{message.content}"
+                formattedMessage += " [/INST]"
+                native_request = {
+                    "prompt": formattedMessage,
+                    "max_tokens": maxGenLen,
+                    "temperature": temperature,
+                }
+
         # Convert the native request to JSON.
         request = json.dumps(native_request)
 
@@ -95,12 +145,47 @@ class BedrockProvider(BaseProviderClass):
         model_response = json.loads(response["body"].read())
 
         # Extract and print the response text.
-        response_text = model_response["generation"]
-        promptTokenCount = model_response["prompt_token_count"]
-        generationTokenCount = model_response["generation_token_count"]
+        match model:
+            case (
+                ModelTypes.llama_3_8b_instruct.name
+                | ModelTypes.llama_3_70b_instruct.name
+            ):
+                response_text = model_response["generation"]
+                promptTokenCount = model_response["prompt_token_count"]
+                generationTokenCount = model_response["generation_token_count"]
 
-        return QueryResponse(
-            modelOutput=response_text,
-            promptTokens=promptTokenCount,
-            generationTokens=generationTokenCount,
-        )
+                return QueryResponse(
+                    modelOutput=response_text,
+                    promptTokens=promptTokenCount,
+                    generationTokens=generationTokenCount,
+                )
+            case (
+                ModelTypes.claude_3_5_sonnet.name
+                | ModelTypes.claude_3_opus.name
+                | ModelTypes.claude_3_haiku.name
+            ):
+                response_text = model_response["content"][0]["text"]
+                promptTokenCount = model_response["usage"]["input_tokens"]
+                generationTokenCount = model_response["usage"]["output_tokens"]
+                return QueryResponse(
+                    modelOutput=response_text,
+                    promptTokens=promptTokenCount,
+                    generationTokens=generationTokenCount,
+                )
+            case ModelTypes.mistral_7b.name | ModelTypes.mistral_8x7b.name:
+                response_text = model_response["outputs"][0]["text"]
+                promptTokenCount = int(
+                    response["ResponseMetadata"]["HTTPHeaders"][
+                        "x-amzn-bedrock-input-token-count"
+                    ]
+                )
+                generationTokenCount = int(
+                    response["ResponseMetadata"]["HTTPHeaders"][
+                        "x-amzn-bedrock-output-token-count"
+                    ]
+                )
+                return QueryResponse(
+                    modelOutput=response_text,
+                    promptTokens=promptTokenCount,
+                    generationTokens=generationTokenCount,
+                )

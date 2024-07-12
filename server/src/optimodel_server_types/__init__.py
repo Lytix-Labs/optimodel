@@ -4,11 +4,25 @@ from pydantic import BaseModel
 
 
 class ModelTypes(enum.Enum):
+    # Meta
     llama_3_8b_instruct = "llama_3_8b_instruct"
-    llama_3_8b_chat = "llama_3_8b_chat"
     llama_3_70b_instruct = "llama_3_70b_instruct"
+
+    # Anthropic
+    claude_3_5_sonnet = "claude_3_5_sonnet"
+    claude_3_opus = "claude_3_opus"
+    claude_3_haiku = "claude_3_haiku"
+
+    # Mistral
+    mistral_7b = "mistral_7b"
+    mistral_8x7b = "mistral_8x7b"
+
+    # OpenAI Related
     gpt_4 = "gpt_4"
     gpt_3_5_turbo = "gpt_3_5_turbo"
+    gpt_4o = "gpt_4o"
+    gpt_4_turbo = "gpt_4_turbo"
+    gpt_3_5_turbo_0125 = "gpt_3_5_turbo_0125"
 
 
 class SpeedPriority(enum.Enum):

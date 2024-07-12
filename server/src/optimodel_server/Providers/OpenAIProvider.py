@@ -59,6 +59,12 @@ class OpenAIProvider(BaseProviderClass):
                 modelId = "gpt-4"
             case ModelTypes.gpt_3_5_turbo.name:
                 modelId = "gpt-3.5-turbo"
+            case ModelTypes.gpt_4o.name:
+                modelId = "gpt-4o"
+            case ModelTypes.gpt_4_turbo.name:
+                modelId = "gpt-4-turbo"
+            case ModelTypes.gpt_3_5_turbo_0125.name:
+                modelId = "gpt-3.5-turbo-0125"
             case _:
                 raise Exception(f"Model {model} not supported")
 

@@ -38,7 +38,8 @@ class Config:
                     model["provider"] = provider
 
                     # Also save the price per token, so we dont need to ask the provider for it
-                    model["costPerToken"] = model["pricePer1M"] / 1_000_000
+                    model["costPerTokenInput"] = model["pricePer1MInput"] / 1_000_000
+                    model["costPerTokenOutput"] = model["pricePer1MOutput"] / 1_000_000
                     if model["name"] in self.modelToProvider:
                         self.modelToProvider[model["name"]].append(model)
                     else:
