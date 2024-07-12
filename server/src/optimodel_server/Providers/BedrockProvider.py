@@ -75,8 +75,6 @@ class BedrockProvider(BaseProviderClass):
                 modelId = "meta.llama3-70b-instruct-v1:0"
             case ModelTypes.claude_3_5_sonnet.name:
                 modelId = "anthropic.claude-3-5-sonnet-20240620-v1:0"
-            case ModelTypes.claude_3_opus.name:
-                modelId = "anthropic.claude-3-opus-20240229-v1:0"
             case ModelTypes.claude_3_haiku.name:
                 modelId = "anthropic.claude-3-haiku-20240307-v1:0"
             case ModelTypes.mistral_7b_instruct.name:
@@ -100,11 +98,7 @@ class BedrockProvider(BaseProviderClass):
                     "max_gen_len": maxGenLen,
                     "temperature": temperature,
                 }
-            case (
-                ModelTypes.claude_3_5_sonnet.name
-                | ModelTypes.claude_3_opus.name
-                | ModelTypes.claude_3_haiku.name
-            ):
+            case ModelTypes.claude_3_5_sonnet.name | ModelTypes.claude_3_haiku.name:
                 # Check if we have a system prompt in messages
                 systemPrompt = next((x for x in messages if x.role == "system"), None)
 
@@ -162,11 +156,7 @@ class BedrockProvider(BaseProviderClass):
                     promptTokens=promptTokenCount,
                     generationTokens=generationTokenCount,
                 )
-            case (
-                ModelTypes.claude_3_5_sonnet.name
-                | ModelTypes.claude_3_opus.name
-                | ModelTypes.claude_3_haiku.name
-            ):
+            case ModelTypes.claude_3_5_sonnet.name | ModelTypes.claude_3_haiku.name:
                 response_text = model_response["content"][0]["text"]
                 promptTokenCount = model_response["usage"]["input_tokens"]
                 generationTokenCount = model_response["usage"]["output_tokens"]

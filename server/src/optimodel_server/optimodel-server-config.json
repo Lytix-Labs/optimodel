@@ -39,13 +39,6 @@
         "maxGenLen": 200000
       },
       {
-        "name": "claude_3_opus",
-        "pricePer1MInput": 15,
-        "pricePer1MOutput": 75,
-        "maxGenLen": 200000,
-        "speed": 23
-      },
-      {
         "name": "claude_3_haiku",
         "speed": 110,
         "pricePer1MInput": 0.25,

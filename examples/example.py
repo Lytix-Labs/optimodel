@@ -25,7 +25,7 @@ async def main():
     prompt = "Hello How are you?"
 
     response = await queryModel(
-        model=ModelTypes.mistral_7b_instruct,
+        model=ModelTypes.llama_3_8b_instruct,
         messages=[
             ModelMessage(
                 role="system",

@@ -10,7 +10,6 @@ class ModelTypes(enum.Enum):
 
     # Anthropic
     claude_3_5_sonnet = "claude_3_5_sonnet"
-    claude_3_opus = "claude_3_opus"
     claude_3_haiku = "claude_3_haiku"
 
     # Mistral
