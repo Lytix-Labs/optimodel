@@ -53,14 +53,14 @@
         "maxGenLen": 200000
       },
       {
-        "name": "mistral_7b",
+        "name": "mistral_7b_instruct",
         "speed": 72,
         "pricePer1MInput": 0.15,
         "pricePer1MOutput": 0.2,
         "maxGenLen": 32000
       },
       {
-        "name": "mistral_8x7b",
+        "name": "mistral_8x7b_instruct",
         "speed": 46,
         "pricePer1MInput": 0.45,
         "pricePer1MOutput": 0.7,
