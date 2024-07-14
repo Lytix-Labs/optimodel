@@ -137,7 +137,18 @@ curl --location 'BASE_URL/query' \
 
 **Locally:** Ensure you pass your Groq API key in the following environment variable: `GROQ_API_KEY`
 
-**SAAS Mode:** SAAS mode is currently not supported for Groq
+**SAAS Mode:** When running in SAAS mode, the API will expect the credentials param to pass in your Groq key. For example the curl would look like:
+
+```
+curl --location 'BASE_URL/query' \
+--header 'Content-Type: application/json' \
+--data '{
+    "messages": [{"role": "user", "content": "hello world!"}],
+    "modelToUse": "llama3_8b_instruct",
+    "credentials": [{
+        "groqApiKey": "<grok-api-key>"
+    }]
+}'
 
 ## [Adding A New Provider](#adding-a-new-provider)
 
@@ -168,3 +179,4 @@ You'll need to let our `Config` class know this new provider exists be adding a 
 ### Step 3 (optional): Add support for SAAS mode
 
 If you'd like this new provider to be available in SAAS mode, you'll need to add a new `case` statement [here](https://github.com/Lytix-Labs/optimodel/blob/master/server/src/optimodel_server/Planner/Planner.py#L39) (_Note:_ Remember you'll need to implement `credentials` support in your `makeQuery` implementation if you enable this.)
+```

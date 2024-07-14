@@ -4,7 +4,11 @@ import os
 from groq import Groq
 
 
-from optimodel_server_types import ModelMessage, TogetherAICredentials, ModelTypes
+from optimodel_server_types import (
+    GroqCredentials,
+    ModelMessage,
+    ModelTypes,
+)
 from optimodel_server.Config.types import SAAS_MODE
 from optimodel_server.Providers.BaseProviderClass import (
     BaseProviderClass,
@@ -13,8 +17,7 @@ from optimodel_server.Providers.BaseProviderClass import (
 
 
 class GroqProvider(BaseProviderClass):
-    # TODO: Add SAAS mode for Groq
-    supportSAASMode = False
+    supportSAASMode = True
     groqClient: Groq
 
     def __init__(self):
@@ -36,11 +39,26 @@ class GroqProvider(BaseProviderClass):
         model: ModelTypes,
         temperature: int = 0.2,
         maxGenLen: int = 1024,
-        credentials: None = None,
+        credentials: GroqCredentials | None = None,
     ):
-        if self.groqClient is None:
-            raise Exception("Groq client not initialized")
-        client: Groq = self.groqClient
+        if SAAS_MODE is not None:
+            if credentials is None:
+                # This should have been filtered out in the planner
+                raise Exception("Together credentials not provided")
+
+            # Try to find the together credentials
+            groqCreds = next(
+                (x for x in credentials if type(x) == GroqCredentials), None
+            )
+            if groqCreds is None:
+                # This should have been filtered out in the planner
+                raise Exception("Together credentials not found")
+
+            client = Groq(api_key=groqCreds.groqApiKey)
+        else:
+            if self.groqClient is None:
+                raise Exception("Groq client not initialized")
+            client: Groq = self.groqClient
 
         match model:
             case ModelTypes.llama_3_8b_instruct.name:

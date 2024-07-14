@@ -38,6 +38,10 @@ class TogetherAICredentials(BaseModel):
     togetherApiKey: str
 
 
+class GroqCredentials(BaseModel):
+    groqApiKey: str
+
+
 class OpenAICredentials(BaseModel):
     openAiKey: str
 
@@ -60,5 +64,11 @@ class QueryBody(BaseModel):
     own credentials
     """
     credentials: (
-        list[TogetherAICredentials | OpenAICredentials | AWSBedrockCredentials] | None
+        list[
+            TogetherAICredentials
+            | OpenAICredentials
+            | AWSBedrockCredentials
+            | GroqCredentials
+        ]
+        | None
     ) = None

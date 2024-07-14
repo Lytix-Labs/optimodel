@@ -2,6 +2,7 @@ import logging
 
 from optimodel_server.Config import config
 from optimodel_server_types import (
+    GroqCredentials,
     QueryBody,
     SpeedPriority,
     TogetherAICredentials,
@@ -18,6 +19,7 @@ def getAllAvailableProviders(body: QueryBody):
     """
     First extract the model, and get all configs for it
     """
+
     allAvailableProviders = config.modelToProvider.get(body.modelToUse, [])
 
     """
@@ -59,6 +61,14 @@ def getAllAvailableProviders(body: QueryBody):
             if provider["provider"] == "openai":
                 credsForProvider = next(
                     (x for x in body.credentials if type(x) == OpenAICredentials),
+                    None,
+                )
+                if credsForProvider is not None:
+                    filteredProviders.append(provider)
+
+            if provider["provider"] == "groq":
+                credsForProvider = next(
+                    (x for x in body.credentials if type(x) == GroqCredentials),
                     None,
                 )
                 if credsForProvider is not None:
