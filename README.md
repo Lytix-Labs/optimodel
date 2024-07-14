@@ -133,6 +133,12 @@ curl --location 'BASE_URL/query' \
 }'
 ```
 
+### Groq
+
+**Locally:** Ensure you pass your Groq API key in the following environment variable: `GROQ_API_KEY`
+
+**SAAS Mode:** SAAS mode is currently not supported for Groq
+
 ## [Adding A New Provider](#adding-a-new-provider)
 
 You can always add a new provider (for example a custom local model that you'd like to use to save money if possible)

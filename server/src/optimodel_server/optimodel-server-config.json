@@ -5,15 +5,31 @@
         "name": "llama_3_8b_instruct",
         "pricePer1MInput": 0.2,
         "pricePer1MOutput": 0.2,
-        "speed": 119.88,
+        "speed": 0.46,
         "maxGenLen": 4000
       },
       {
         "name": "llama_3_70b_instruct",
         "pricePer1MInput": 0.9,
         "pricePer1MOutput": 0.9,
-        "speed": 270.17,
+        "speed": 0.68,
         "maxGenLen": 4000
+      }
+    ],
+    "groq": [
+      {
+        "name": "llama_3_8b_instruct",
+        "pricePer1MInput": 0.05,
+        "pricePer1MOutput": 0.08,
+        "speed": 0.34,
+        "maxGenLen": 8192
+      },
+      {
+        "name": "llama_3_70b_instruct",
+        "pricePer1MInput": 0.59,
+        "pricePer1MOutput": 0.79,
+        "speed": 0.36,
+        "maxGenLen": 8192
       }
     ],
     "aws-bedrock": [
@@ -21,14 +37,14 @@
         "name": "llama_3_8b_instruct",
         "pricePer1MInput": 0.3,
         "pricePer1MOutput": 0.3,
-        "speed": 79,
+        "speed": 0.31,
         "maxGenLen": 8192
       },
       {
         "name": "llama_3_70b_instruct",
         "pricePer1MInput": 3.075,
         "pricePer1MOutput": 3.075,
-        "speed": 50,
+        "speed": 0.5,
         "maxGenLen": 8192
       },
       {
@@ -40,21 +56,21 @@
       },
       {
         "name": "claude_3_haiku",
-        "speed": 110,
+        "speed": 0.43,
         "pricePer1MInput": 0.25,
         "pricePer1MOutput": 1.25,
         "maxGenLen": 200000
       },
       {
         "name": "mistral_7b_instruct",
-        "speed": 72,
+        "speed": 0.35,
         "pricePer1MInput": 0.15,
         "pricePer1MOutput": 0.2,
         "maxGenLen": 32000
       },
       {
         "name": "mistral_8x7b_instruct",
-        "speed": 46,
+        "speed": 0.38,
         "pricePer1MInput": 0.45,
         "pricePer1MOutput": 0.7,
         "maxGenLen": 32000
@@ -65,35 +81,35 @@
         "name": "gpt_4o",
         "pricePer1MInput": 5,
         "pricePer1MOutput": 15,
-        "speed": 87.1,
+        "speed": 0.46,
         "maxGenLen": 128000
       },
       {
         "name": "gpt_4_turbo",
         "pricePer1MInput": 10,
         "pricePer1MOutput": 30,
-        "speed": 30.3,
+        "speed": 0.64,
         "maxGenLen": 128000
       },
       {
         "name": "gpt_4",
         "pricePer1MInput": 30,
         "pricePer1MOutput": 60,
-        "speed": 28,
+        "speed": 0.8,
         "maxGenLen": 8192
       },
       {
         "name": "gpt_3_5_turbo_0125",
         "pricePer1MInput": 0.5,
         "pricePer1MOutput": 1.5,
-        "speed": 65.88,
+        "speed": 0.43,
         "maxGenLen": 16385
       },
       {
         "name": "gpt_3_5_turbo",
         "pricePer1MInput": 3,
         "pricePer1MOutput": 6,
-        "speed": 65.88,
+        "speed": 0.43,
         "maxGenLen": 16385
       }
     ]
