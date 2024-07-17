@@ -65,6 +65,8 @@ class GroqProvider(BaseProviderClass):
                 modelId = "llama3-8b-8192"
             case ModelTypes.llama_3_70b_instruct.name:
                 modelId = "llama3-70b-8192"
+            case ModelTypes.mixtral_8x7b_instruct.name:
+                modelId = "mixtral-8x7b-32768"
             case _:
                 raise Exception(f"Model {model} not supported")
 

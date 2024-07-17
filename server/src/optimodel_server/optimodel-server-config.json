@@ -30,6 +30,13 @@
         "pricePer1MOutput": 0.79,
         "speed": 0.36,
         "maxGenLen": 8192
+      },
+      {
+        "name": "mixtral_8x7b_instruct",
+        "pricePer1MInput": 0.24,
+        "pricePer1MOutput": 0.24,
+        "speed": 0.23,
+        "maxGenLen": 32768
       }
     ],
     "aws-bedrock": [
@@ -69,7 +76,7 @@
         "maxGenLen": 32000
       },
       {
-        "name": "mistral_8x7b_instruct",
+        "name": "mixtral_8x7b_instruct",
         "speed": 0.38,
         "pricePer1MInput": 0.45,
         "pricePer1MOutput": 0.7,

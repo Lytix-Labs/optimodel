@@ -79,7 +79,7 @@ class BedrockProvider(BaseProviderClass):
                 modelId = "anthropic.claude-3-haiku-20240307-v1:0"
             case ModelTypes.mistral_7b_instruct.name:
                 modelId = "mistral.mistral-7b-instruct-v0:2"
-            case ModelTypes.mistral_8x7b_instruct.name:
+            case ModelTypes.mixtral_8x7b_instruct.name:
                 modelId = "mistral.mixtral-8x7b-instruct-v0:1"
             case _:
                 raise Exception(f"Model {model} not supported")
@@ -121,7 +121,7 @@ class BedrockProvider(BaseProviderClass):
                     native_request["system"] = systemPrompt.content
             case (
                 ModelTypes.mistral_7b_instruct.name
-                | ModelTypes.mistral_8x7b_instruct.name
+                | ModelTypes.mixtral_8x7b_instruct.name
             ):
                 formattedMessage = f"<s> [INST] "
                 for message in messages:
@@ -167,7 +167,7 @@ class BedrockProvider(BaseProviderClass):
                 )
             case (
                 ModelTypes.mistral_7b_instruct.name
-                | ModelTypes.mistral_8x7b_instruct.name
+                | ModelTypes.mixtral_8x7b_instruct.name
             ):
                 response_text = model_response["outputs"][0]["text"]
                 promptTokenCount = int(

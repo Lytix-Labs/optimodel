@@ -25,7 +25,7 @@ async def main():
     prompt = "Hello How are you?"
 
     response = await queryModel(
-        model=ModelTypes.llama_3_8b_instruct,
+        model=ModelTypes.mixtral_8x7b_instruct,
         messages=[
             ModelMessage(
                 role="system",
@@ -34,10 +34,11 @@ async def main():
             ModelMessage(role="user", content=prompt),
         ],
         speedPriority="high",
-        validator=validator,
-        fallbackModels=[ModelTypes.llama_3_70b_instruct],
+        # validator=validator,
+        # fallbackModels=[ModelTypes.llama_3_70b_instruct],
         maxGenLen=256,
     )
+
     print("Got response:", response)
 
 

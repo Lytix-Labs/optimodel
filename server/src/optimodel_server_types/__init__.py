@@ -14,7 +14,7 @@ class ModelTypes(enum.Enum):
 
     # Mistral
     mistral_7b_instruct = "mistral_7b_instruct"
-    mistral_8x7b_instruct = "mistral_8x7b_instruct"
+    mixtral_8x7b_instruct = "mixtral_8x7b_instruct"
 
     # OpenAI Related
     gpt_4 = "gpt_4"
