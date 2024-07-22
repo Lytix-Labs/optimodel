@@ -54,8 +54,6 @@ async def main():
             ModelMessage(role="user", content=prompt),
         ],
         speedPriority="low",
-        validator=validator,
-        fallbackModels=[ModelTypes.llama_3_8b_instruct],
         maxGenLen=256,
     )
     print("Got response:", response)
@@ -69,6 +67,46 @@ Just make sure to setup our `OPTIMODEL_BASE_URL` envvar correctly:
 
 ```sh
 $ OPTIMODEL_BASE_URL="http://localhost:8000/optimodel/api/v1/" python3 example.py
+```
+
+#### Step 3: Add a validator
+
+You can also optionally pass in validators and fallback models to ensure your results are what you expect. Here is an example of a simple JSON validator:
+
+```py
+def validator(x) -> bool:
+    """
+    Simple validator to check if the response is JSON
+    """
+    try:
+        json.loads(x)
+        return True
+    except:
+        return False
+
+async def main():
+    prompt = "Hello How are you?"
+
+    response = await queryModel(
+        model=ModelTypes.llama_3_8b_instruct,
+        messages=[
+            ModelMessage(
+                role="system",
+                content="You are a helpful assistant. Always respond in JSON syntax",
+            ),
+            ModelMessage(role="user", content=prompt),
+        ],
+        speedPriority="low",
+        validator=validator,
+        fallbackModels=[ModelTypes.llama_3_8b_instruct],
+        maxGenLen=256,
+    )
+    print("Got response:", response)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
 ```
 
 ## [Cloud Quickstart](#cloud-quickstart)
