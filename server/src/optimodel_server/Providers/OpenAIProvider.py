@@ -2,6 +2,7 @@ import json
 import os
 
 from openai import OpenAI
+from optimodel_server.OptimodelError import OptimodelError
 
 from optimodel_server_types import ModelMessage, OpenAICredentials, ModelTypes
 from optimodel_server.Config.types import SAAS_MODE
@@ -38,7 +39,7 @@ class OpenAIProvider(BaseProviderClass):
         if SAAS_MODE is not None:
             if credentials is None:
                 # This should have been filtered out in the planner
-                raise Exception("Together credentials not provided")
+                raise OptimodelError("Together credentials not provided")
 
             # Try to find the together credentials
             openAICreds = next(
@@ -46,12 +47,12 @@ class OpenAIProvider(BaseProviderClass):
             )
             if openAICreds is None:
                 # This should have been filtered out in the planner
-                raise Exception("OpenAI credentials not found")
+                raise OptimodelError("OpenAI credentials not found")
 
             client = OpenAI(api_key=openAICreds.openAiKey)
         else:
             if self.openAIClient is None:
-                raise Exception("OpenAI client not initialized")
+                raise OptimodelError("OpenAI client not initialized")
             client = self.openAIClient
 
         match model:
@@ -66,11 +67,42 @@ class OpenAIProvider(BaseProviderClass):
             case ModelTypes.gpt_3_5_turbo_0125.name:
                 modelId = "gpt-3.5-turbo-0125"
             case _:
-                raise Exception(f"Model {model} not supported")
+                raise OptimodelError(f"Model {model} not supported")
+
+        messageToPass = []
+        for message in messages:
+            if isinstance(message.content, str):
+                messageToPass.append({"role": message.role, "content": message.content})
+            else:
+                baseContent = []
+                """
+                Loop over the content
+                """
+                for entry in message.content:
+                    if isinstance(entry, str):
+                        baseContent.append({"type": "text", "text": entry})
+                    elif entry.type == "text":
+                        baseContent.append(
+                            {
+                                "type": "text",
+                                "text": entry.text,
+                            }
+                        )
+                    elif entry.type == "image":
+                        baseContent.append(
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:{entry.source.mediaType};{entry.source.type},{entry.source.data}",
+                                },
+                            }
+                        )
+
+                messageToPass.append({"role": message.role, "content": baseContent})
 
         response = client.chat.completions.create(
             model=modelId,
-            messages=[{"role": x.role, "content": x.content} for x in messages],
+            messages=messageToPass,
             temperature=temperature,
             max_tokens=maxGenLen,
         )

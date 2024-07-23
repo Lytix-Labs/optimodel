@@ -2,6 +2,8 @@ import json
 import os
 
 import boto3
+from optimodel_server.OptimodelError import OptimodelError
+from optimodel_server.Providers.CommonUtils import containsImageInMessages
 
 from optimodel_server_types import ModelMessage, AWSBedrockCredentials, ModelTypes
 from optimodel_server.Config.types import SAAS_MODE
@@ -42,10 +44,16 @@ class BedrockProvider(BaseProviderClass):
         maxGenLen: int = 1024,
         credentials: AWSBedrockCredentials | None = None,
     ):
+        """
+        @NOTE Bedrock does not currently support image types
+        """
+        if containsImageInMessages(messages):
+            raise OptimodelError("Bedrock does not currently support image types")
+
         if SAAS_MODE is not None:
             if credentials is None:
                 # This should have been filtered out in the planner
-                raise Exception("Together credentials not provided")
+                raise OptimodelError("Together credentials not provided")
 
             # Try to find the together credentials
             bedrockCreds = next(
@@ -53,7 +61,7 @@ class BedrockProvider(BaseProviderClass):
             )
             if bedrockCreds is None:
                 # This should have been filtered out in the planner
-                raise Exception("Bedrock credentials not found")
+                raise OptimodelError("Bedrock credentials not found")
 
             session = boto3.Session(
                 aws_access_key_id=bedrockCreds.awsAccessKeyId,
@@ -65,7 +73,7 @@ class BedrockProvider(BaseProviderClass):
             )
         else:
             if self.bedrockClient is None:
-                raise Exception("Bedrock client not initialized")
+                raise OptimodelError("Bedrock client not initialized")
             client = self.bedrockClient
 
         match model:
@@ -82,7 +90,7 @@ class BedrockProvider(BaseProviderClass):
             case ModelTypes.mixtral_8x7b_instruct.name:
                 modelId = "mistral.mixtral-8x7b-instruct-v0:1"
             case _:
-                raise Exception(f"Model {model} not supported")
+                raise OptimodelError(f"Model {model} not supported")
 
         match model:
             case (

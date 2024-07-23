@@ -1,5 +1,4 @@
 import enum
-import json
 from pydantic import BaseModel
 
 
@@ -29,9 +28,21 @@ class SpeedPriority(enum.Enum):
     high = "high"
 
 
+class ModelImageMessageSource(BaseModel):
+    type: str
+    mediaType: str
+    data: str
+
+
+class ModelMessageContentEntry(BaseModel):
+    type: str
+    text: str | None = None
+    source: ModelImageMessageSource | None = None
+
+
 class ModelMessage(BaseModel):
     role: str
-    content: str
+    content: str | list[ModelMessageContentEntry]
 
 
 class TogetherAICredentials(BaseModel):
@@ -57,7 +68,7 @@ class QueryBody(BaseModel):
     modelToUse: str
     speedPriority: SpeedPriority | None = None
     temperature: float = 0.2
-    maxGenLen: int = 1024
+    maxGenLen: int = None
 
     """
     If we are running in SAAS mode, we'll expect each request to bring their

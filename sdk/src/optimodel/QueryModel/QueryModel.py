@@ -4,7 +4,13 @@ from typing import Callable
 import aiohttp
 
 from optimodel.Consts import BASE_URL, LX_API_KEY
-from optimodel_server_types import ModelMessage, SpeedPriority, ModelTypes
+from optimodel_server_types import (
+    ModelImageMessageSource,
+    ModelMessage,
+    ModelMessageContentEntry,
+    SpeedPriority,
+    ModelTypes,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -16,7 +22,7 @@ async def queryModel(
     speedPriority: SpeedPriority = None,
     validator: Callable[[str], bool] = None,
     fallbackModels: list[ModelTypes] = [],
-    maxGenLen: int = 1024,
+    maxGenLen: int = None,
     temperature: float = 0.2,
 ):
     """
@@ -49,6 +55,7 @@ async def queryModel(
                         },
                         headers={"Authorization": f"Bearer {LX_API_KEY}"},
                     ) as response:
+                        print(f"response: {response}")
                         jsonResponse = await response.json()
                         if jsonResponse.get("modelResponse", None) is None:
                             raise Exception(f"Bad request: {jsonResponse}")
@@ -75,6 +82,10 @@ async def queryModel(
 
 class ObjectEncoder(json.JSONEncoder):
     def default(self, o):
-        if isinstance(o, ModelMessage):
+        if (
+            isinstance(o, ModelMessage)
+            or isinstance(o, ModelMessageContentEntry)
+            or isinstance(o, ModelImageMessageSource)
+        ):
             return o.__dict__
         return o

@@ -2,6 +2,8 @@ import json
 import os
 
 from groq import Groq
+from optimodel_server.OptimodelError import OptimodelError
+from optimodel_server.Providers.CommonUtils import containsImageInMessages
 
 
 from optimodel_server_types import (
@@ -41,10 +43,16 @@ class GroqProvider(BaseProviderClass):
         maxGenLen: int = 1024,
         credentials: GroqCredentials | None = None,
     ):
+        """
+        @NOTE Groq does not currently support image types
+        """
+        if containsImageInMessages(messages):
+            raise OptimodelError("Groq does not currently support image types")
+
         if SAAS_MODE is not None:
             if credentials is None:
                 # This should have been filtered out in the planner
-                raise Exception("Together credentials not provided")
+                raise OptimodelError("Together credentials not provided")
 
             # Try to find the together credentials
             groqCreds = next(
@@ -52,12 +60,12 @@ class GroqProvider(BaseProviderClass):
             )
             if groqCreds is None:
                 # This should have been filtered out in the planner
-                raise Exception("Together credentials not found")
+                raise OptimodelError("Together credentials not found")
 
             client = Groq(api_key=groqCreds.groqApiKey)
         else:
             if self.groqClient is None:
-                raise Exception("Groq client not initialized")
+                raise OptimodelError("Groq client not initialized")
             client: Groq = self.groqClient
 
         match model:
@@ -68,7 +76,7 @@ class GroqProvider(BaseProviderClass):
             case ModelTypes.mixtral_8x7b_instruct.name:
                 modelId = "mixtral-8x7b-32768"
             case _:
-                raise Exception(f"Model {model} not supported")
+                raise OptimodelError(f"Model {model} not supported")
 
         response = client.chat.completions.create(
             model=modelId,

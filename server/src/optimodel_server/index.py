@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from optimodel_server.OptimodelError import OptimodelError
 
 from optimodel_server.Config import config
 from optimodel_server.Planner import getAllAvailableProviders, orderProviders
@@ -35,6 +36,7 @@ async def read_root(data: QueryBody):
         """
         Now attempt the query with each provider in order
         """
+        errors = []
         for potentialProvider in orderedProviders:
             try:
                 logger.info(f"Attempting query with {potentialProvider['provider']}...")
@@ -42,15 +44,29 @@ async def read_root(data: QueryBody):
                 # If we're in SAAS mode, validate we have credentials
                 if SAAS_MODE is not None:
                     if data.credentials is None:
-                        raise Exception("No credentials provided")
+                        raise OptimodelError("No credentials provided")
 
-                response = config.providerInstances[
-                    potentialProvider["provider"]
-                ].makeQuery(
-                    messages=data.messages,
-                    model=potentialProvider["name"],
-                    credentials=data.credentials,
-                )
+                if data.maxGenLen is None:
+                    """
+                    Use max for this provider
+                    """
+                    data.maxGenLen = potentialProvider["maxGenLen"]
+
+                try:
+                    response = config.providerInstances[
+                        potentialProvider["provider"]
+                    ].makeQuery(
+                        messages=data.messages,
+                        model=potentialProvider["name"],
+                        credentials=data.credentials,
+                        maxGenLen=data.maxGenLen,
+                    )
+                except Exception as e:
+                    logger.error(f"Error making query: {e}")
+                    raise OptimodelError(
+                        f"Error making query: {e}",
+                        provider=potentialProvider["provider"],
+                    )
 
                 if response:
                     logger.info(
@@ -80,17 +96,25 @@ async def read_root(data: QueryBody):
                 logger.error(
                     f"Error with provider {potentialProvider['provider']}: {e}"
                 )
+                if isinstance(e, OptimodelError):
+                    # Add to list of errors
+                    errors.append(e)
                 continue
 
-        """
-        Otherwise something bad has happened
-        """
-        raise Exception("No available provider")
+        # Otherwise something bad has happened
+        error_messages = [str(e) for e in errors]
+        raise OptimodelError(f"No available provider. Got errors: {error_messages}")
     except Exception as e:
         logger.error(f"Error getting all available providers: {e}")
-        return JSONResponse(
-            status_code=503, content={"error": f"Failed to retrieve providers: {e}"}
-        )
+        if isinstance(e, OptimodelError):
+            return JSONResponse(status_code=503, content={"error": str(e)})
+        else:
+            return JSONResponse(
+                status_code=503,
+                content={
+                    "error": f"Unhandled error. Contact support@lytix.co for help."
+                },
+            )
 
 
 @app.get(f"{baseURL}/list-models")
