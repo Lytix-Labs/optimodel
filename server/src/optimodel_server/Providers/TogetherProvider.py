@@ -1,6 +1,6 @@
 import json
 import os
-from optimodel_server import OptimodelError
+from optimodel_server.OptimodelError import OptimodelError
 
 from together import Together
 
@@ -41,12 +41,16 @@ class TogetherProvider(BaseProviderClass):
         @NOTE Together does not currently support image types
         """
         if containsImageInMessages(messages):
-            raise OptimodelError("Together does not currently support image types")
+            raise OptimodelError(
+                "Together does not currently support image types", provider="together"
+            )
 
         if SAAS_MODE is not None:
             if credentials is None:
                 # This should have been filtered out in the planner
-                raise OptimodelError("Together credentials not provided")
+                raise OptimodelError(
+                    "Together credentials not provided", provider="together"
+                )
 
             # Try to find the together credentials
             togetherCreds = next(
@@ -54,12 +58,16 @@ class TogetherProvider(BaseProviderClass):
             )
             if togetherCreds is None:
                 # This should have been filtered out in the planner
-                raise OptimodelError("Together credentials not found")
+                raise OptimodelError(
+                    "Together credentials not found", provider="together"
+                )
 
             client = Together(api_key=togetherCreds.togetherApiKey)
         else:
             if self.togetherClient is None:
-                raise OptimodelError("Together client not initialized")
+                raise OptimodelError(
+                    "Together client not initialized", provider="together"
+                )
             client = self.togetherClient
 
         match model:
@@ -68,7 +76,9 @@ class TogetherProvider(BaseProviderClass):
             case ModelTypes.llama_3_70b_instruct.name:
                 modelId = "meta-llama/Llama-3-70b-chat-hf"
             case _:
-                raise OptimodelError(f"Model {model} not supported")
+                raise OptimodelError(
+                    f"Model {model} not supported", provider="together"
+                )
 
         response = client.chat.completions.create(
             model=modelId,

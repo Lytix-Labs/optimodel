@@ -9,6 +9,7 @@ from optimodel_server.Providers import (
     GroqProvider,
     TogetherProvider,
     OpenAIProvider,
+    AnthropicProvider,
 )
 from optimodel_server.Config.types import SAAS_MODE
 from optimodel_server_types import ModelTypes
@@ -76,6 +77,8 @@ class Config:
                     providerClient = OpenAIProvider()
                 case "groq":
                     providerClient = GroqProvider()
+                case "anthropic":
+                    providerClient = AnthropicProvider()
                 case _:
                     logger.warn(f"Provider {provider} is not supported")
                     continue

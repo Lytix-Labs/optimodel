@@ -47,12 +47,14 @@ class GroqProvider(BaseProviderClass):
         @NOTE Groq does not currently support image types
         """
         if containsImageInMessages(messages):
-            raise OptimodelError("Groq does not currently support image types")
+            raise OptimodelError(
+                "Groq does not currently support image types", provider="groq"
+            )
 
         if SAAS_MODE is not None:
             if credentials is None:
                 # This should have been filtered out in the planner
-                raise OptimodelError("Together credentials not provided")
+                raise OptimodelError("Groq credentials not provided", provider="groq")
 
             # Try to find the together credentials
             groqCreds = next(
@@ -60,12 +62,12 @@ class GroqProvider(BaseProviderClass):
             )
             if groqCreds is None:
                 # This should have been filtered out in the planner
-                raise OptimodelError("Together credentials not found")
+                raise OptimodelError("Groq credentials not found", provider="groq")
 
             client = Groq(api_key=groqCreds.groqApiKey)
         else:
             if self.groqClient is None:
-                raise OptimodelError("Groq client not initialized")
+                raise OptimodelError("Groq client not initialized", provider="groq")
             client: Groq = self.groqClient
 
         match model:
@@ -76,7 +78,7 @@ class GroqProvider(BaseProviderClass):
             case ModelTypes.mixtral_8x7b_instruct.name:
                 modelId = "mixtral-8x7b-32768"
             case _:
-                raise OptimodelError(f"Model {model} not supported")
+                raise OptimodelError(f"Model {model} not supported", provider="groq")
 
         response = client.chat.completions.create(
             model=modelId,

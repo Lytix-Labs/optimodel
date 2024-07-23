@@ -8,6 +8,7 @@ from optimodel_server_types import (
     TogetherAICredentials,
     AWSBedrockCredentials,
     OpenAICredentials,
+    AnthropicCredentials,
 )
 from optimodel_server.Config.types import SAAS_MODE
 
@@ -28,7 +29,7 @@ def getAllAvailableProviders(body: QueryBody):
     allAvailableProviders = [
         provider
         for provider in allAvailableProviders
-        if provider["maxGenLen"] >= body.maxGenLen
+        if not body.maxGenLen or provider["maxGenLen"] >= body.maxGenLen
     ]
 
     """
@@ -69,6 +70,14 @@ def getAllAvailableProviders(body: QueryBody):
             if provider["provider"] == "groq":
                 credsForProvider = next(
                     (x for x in body.credentials if type(x) == GroqCredentials),
+                    None,
+                )
+                if credsForProvider is not None:
+                    filteredProviders.append(provider)
+
+            if provider["provider"] == "anthropic":
+                credsForProvider = next(
+                    (x for x in body.credentials if type(x) == AnthropicCredentials),
                     None,
                 )
                 if credsForProvider is not None:

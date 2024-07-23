@@ -53,7 +53,9 @@ class BedrockProvider(BaseProviderClass):
         if SAAS_MODE is not None:
             if credentials is None:
                 # This should have been filtered out in the planner
-                raise OptimodelError("Together credentials not provided")
+                raise OptimodelError(
+                    "Bedrock credentials not provided", provider="bedrock"
+                )
 
             # Try to find the together credentials
             bedrockCreds = next(
@@ -61,7 +63,9 @@ class BedrockProvider(BaseProviderClass):
             )
             if bedrockCreds is None:
                 # This should have been filtered out in the planner
-                raise OptimodelError("Bedrock credentials not found")
+                raise OptimodelError(
+                    "Bedrock credentials not found", provider="bedrock"
+                )
 
             session = boto3.Session(
                 aws_access_key_id=bedrockCreds.awsAccessKeyId,
@@ -73,7 +77,9 @@ class BedrockProvider(BaseProviderClass):
             )
         else:
             if self.bedrockClient is None:
-                raise OptimodelError("Bedrock client not initialized")
+                raise OptimodelError(
+                    "Bedrock client not initialized", provider="bedrock"
+                )
             client = self.bedrockClient
 
         match model:
@@ -90,7 +96,7 @@ class BedrockProvider(BaseProviderClass):
             case ModelTypes.mixtral_8x7b_instruct.name:
                 modelId = "mistral.mixtral-8x7b-instruct-v0:1"
             case _:
-                raise OptimodelError(f"Model {model} not supported")
+                raise OptimodelError(f"Model {model} not supported", provider="bedrock")
 
         match model:
             case (

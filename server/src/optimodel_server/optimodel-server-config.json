@@ -119,6 +119,22 @@
         "speed": 0.43,
         "maxGenLen": 16385
       }
+    ],
+    "anthropic": [
+      {
+        "name": "claude_3_5_sonnet",
+        "pricePer1MInput": 3,
+        "pricePer1MOutput": 15,
+        "speed": 1.14,
+        "maxGenLen": 4096
+      },
+      {
+        "name": "claude_3_haiku",
+        "speed": 0.64,
+        "pricePer1MInput": 0.25,
+        "pricePer1MOutput": 1.25,
+        "maxGenLen": 4096
+      }
     ]
   }
 }

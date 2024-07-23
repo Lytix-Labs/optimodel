@@ -49,6 +49,10 @@ class TogetherAICredentials(BaseModel):
     togetherApiKey: str
 
 
+class AnthropicCredentials(BaseModel):
+    anthropicApiKey: str
+
+
 class GroqCredentials(BaseModel):
     groqApiKey: str
 
@@ -80,6 +84,7 @@ class QueryBody(BaseModel):
             | OpenAICredentials
             | AWSBedrockCredentials
             | GroqCredentials
+            | AnthropicCredentials
         ]
         | None
     ) = None

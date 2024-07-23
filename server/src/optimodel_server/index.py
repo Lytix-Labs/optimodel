@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from optimodel_server.OptimodelError import OptimodelError
 
@@ -17,6 +18,17 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 baseURL = "/optimodel/api/v1"
+
+
+# def register_exception(app: FastAPI):
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+
+    exc_str = f"{exc}".replace("\n", " ").replace("   ", " ")
+    # or logger.error(f'{exc}')
+    logger.error(request, exc_str)
+    content = {"status_code": 10422, "message": exc_str, "data": None}
+    return JSONResponse(content=content, status_code=422)
 
 
 @app.post(f"{baseURL}/query")
@@ -46,11 +58,12 @@ async def read_root(data: QueryBody):
                     if data.credentials is None:
                         raise OptimodelError("No credentials provided")
 
-                if data.maxGenLen is None:
+                maxGenLen = data.maxGenLen
+                if maxGenLen is None:
                     """
                     Use max for this provider
                     """
-                    data.maxGenLen = potentialProvider["maxGenLen"]
+                    maxGenLen = potentialProvider["maxGenLen"]
 
                 try:
                     response = config.providerInstances[
@@ -59,7 +72,7 @@ async def read_root(data: QueryBody):
                         messages=data.messages,
                         model=potentialProvider["name"],
                         credentials=data.credentials,
-                        maxGenLen=data.maxGenLen,
+                        maxGenLen=maxGenLen,
                     )
                 except Exception as e:
                     logger.error(f"Error making query: {e}")
