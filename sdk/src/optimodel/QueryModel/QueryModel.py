@@ -55,7 +55,6 @@ async def queryModel(
                         },
                         headers={"Authorization": f"Bearer {LX_API_KEY}"},
                     ) as response:
-                        print(f"response: {response}")
                         jsonResponse = await response.json()
                         if jsonResponse.get("modelResponse", None) is None:
                             raise Exception(f"Bad request: {jsonResponse}")

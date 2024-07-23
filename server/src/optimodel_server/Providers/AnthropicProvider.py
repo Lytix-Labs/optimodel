@@ -40,7 +40,7 @@ class AnthropicProvider(BaseProviderClass):
         messages: list[ModelMessage],
         model: ModelTypes,
         temperature: int = 0.2,
-        maxGenLen: int = 1024,
+        maxGenLen: int | None = None,
         credentials: AnthropicCredentials | None = None,
     ):
         if SAAS_MODE is not None:
@@ -114,7 +114,7 @@ class AnthropicProvider(BaseProviderClass):
             system=systemMessage.content if systemMessage else None,
             messages=messageToPass,
             temperature=temperature,
-            max_tokens=maxGenLen,
+            max_tokens=maxGenLen if maxGenLen else anthropic.NOT_GIVEN,
         )
         promptTokenCount = response.usage.input_tokens
         generationTokenCount = response.usage.output_tokens

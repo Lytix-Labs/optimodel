@@ -1,6 +1,7 @@
 import logging
 
 from optimodel_server.Config import config
+from optimodel_server.OptimodelError import OptimodelError
 from optimodel_server_types import (
     GroqCredentials,
     QueryBody,
@@ -22,7 +23,6 @@ def getAllAvailableProviders(body: QueryBody):
     """
 
     allAvailableProviders = config.modelToProvider.get(body.modelToUse, [])
-
     """
     Filter out any that dont meet our maxGenLen passed
     """
@@ -87,7 +87,7 @@ def getAllAvailableProviders(body: QueryBody):
 
     # Bad luck, no providers for the model passed
     if len(allAvailableProviders) == 0:
-        raise ValueError(
+        raise OptimodelError(
             f"Model {body.modelToUse} not found or nothing matches criteria (e.g. maxGenLen or no available provider)"
         )
 

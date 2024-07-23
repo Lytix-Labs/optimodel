@@ -41,7 +41,7 @@ class BedrockProvider(BaseProviderClass):
         messages: list[ModelMessage],
         model: ModelTypes,
         temperature: int = 0.2,
-        maxGenLen: int = 1024,
+        maxGenLen: int | None = None,
         credentials: AWSBedrockCredentials | None = None,
     ):
         """
@@ -109,9 +109,10 @@ class BedrockProvider(BaseProviderClass):
                 finalPrompt += "<|start_header_id|>assistant<|end_header_id|>"
                 native_request = {
                     "prompt": finalPrompt,
-                    "max_gen_len": maxGenLen,
                     "temperature": temperature,
                 }
+                if maxGenLen is not None:
+                    native_request["max_gen_len"] = maxGenLen
             case ModelTypes.claude_3_5_sonnet.name | ModelTypes.claude_3_haiku.name:
                 # Check if we have a system prompt in messages
                 systemPrompt = next((x for x in messages if x.role == "system"), None)

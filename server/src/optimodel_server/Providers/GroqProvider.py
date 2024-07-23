@@ -1,7 +1,7 @@
 import json
 import os
 
-from groq import Groq
+from groq import NOT_GIVEN, Groq
 from optimodel_server.OptimodelError import OptimodelError
 from optimodel_server.Providers.CommonUtils import containsImageInMessages
 
@@ -40,7 +40,7 @@ class GroqProvider(BaseProviderClass):
         messages: list[ModelMessage],
         model: ModelTypes,
         temperature: int = 0.2,
-        maxGenLen: int = 1024,
+        maxGenLen: int | None = None,
         credentials: GroqCredentials | None = None,
     ):
         """
@@ -77,6 +77,12 @@ class GroqProvider(BaseProviderClass):
                 modelId = "llama3-70b-8192"
             case ModelTypes.mixtral_8x7b_instruct.name:
                 modelId = "mixtral-8x7b-32768"
+            case ModelTypes.llama_3_1_405b.name:
+                modelId = "llama-3.1-405b-reasoning"
+            case ModelTypes.llama_3_1_70b.name:
+                modelId = "llama-3.1-70b-versatile"
+            case ModelTypes.llama_3_1_8b.name:
+                modelId = "llama-3.1-8b-instant"
             case _:
                 raise OptimodelError(f"Model {model} not supported", provider="groq")
 
@@ -84,7 +90,7 @@ class GroqProvider(BaseProviderClass):
             model=modelId,
             messages=[{"role": x.role, "content": x.content} for x in messages],
             temperature=temperature,
-            max_tokens=maxGenLen,
+            max_tokens=maxGenLen if maxGenLen else NOT_GIVEN,
         )
 
         promptTokenCount = response.usage.prompt_tokens

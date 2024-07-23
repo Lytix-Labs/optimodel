@@ -34,7 +34,7 @@ class TogetherProvider(BaseProviderClass):
         messages: list[ModelMessage],
         model: ModelTypes,
         temperature: int = 0.2,
-        maxGenLen: int = 1024,
+        maxGenLen: int | None = None,
         credentials: TogetherAICredentials | None = None,
     ):
         """
@@ -84,7 +84,7 @@ class TogetherProvider(BaseProviderClass):
             model=modelId,
             messages=[{"role": x.role, "content": x.content} for x in messages],
             temperature=temperature,
-            max_tokens=maxGenLen,
+            max_tokens=maxGenLen if maxGenLen else None,
         )
         promptTokenCount = response.usage.prompt_tokens
         generationTokenCount = response.usage.completion_tokens

@@ -37,6 +37,27 @@
         "pricePer1MOutput": 0.24,
         "speed": 0.23,
         "maxGenLen": 32768
+      },
+      {
+        "name": "llama_3_1_405b",
+        "speed": 0.43,
+        "pricePer1MInput": 0.59,
+        "pricePer1MOutput": 0.79,
+        "maxGenLen": 131072
+      },
+      {
+        "name": "llama_3_1_70b",
+        "speed": 0.43,
+        "pricePer1MInput": 0.59,
+        "pricePer1MOutput": 0.79,
+        "maxGenLen": 131072
+      },
+      {
+        "name": "llama_3_1_8b",
+        "speed": 0.43,
+        "pricePer1MInput": 0.59,
+        "pricePer1MOutput": 0.79,
+        "maxGenLen": 131072
       }
     ],
     "aws-bedrock": [
@@ -99,10 +120,17 @@
         "maxGenLen": 128000
       },
       {
+        "name": "gpt_4o_mini",
+        "pricePer1MInput": 0.15,
+        "pricePer1MOutput": 0.6,
+        "speed": 0.64,
+        "maxGenLen": 128000
+      },
+      {
         "name": "gpt_4",
         "pricePer1MInput": 30,
         "pricePer1MOutput": 60,
-        "speed": 0.8,
+        "speed": 0.6,
         "maxGenLen": 8192
       },
       {

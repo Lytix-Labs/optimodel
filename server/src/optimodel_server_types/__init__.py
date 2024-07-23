@@ -6,6 +6,9 @@ class ModelTypes(enum.Enum):
     # Meta
     llama_3_8b_instruct = "llama_3_8b_instruct"
     llama_3_70b_instruct = "llama_3_70b_instruct"
+    llama_3_1_405b = "llama_3_1_405b"
+    llama_3_1_70b = "llama_3_1_70b"
+    llama_3_1_8b = "llama_3_1_8b"
 
     # Anthropic
     claude_3_5_sonnet = "claude_3_5_sonnet"
@@ -21,6 +24,7 @@ class ModelTypes(enum.Enum):
     gpt_4o = "gpt_4o"
     gpt_4_turbo = "gpt_4_turbo"
     gpt_3_5_turbo_0125 = "gpt_3_5_turbo_0125"
+    gpt_4o_mini = "gpt_4o_mini"
 
 
 class SpeedPriority(enum.Enum):

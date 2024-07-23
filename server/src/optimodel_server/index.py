@@ -51,7 +51,9 @@ async def read_root(data: QueryBody):
         errors = []
         for potentialProvider in orderedProviders:
             try:
-                logger.info(f"Attempting query with {potentialProvider['provider']}...")
+                logger.info(
+                    f"Attempting query model {data.modelToUse} with {potentialProvider['provider']}..."
+                )
 
                 # If we're in SAAS mode, validate we have credentials
                 if SAAS_MODE is not None:
@@ -59,11 +61,6 @@ async def read_root(data: QueryBody):
                         raise OptimodelError("No credentials provided")
 
                 maxGenLen = data.maxGenLen
-                if maxGenLen is None:
-                    """
-                    Use max for this provider
-                    """
-                    maxGenLen = potentialProvider["maxGenLen"]
 
                 try:
                     response = config.providerInstances[

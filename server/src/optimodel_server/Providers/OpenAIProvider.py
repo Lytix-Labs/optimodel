@@ -1,7 +1,7 @@
 import json
 import os
 
-from openai import OpenAI
+from openai import NOT_GIVEN, OpenAI
 from optimodel_server.OptimodelError import OptimodelError
 
 from optimodel_server_types import ModelMessage, OpenAICredentials, ModelTypes
@@ -33,7 +33,7 @@ class OpenAIProvider(BaseProviderClass):
         messages: list[ModelMessage],
         model: ModelTypes,
         temperature: int = 0.2,
-        maxGenLen: int = 1024,
+        maxGenLen: int | None = None,
         credentials: OpenAICredentials | None = None,
     ):
         if SAAS_MODE is not None:
@@ -68,6 +68,8 @@ class OpenAIProvider(BaseProviderClass):
                 modelId = "gpt-4-turbo"
             case ModelTypes.gpt_3_5_turbo_0125.name:
                 modelId = "gpt-3.5-turbo-0125"
+            case ModelTypes.gpt_4o_mini.name:
+                modelId = "gpt-4o-mini"
             case _:
                 raise OptimodelError(f"Model {model} not supported", provider="openai")
 
@@ -106,7 +108,7 @@ class OpenAIProvider(BaseProviderClass):
             model=modelId,
             messages=messageToPass,
             temperature=temperature,
-            max_tokens=maxGenLen,
+            max_tokens=maxGenLen if maxGenLen else NOT_GIVEN,
         )
         promptTokenCount = response.usage.prompt_tokens
         generationTokenCount = response.usage.completion_tokens

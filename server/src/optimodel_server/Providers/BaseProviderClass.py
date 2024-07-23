@@ -30,7 +30,7 @@ class BaseProviderClass:
         messages: list[ModelMessage],
         model: ModelTypes,
         temperature: int = 0.2,
-        maxGenLen: int = 1024,
+        maxGenLen: int | None = None,
         credentials: list[TogetherAICredentials] | None = None,
     ) -> QueryResponse:
         """
