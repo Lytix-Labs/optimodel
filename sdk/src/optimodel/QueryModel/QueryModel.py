@@ -81,7 +81,6 @@ async def queryModel(
                     else:
                         raise e
         except Exception as e:
-            print("Error querying model:", e)
             raise e
 
 
