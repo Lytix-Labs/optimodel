@@ -3,7 +3,7 @@ import logging
 from typing import Callable
 import aiohttp
 
-from optimodel.Consts import BASE_URL, LX_API_KEY
+from optimodel.envVars import LytixCreds
 from optimodel_server_types import (
     ModelImageMessageSource,
     ModelMessage,
@@ -49,7 +49,7 @@ async def queryModel(
                     """
                     modelToUse = ModelTypes(model).name
                     async with session.post(
-                        url=f"{BASE_URL.rstrip('/')}/query",
+                        url=f"{LytixCreds.LX_BASE_URL.rstrip('/')}/optimodel/api/v1/query",
                         json={
                             "modelToUse": modelToUse,
                             "messages": messages,
@@ -59,7 +59,7 @@ async def queryModel(
                             "jsonMode": jsonMode,
                             "provider": provider.name if provider else None,
                         },
-                        headers={"Authorization": f"Bearer {LX_API_KEY}"},
+                        headers={"Authorization": f"Bearer {LytixCreds.LX_API_KEY}"},
                     ) as response:
                         jsonResponse = await response.json()
                         if jsonResponse.get("modelResponse", None) is None:

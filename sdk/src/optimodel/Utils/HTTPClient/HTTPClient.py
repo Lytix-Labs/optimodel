@@ -1,6 +1,6 @@
 import aiohttp
 
-from optimodel.Consts import LX_API_KEY
+from optimodel.envVars import LytixCreds
 
 
 class HttpClient:
@@ -9,6 +9,6 @@ class HttpClient:
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 url=url,
-                headers={"Authorization": f"Bearer {LX_API_KEY}"},
+                headers={"Authorization": f"Bearer {LytixCreds.LX_API_KEY}"},
             ) as response:
                 return await response.json()

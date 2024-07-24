@@ -1,5 +1,5 @@
 import uvicorn
-from .index import app
+from pathlib import Path
 
 
 import argparse
@@ -12,4 +12,6 @@ def main():
     )
     args = parser.parse_args()
 
-    uvicorn.run(app, host="0.0.0.0", port=8000, workers=args.workers)
+    uvicorn.run(
+        "optimodel_server.index:app", host="0.0.0.0", port=8000, workers=args.workers
+    )
