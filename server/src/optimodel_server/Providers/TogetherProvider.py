@@ -15,6 +15,7 @@ from optimodel_server.Providers.BaseProviderClass import (
 
 class TogetherProvider(BaseProviderClass):
     supportSAASMode = True
+    supportJSONMode = False
 
     def __init__(self):
         if os.environ.get("TOGETHER_API_KEY", None):
@@ -36,7 +37,11 @@ class TogetherProvider(BaseProviderClass):
         temperature: int = 0.2,
         maxGenLen: int | None = None,
         credentials: TogetherAICredentials | None = None,
+        jsonMode: bool = None,
     ):
+        if jsonMode is not None:
+            raise OptimodelError("JSON mode not supported for Together")
+
         """
         @NOTE Together does not currently support image types
         """

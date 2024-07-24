@@ -21,8 +21,18 @@ def getAllAvailableProviders(body: QueryBody):
     """
     First extract the model, and get all configs for it
     """
-
     allAvailableProviders = config.modelToProvider.get(body.modelToUse, [])
+
+    """
+    If we've explicitly passed a provider, filter our list to only that provider
+    """
+    if body.provider is not None:
+        allAvailableProviders = [
+            provider
+            for provider in allAvailableProviders
+            if provider["provider"] == body.provider
+        ]
+
     """
     Filter out any that dont meet our maxGenLen passed
     """

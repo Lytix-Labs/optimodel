@@ -42,7 +42,11 @@ class GroqProvider(BaseProviderClass):
         temperature: int = 0.2,
         maxGenLen: int | None = None,
         credentials: GroqCredentials | None = None,
+        jsonMode: bool = None,
     ):
+        if jsonMode is not None:
+            raise OptimodelError("JSON mode not supported for Groq")
+
         """
         @NOTE Groq does not currently support image types
         """

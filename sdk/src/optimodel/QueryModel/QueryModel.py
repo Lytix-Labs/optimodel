@@ -24,6 +24,7 @@ async def queryModel(
     fallbackModels: list[ModelTypes] = [],
     maxGenLen: int = None,
     temperature: float = 0.2,
+    jsonMode: bool = None,
 ):
     """
     Query a model
@@ -32,6 +33,7 @@ async def queryModel(
     @param speedPriority: The speed priority of the query
     @param validator: A function that takes in the model output and returns a boolean if it passed/failed validation
     @param fallbackModels: A list of models to use if the first model fails.
+    @param jsonMode: Whether to return the response in JSON mode
     """
     async with aiohttp.ClientSession(
         json_serialize=lambda object: json.dumps(object, indent=4, cls=ObjectEncoder)

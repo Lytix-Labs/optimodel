@@ -15,6 +15,7 @@ from optimodel_server.Providers.BaseProviderClass import (
 
 class BedrockProvider(BaseProviderClass):
     supportSAASMode = True
+    supportJSONMode = False
 
     def __init__(self):
         if SAAS_MODE is None:
@@ -43,7 +44,10 @@ class BedrockProvider(BaseProviderClass):
         temperature: int = 0.2,
         maxGenLen: int | None = None,
         credentials: AWSBedrockCredentials | None = None,
+        jsonMode: bool = None,
     ):
+        if jsonMode is not None:
+            raise OptimodelError("JSON mode not supported for Bedrock")
         """
         @NOTE Bedrock does not currently support image types
         """

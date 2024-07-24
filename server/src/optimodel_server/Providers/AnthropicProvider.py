@@ -19,6 +19,7 @@ from optimodel_server.Providers.BaseProviderClass import (
 
 class AnthropicProvider(BaseProviderClass):
     supportSAASMode = True
+    supportJSONMode = False
 
     def __init__(self):
         if os.environ.get("ANTHROPIC_API_KEY", None):
@@ -42,7 +43,11 @@ class AnthropicProvider(BaseProviderClass):
         temperature: int = 0.2,
         maxGenLen: int | None = None,
         credentials: AnthropicCredentials | None = None,
+        jsonMode: bool | None = None,
     ):
+        if jsonMode is not None:
+            raise OptimodelError("JSON mode not supported for Anthropic")
+
         if SAAS_MODE is not None:
             if credentials is None:
                 # This should have been filtered out in the planner

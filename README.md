@@ -233,6 +233,10 @@ We've defined a base provider [here](https://github.com/Lytix-Labs/optimodel/blo
 
 You'll need to let our `Config` class know this new provider exists be adding a new `case` statement [here](https://github.com/Lytix-Labs/optimodel/blob/master/server/src/optimodel_server/Config/Config.py#L64)
 
-### Step 3 (optional): Add support for SAAS mode
+### Step 3: Add it to our providers enum
+
+You'll need to add your new provider to the `Providers` enum [here](https://github.com/Lytix-Labs/optimodel/blob/master/server/src/optimodel_server_types/__init__.py#L31)
+
+### Step 4 (optional): Add support for SAAS mode
 
 If you'd like this new provider to be available in SAAS mode, you'll need to add a new `case` statement [here](https://github.com/Lytix-Labs/optimodel/blob/master/server/src/optimodel_server/Planner/Planner.py#L39) (_Note:_ Remember you'll need to implement `credentials` support in your `makeQuery` implementation if you enable this.)

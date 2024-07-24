@@ -14,6 +14,7 @@ from optimodel_server.Providers.BaseProviderClass import (
 
 class OpenAIProvider(BaseProviderClass):
     supportSAASMode = True
+    supportJSONMode = True
 
     def __init__(self):
         if os.environ.get("OPEN_AI_KEY", None):
@@ -35,7 +36,9 @@ class OpenAIProvider(BaseProviderClass):
         temperature: int = 0.2,
         maxGenLen: int | None = None,
         credentials: OpenAICredentials | None = None,
+        jsonMode: bool = False,
     ):
+
         if SAAS_MODE is not None:
             if credentials is None:
                 # This should have been filtered out in the planner
@@ -109,6 +112,7 @@ class OpenAIProvider(BaseProviderClass):
             messages=messageToPass,
             temperature=temperature,
             max_tokens=maxGenLen if maxGenLen else NOT_GIVEN,
+            response_format={"type": "json_object"} if jsonMode else None,
         )
         promptTokenCount = response.usage.prompt_tokens
         generationTokenCount = response.usage.completion_tokens

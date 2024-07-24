@@ -1,4 +1,9 @@
-from optimodel_server_types import ModelMessage, TogetherAICredentials, ModelTypes
+from optimodel_server_types import (
+    Credentials,
+    ModelMessage,
+    TogetherAICredentials,
+    ModelTypes,
+)
 
 
 class QueryResponse:
@@ -18,6 +23,7 @@ class BaseProviderClass:
     """
 
     supportSAASMode: bool = False
+    supportJSONMode: bool = False
 
     def validateProvider(self) -> bool:
         """
@@ -31,7 +37,8 @@ class BaseProviderClass:
         model: ModelTypes,
         temperature: int = 0.2,
         maxGenLen: int | None = None,
-        credentials: list[TogetherAICredentials] | None = None,
+        credentials: list[Credentials] | None = None,
+        jsonMode: bool | None = None,
     ) -> QueryResponse:
         """
         Make a query to the provider given a model

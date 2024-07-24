@@ -27,6 +27,14 @@ class ModelTypes(enum.Enum):
     gpt_4o_mini = "gpt_4o_mini"
 
 
+class Providers(enum.Enum):
+    openai = "openai"
+    togetherai = "togetherai"
+    groq = "groq"
+    anthropic = "anthropic"
+    bedrock = "bedrock"
+
+
 class SpeedPriority(enum.Enum):
     low = "low"
     high = "high"
@@ -71,24 +79,30 @@ class AWSBedrockCredentials(BaseModel):
     awsRegion: str
 
 
+Credentials = (
+    TogetherAICredentials
+    | OpenAICredentials
+    | AWSBedrockCredentials
+    | GroqCredentials
+    | AnthropicCredentials
+)
+
+
 class QueryBody(BaseModel):
     messages: list[ModelMessage]
     modelToUse: str
     speedPriority: SpeedPriority | None = None
     temperature: float = 0.2
     maxGenLen: int = None
+    jsonMode: bool | None = None
+
+    """
+    Optionally select a provider to use for this request
+    """
+    provider: Providers | None = None
 
     """
     If we are running in SAAS mode, we'll expect each request to bring their
     own credentials
     """
-    credentials: (
-        list[
-            TogetherAICredentials
-            | OpenAICredentials
-            | AWSBedrockCredentials
-            | GroqCredentials
-            | AnthropicCredentials
-        ]
-        | None
-    ) = None
+    credentials: list[Credentials] | None = None
