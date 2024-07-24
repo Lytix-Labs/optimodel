@@ -10,6 +10,7 @@ from optimodel_server_types import (
     ModelMessageContentEntry,
     SpeedPriority,
     ModelTypes,
+    Providers,
 )
 
 
@@ -25,6 +26,7 @@ async def queryModel(
     maxGenLen: int = None,
     temperature: float = 0.2,
     jsonMode: bool = None,
+    provider: Providers | None = None,
 ):
     """
     Query a model
@@ -54,6 +56,8 @@ async def queryModel(
                             "speedPriority": speedPriority,
                             "maxGenLen": maxGenLen,
                             "temperature": temperature,
+                            "jsonMode": jsonMode,
+                            "provider": provider.name if provider else None,
                         },
                         headers={"Authorization": f"Bearer {LX_API_KEY}"},
                     ) as response:

@@ -60,7 +60,7 @@
         "maxGenLen": 131072
       }
     ],
-    "aws-bedrock": [
+    "bedrock": [
       {
         "name": "llama_3_8b_instruct",
         "pricePer1MInput": 0.3,

@@ -30,7 +30,7 @@ def getAllAvailableProviders(body: QueryBody):
         allAvailableProviders = [
             provider
             for provider in allAvailableProviders
-            if provider["provider"] == body.provider
+            if provider["provider"] == body.provider.name
         ]
 
     """
@@ -60,7 +60,7 @@ def getAllAvailableProviders(body: QueryBody):
                     # Cool we have the creds for this provider, its valid 🙌
                     filteredProviders.append(provider)
 
-            if provider["provider"] == "aws-bedrock":
+            if provider["provider"] == "bedrock":
                 credsForProvider = next(
                     (x for x in body.credentials if type(x) == AWSBedrockCredentials),
                     None,
@@ -98,7 +98,7 @@ def getAllAvailableProviders(body: QueryBody):
     # Bad luck, no providers for the model passed
     if len(allAvailableProviders) == 0:
         raise OptimodelError(
-            f"Model {body.modelToUse} not found or nothing matches criteria (e.g. maxGenLen or no available provider)"
+            f"Model {body.modelToUse} not found or nothing matches criteria (e.g. maxGenLen or no valid provider available)"
         )
 
     return allAvailableProviders

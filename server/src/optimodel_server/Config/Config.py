@@ -69,7 +69,7 @@ class Config:
             """
             providerClient: BaseProviderClass = None
             match provider:
-                case "aws-bedrock":
+                case "bedrock":
                     providerClient = BedrockProvider()
                 case "together":
                     providerClient = TogetherProvider()

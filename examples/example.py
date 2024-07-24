@@ -3,7 +3,7 @@ import json
 import asyncio
 
 from optimodel import queryModel, listModels
-from optimodel_server_types import ModelMessage, ModelTypes
+from optimodel_server_types import ModelMessage, ModelTypes, Providers
 
 import logging
 
@@ -29,7 +29,7 @@ async def main():
         messages=[
             ModelMessage(
                 role="system",
-                content="You are a helpful assistant. Always respond in JSON syntax",
+                content="You are a helpful assistant",
             ),
             ModelMessage(role="user", content=prompt),
         ],
@@ -37,6 +37,7 @@ async def main():
         validator=validator,
         fallbackModels=[ModelTypes.llama_3_70b_instruct],
         maxGenLen=256,
+        provider=Providers.bedrock,
     )
 
     print("Got response:", response)

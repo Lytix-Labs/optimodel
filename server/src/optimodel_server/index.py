@@ -70,6 +70,7 @@ async def read_root(data: QueryBody):
                         model=potentialProvider["name"],
                         credentials=data.credentials,
                         maxGenLen=maxGenLen,
+                        jsonMode=data.jsonMode,
                     )
                 except Exception as e:
                     logger.error(f"Error making query: {e}")
