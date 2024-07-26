@@ -27,6 +27,8 @@ async def queryModel(
     temperature: float = 0.2,
     jsonMode: bool = None,
     provider: Providers | None = None,
+    userId: str | None = None,
+    workflowId: str | None = None,
 ):
     """
     Query a model
@@ -36,6 +38,8 @@ async def queryModel(
     @param validator: A function that takes in the model output and returns a boolean if it passed/failed validation
     @param fallbackModels: A list of models to use if the first model fails.
     @param jsonMode: Whether to return the response in JSON mode
+    @param userId: The user id to use for the query
+    @param workflowId: The workflow id to use for the query
     """
     async with aiohttp.ClientSession(
         json_serialize=lambda object: json.dumps(object, indent=4, cls=ObjectEncoder)
@@ -58,6 +62,8 @@ async def queryModel(
                             "temperature": temperature,
                             "jsonMode": jsonMode,
                             "provider": provider.name if provider else None,
+                            "userId": userId if userId else None,
+                            "workflowId": workflowId if workflowId else None,
                         },
                         headers={"Authorization": f"Bearer {LytixCreds.LX_API_KEY}"},
                     ) as response:
