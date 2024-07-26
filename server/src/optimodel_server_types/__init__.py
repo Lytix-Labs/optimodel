@@ -102,6 +102,13 @@ class QueryBody(BaseModel):
     provider: Providers | None = None
 
     """
+    These are lytix specific options
+    @ref https://docs.lytix.co/OptiModel/getting-started
+    """
+    userId: str | None = None
+    workflowId: str | None = None
+
+    """
     If we are running in SAAS mode, we'll expect each request to bring their
     own credentials
     """
