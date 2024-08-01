@@ -99,12 +99,13 @@ class GuardQueryBase(BaseModel):
     guardType: GuardType
 
 
-class ExampleGuard(GuardQueryBase):
-    guardName: Literal["ExampleGuard"]
-    someParam: int
+class LLamaPromptGuardConfig(GuardQueryBase):
+    guardName: Literal["LLamaPromptGuard"]
+    jailbreakThreshold: float | None = None
+    injectionThreshold: float | None = None
 
 
-Guards = ExampleGuard
+Guards = LLamaPromptGuardConfig
 
 
 class QueryBody(BaseModel):

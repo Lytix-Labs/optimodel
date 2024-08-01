@@ -93,7 +93,7 @@ async def read_root(data: QueryBody):
                         guardResponse = await guardClientInstance.checkGuard(
                             guards=guard, messages=data.messages
                         )
-                        if guardResponse["failure"]:
+                        if guardResponse["failure"] is True:
                             raise OptimodelGuardError(
                                 f"Guard failed",
                                 guard=guard.guardName,
@@ -153,12 +153,12 @@ async def read_root(data: QueryBody):
                                 messages=data.messages,
                                 modelOutput=response.modelOutput,
                             )
-                            if guardResponse["failure"]:
+                            logger.info(f">>>>> {guardResponse}")
+                            if guardResponse["failure"] is True:
                                 raise OptimodelGuardError(
                                     f"Guard failed",
                                     guard=guard.guardName,
                                 )
-                            logger.info(f">>>>> {guardResponse}")
 
                     return queryResponse
             except Exception as e:

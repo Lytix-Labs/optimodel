@@ -17,7 +17,7 @@ class GuardBaseClass:
         """
         Handle a pre-query event.
 
-        @return bool: True if the query should be made, False if it should fail
+        @return bool: True if the query failed the check, False if it passed the check
 
         @NOTE This is only called for preQuery guards
         """
@@ -27,7 +27,7 @@ class GuardBaseClass:
         """
         Handle a post-query event.
 
-        @return bool: True if the response should be returned to the user, False if it should fail
+        @return bool: True if the response failed the check, False if it passed the check
 
         @NOTE This is only called for postQuery guards
         """

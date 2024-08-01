@@ -1,3 +1,3 @@
-from .ExampleGuard import ExamplePlugin
+from .LLamaPromptGuard import LLamaPromptGuard
 
-GuardMapping = {"ExampleGuard": ExamplePlugin()}
+GuardMapping = {"LLamaPromptGuard": LLamaPromptGuard()}

@@ -172,7 +172,7 @@ class BedrockProvider(BaseProviderClass):
                 ModelTypes.llama_3_8b_instruct.name
                 | ModelTypes.llama_3_70b_instruct.name
             ):
-                response_text = model_response["generation"]
+                response_text = model_response["generation"].strip()
                 promptTokenCount = model_response["prompt_token_count"]
                 generationTokenCount = model_response["generation_token_count"]
 
@@ -182,7 +182,7 @@ class BedrockProvider(BaseProviderClass):
                     generationTokens=generationTokenCount,
                 )
             case ModelTypes.claude_3_5_sonnet.name | ModelTypes.claude_3_haiku.name:
-                response_text = model_response["content"][0]["text"]
+                response_text = model_response["content"][0]["text"].strip()
                 promptTokenCount = model_response["usage"]["input_tokens"]
                 generationTokenCount = model_response["usage"]["output_tokens"]
                 return QueryResponse(
@@ -194,7 +194,7 @@ class BedrockProvider(BaseProviderClass):
                 ModelTypes.mistral_7b_instruct.name
                 | ModelTypes.mixtral_8x7b_instruct.name
             ):
-                response_text = model_response["outputs"][0]["text"]
+                response_text = model_response["outputs"][0]["text"].strip()
                 promptTokenCount = int(
                     response["ResponseMetadata"]["HTTPHeaders"][
                         "x-amzn-bedrock-input-token-count"

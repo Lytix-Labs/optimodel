@@ -1,16 +1,26 @@
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from optimodel_guard.Guards import GuardBaseClass, GuardMapping
+from huggingface_hub import login
 
+from optimodel_guard.Guards import GuardBaseClass, GuardMapping
 from optimodel_server_types import GuardBody, GuardResponse
 
 import logging
 import sys
-
+import os
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+"""
+Login to hugging face so we can use models that require authentication
+"""
+HF_TOKEN = os.environ.get("HF_TOKEN")
+if HF_TOKEN:
+    logger.info(f"Logging in to hugging face...")
+    login(HF_TOKEN)
+
 
 app = FastAPI()
 
@@ -43,9 +53,9 @@ async def query(data: GuardBody):
     Then check the guard
     """
     if data.guard.guardType == "preQuery":
-        guardResponse = guard.handlePreQuery(data.messages)
+        guardResponse = guard.handlePreQuery(messages=data.messages, config=data.guard)
     elif data.guard.guardType == "postQuery":
-        guardResponse = guard.handlePostQuery(data.messages, data.response)
+        guardResponse = guard.handlePostQuery(messages=data.messages, config=data.guard)
 
     toReturn = GuardResponse(failure=guardResponse)
     return toReturn
