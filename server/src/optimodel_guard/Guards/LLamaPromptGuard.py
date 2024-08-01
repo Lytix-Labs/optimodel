@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 class LLamaPromptGuard(GuardBaseClass):
     classifier = pipeline("text-classification", model="meta-llama/Prompt-Guard-86M")
-    pluginType = "preQuery"
 
     def handlePreQuery(
         self, messages: List[ModelMessage], config: LLamaPromptGuardConfig

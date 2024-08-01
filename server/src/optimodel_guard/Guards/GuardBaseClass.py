@@ -7,12 +7,6 @@ class GuardBaseClass:
     Common interface for all guards to implement
     """
 
-    """
-    Guards can intercept queries prior to making a query to the model, or evaluate
-    after the query has been made to the model and before the response is returned
-    """
-    guardType: GuardType
-
     def handlePreQuery(self, query: QueryParams) -> bool:
         """
         Handle a pre-query event.

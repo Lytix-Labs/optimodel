@@ -170,7 +170,7 @@ async def read_root(data: QueryBody):
                     """
                     Nothing left to re-check, failed a guard, return that as an error
                     """
-                    return JSONResponse(status_code=503, content={"error": str(e)})
+                    return JSONResponse(status_code=503, content={"error": e.guard})
                 continue
 
         # Otherwise something bad has happened

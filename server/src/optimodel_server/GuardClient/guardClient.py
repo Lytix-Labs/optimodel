@@ -25,12 +25,14 @@ class GuardClient:
                 object, indent=4, cls=GuardObjectEncoder
             )
         ) as session:
+            if modelOutput:
+                # Add it to messages with the assistant role
+                messages.append(ModelMessage(role="assistant", content=modelOutput))
             async with session.post(
                 self.guardServerURL,
                 json={
                     "guard": guards,
                     "messages": messages,
-                    "modelOutput": modelOutput,
                 },
             ) as response:
                 response_data = await response.json()
