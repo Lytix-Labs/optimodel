@@ -1,4 +1,3 @@
-import json
 import os
 
 from openai import NOT_GIVEN, OpenAI
@@ -10,6 +9,7 @@ from optimodel_server.Providers.BaseProviderClass import (
     QueryResponse,
     QueryParams,
 )
+from optimodel_server_types import ModelTypes, OpenAICredentials
 
 
 class OpenAIProvider(BaseProviderClass):
@@ -35,10 +35,10 @@ class OpenAIProvider(BaseProviderClass):
     ):
         messages = params["messages"]
         model = params["model"]
-        temperature = params["temperature"]
-        maxGenLen = params["maxGenLen"]
-        credentials = params["credentials"]
-        jsonMode = params["jsonMode"]
+        temperature = params.get("temperature", None)
+        maxGenLen = params.get("maxGenLen", None)
+        credentials = params.get("credentials", None)
+        jsonMode = params.get("jsonMode", False)
 
         if SAAS_MODE is not None:
             if credentials is None:

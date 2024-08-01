@@ -1,4 +1,3 @@
-import json
 import os
 
 from groq import NOT_GIVEN, Groq
@@ -41,10 +40,10 @@ class GroqProvider(BaseProviderClass):
     ):
         messages = params["messages"]
         model = params["model"]
-        temperature = params["temperature"]
-        maxGenLen = params["maxGenLen"]
-        credentials = params["credentials"]
-        jsonMode = params["jsonMode"]
+        temperature = params.get("temperature", None)
+        maxGenLen = params.get("maxGenLen", None)
+        credentials = params.get("credentials", None)
+        jsonMode = params.get("jsonMode", False)
 
         if jsonMode is not None:
             raise OptimodelError("JSON mode not supported for Groq")

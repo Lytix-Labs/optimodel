@@ -5,7 +5,7 @@ import boto3
 from optimodel_server.OptimodelError import OptimodelError
 from optimodel_server.Providers.CommonUtils import containsImageInMessages
 
-from optimodel_server_types import ModelMessage, AWSBedrockCredentials, ModelTypes
+from optimodel_server_types import AWSBedrockCredentials, ModelTypes
 from optimodel_server.Config.types import SAAS_MODE
 from optimodel_server.Providers.BaseProviderClass import (
     BaseProviderClass,
@@ -44,10 +44,10 @@ class BedrockProvider(BaseProviderClass):
     ):
         messages = params["messages"]
         model = params["model"]
-        temperature = params["temperature"]
-        maxGenLen = params["maxGenLen"]
-        credentials = params["credentials"]
-        jsonMode = params["jsonMode"]
+        temperature = params.get("temperature", None)
+        maxGenLen = params.get("maxGenLen", None)
+        credentials = params.get("credentials", None)
+        jsonMode = params.get("jsonMode", False)
 
         if jsonMode is not None:
             raise OptimodelError("JSON mode not supported for Bedrock")
@@ -116,8 +116,9 @@ class BedrockProvider(BaseProviderClass):
                 finalPrompt += "<|start_header_id|>assistant<|end_header_id|>"
                 native_request = {
                     "prompt": finalPrompt,
-                    "temperature": temperature,
                 }
+                if temperature is not None:
+                    native_request["temperature"] = temperature
                 if maxGenLen is not None:
                     native_request["max_gen_len"] = maxGenLen
             case ModelTypes.claude_3_5_sonnet.name | ModelTypes.claude_3_haiku.name:
@@ -135,10 +136,12 @@ class BedrockProvider(BaseProviderClass):
                 ]
                 native_request = {
                     "anthropic_version": "bedrock-2023-05-31",
-                    "max_tokens": maxGenLen,
-                    "temperature": temperature,
                     "messages": messagesNoSystem,
                 }
+                if temperature is not None:
+                    native_request["temperature"] = temperature
+                if maxGenLen is not None:
+                    native_request["max_tokens"] = maxGenLen
                 if systemPrompt is not None:
                     native_request["system"] = systemPrompt.content
             case (

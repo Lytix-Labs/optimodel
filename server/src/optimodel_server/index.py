@@ -1,13 +1,14 @@
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from optimodel_server.OptimodelError import OptimodelError
 
+from optimodel_server.GuardClient import GuardClient
+from optimodel_server.OptimodelError import OptimodelError, OptimodelGuardError
 from optimodel_server.Config import config
 from optimodel_server.Planner import getAllAvailableProviders, orderProviders
 from optimodel_server_types import QueryBody
 from optimodel_server.Config.types import SAAS_MODE
-from optimodel_server.Providers import QueryParams, QueryResponse
+from optimodel_server_types.providerTypes import QueryParams, QueryResponse
 
 import logging
 import sys
@@ -19,6 +20,8 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 baseURL = "/optimodel/api/v1"
+
+guardClientInstance = GuardClient(config.guardServerURL)
 
 
 @app.on_event("startup")
@@ -49,6 +52,23 @@ async def read_root(data: QueryBody):
         orderedProviders = orderProviders(allAvailableProviders, data)
 
         """
+        Extract out any guards from the query if present
+        """
+        guards = data.guards
+
+        """
+        If we have any guards, split them up based on pre vs post query
+        """
+        preQueryGuards = []
+        postQueryGuards = []
+        if guards:
+            for guard in guards:
+                if guard.guardType == "preQuery":
+                    preQueryGuards.append(guard)
+                if guard.guardType == "postQuery":
+                    postQueryGuards.append(guard)
+
+        """
         Now attempt the query with each provider in order
         """
         errors = []
@@ -63,6 +83,21 @@ async def read_root(data: QueryBody):
                 if SAAS_MODE is not None:
                     if data.credentials is None:
                         raise OptimodelError("No credentials provided")
+
+                """
+                Check if we have any guards
+                """
+                if preQueryGuards:
+                    for guard in preQueryGuards:
+                        logger.info(f"Checking preQuery guard {guard.guardName}")
+                        guardResponse = await guardClientInstance.checkGuard(
+                            guards=guard, messages=data.messages
+                        )
+                        if guardResponse["failure"]:
+                            raise OptimodelGuardError(
+                                f"Guard failed",
+                                guard=guard.guardName,
+                            )
 
                 maxGenLen = data.maxGenLen
 
@@ -106,12 +141,36 @@ async def read_root(data: QueryBody):
                         "cost": cost,
                         "provider": providerName,
                     }
+
+                    """
+                    Check if we have any guards
+                    """
+                    if postQueryGuards:
+                        for guard in postQueryGuards:
+                            logger.info(f"Checking postQuery guard {guard.guardName}")
+                            guardResponse = await guardClientInstance.checkGuard(
+                                guards=guard,
+                                messages=data.messages,
+                                modelOutput=response.modelOutput,
+                            )
+                            if guardResponse["failure"]:
+                                raise OptimodelGuardError(
+                                    f"Guard failed",
+                                    guard=guard.guardName,
+                                )
+                            logger.info(f">>>>> {guardResponse}")
+
                     return queryResponse
             except Exception as e:
                 logger.error(f"Error with provider {providerName}: {e}")
                 if isinstance(e, OptimodelError):
                     # Add to list of errors
                     errors.append(e)
+                if isinstance(e, OptimodelGuardError):
+                    """
+                    Nothing left to re-check, failed a guard, return that as an error
+                    """
+                    return JSONResponse(status_code=503, content={"error": str(e)})
                 continue
 
         # Otherwise something bad has happened

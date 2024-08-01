@@ -1,11 +1,10 @@
-import json
 import os
 from optimodel_server.OptimodelError import OptimodelError
 
 from together import Together
 
 from optimodel_server.Providers.CommonUtils import containsImageInMessages
-from optimodel_server_types import ModelMessage, TogetherAICredentials, ModelTypes
+from optimodel_server_types import TogetherAICredentials, ModelTypes
 from optimodel_server.Config.types import SAAS_MODE
 from optimodel_server.Providers.BaseProviderClass import (
     BaseProviderClass,
@@ -37,10 +36,10 @@ class TogetherProvider(BaseProviderClass):
     ):
         messages = params["messages"]
         model = params["model"]
-        temperature = params["temperature"]
-        maxGenLen = params["maxGenLen"]
-        credentials = params["credentials"]
-        jsonMode = params["jsonMode"]
+        temperature = params.get("temperature", None)
+        maxGenLen = params.get("maxGenLen", None)
+        credentials = params.get("credentials", None)
+        jsonMode = params.get("jsonMode", False)
 
         if jsonMode is not None:
             raise OptimodelError("JSON mode not supported for Together")

@@ -1,4 +1,5 @@
 import enum
+from typing import Literal
 from pydantic import BaseModel
 
 
@@ -87,6 +88,24 @@ Credentials = (
     | AnthropicCredentials
 )
 
+GuardType = Literal["preQuery", "postQuery"]
+
+
+class GuardQueryBase(BaseModel):
+    """
+    Base class for a guard query
+    """
+
+    guardType: GuardType
+
+
+class ExampleGuard(GuardQueryBase):
+    guardName: Literal["ExampleGuard"]
+    someParam: int
+
+
+Guards = ExampleGuard
+
 
 class QueryBody(BaseModel):
     messages: list[ModelMessage]
@@ -102,6 +121,11 @@ class QueryBody(BaseModel):
     provider: Providers | None = None
 
     """
+    Optionally set a list of guards to check 
+    """
+    guards: list[Guards] | None = None
+
+    """
     These are lytix specific options
     @ref https://docs.lytix.co/OptiModel/getting-started
     """
@@ -113,3 +137,20 @@ class QueryBody(BaseModel):
     own credentials
     """
     credentials: list[Credentials] | None = None
+
+
+class GuardBody(BaseModel):
+    messages: list[ModelMessage]
+    modelOutput: str | None = None
+    guard: Guards
+
+
+class GuardResponse(BaseModel):
+    """
+    Response from the guard endpoint
+    """
+
+    """
+    Map of guard name to whether it passed or failed
+    """
+    failure: bool

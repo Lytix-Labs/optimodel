@@ -1,13 +1,10 @@
-import json
 import os
 from optimodel_server import OptimodelError
 
 import anthropic
 
-from optimodel_server.Providers.CommonUtils import containsImageInMessages
 from optimodel_server_types import (
     AnthropicCredentials,
-    ModelMessage,
     ModelTypes,
 )
 from optimodel_server.Config.types import SAAS_MODE
@@ -43,10 +40,10 @@ class AnthropicProvider(BaseProviderClass):
     ):
         messages = params["messages"]
         model = params["model"]
-        temperature = params["temperature"]
-        maxGenLen = params["maxGenLen"]
-        credentials = params["credentials"]
-        jsonMode = params["jsonMode"]
+        temperature = params.get("temperature", None)
+        maxGenLen = params.get("maxGenLen", None)
+        credentials = params.get("credentials", None)
+        jsonMode = params.get("jsonMode", False)
 
         if jsonMode is not None:
             raise OptimodelError("JSON mode not supported for Anthropic")

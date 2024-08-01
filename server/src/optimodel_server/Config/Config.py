@@ -1,4 +1,3 @@
-import enum
 import json
 import logging
 import os
@@ -22,11 +21,25 @@ class Config:
     modelToProvider: dict[str, any]
     providerInstances: dict[str, BaseProviderClass]
 
+    """
+    Path to the config file. Try to use a custom one if present via 
+    env var OPTIMODEL_CONFIG_PATH
+    """
+    configPath: str = os.environ.get(
+        "OPTIMODEL_CONFIG_PATH",
+        os.path.dirname(__file__) + "/../optimodel-server-config.json",
+    )
+
+    """
+    URL to our guard server
+    """
+    guardServerURL: str = os.environ.get(
+        "OPTIMODEL_GUARD_SERVER_URL", "http://localhost:8001"
+    )
+
     def __init__(self):
         self.providerInstances = {}
-        with open(
-            (os.path.dirname(__file__) + "/../optimodel-server-config.json"), "r"
-        ) as config:
+        with open(self.configPath, "r") as config:
             """
             First lets validate the config
             """
@@ -103,4 +116,5 @@ class Config:
             """
             validatedConfig["availableModels"][provider] = models
             self.providerInstances[provider] = providerClient
+
         return validatedConfig
