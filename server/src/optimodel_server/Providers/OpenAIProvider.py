@@ -4,11 +4,11 @@ import os
 from openai import NOT_GIVEN, OpenAI
 from optimodel_server.OptimodelError import OptimodelError
 
-from optimodel_server_types import ModelMessage, OpenAICredentials, ModelTypes
 from optimodel_server.Config.types import SAAS_MODE
 from optimodel_server.Providers.BaseProviderClass import (
     BaseProviderClass,
     QueryResponse,
+    QueryParams,
 )
 
 
@@ -31,13 +31,14 @@ class OpenAIProvider(BaseProviderClass):
 
     def makeQuery(
         self,
-        messages: list[ModelMessage],
-        model: ModelTypes,
-        temperature: int = 0.2,
-        maxGenLen: int | None = None,
-        credentials: OpenAICredentials | None = None,
-        jsonMode: bool = False,
+        params: QueryParams,
     ):
+        messages = params["messages"]
+        model = params["model"]
+        temperature = params["temperature"]
+        maxGenLen = params["maxGenLen"]
+        credentials = params["credentials"]
+        jsonMode = params["jsonMode"]
 
         if SAAS_MODE is not None:
             if credentials is None:

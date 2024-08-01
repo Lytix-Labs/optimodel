@@ -7,6 +7,7 @@ from optimodel_server.Config import config
 from optimodel_server.Planner import getAllAvailableProviders, orderProviders
 from optimodel_server_types import QueryBody
 from optimodel_server.Config.types import SAAS_MODE
+from optimodel_server.Providers import QueryParams, QueryResponse
 
 import logging
 import sys
@@ -20,12 +21,14 @@ app = FastAPI()
 baseURL = "/optimodel/api/v1"
 
 
-# def register_exception(app: FastAPI):
+@app.on_event("startup")
+async def startup_event():
+    logger.info(f"🌐 Starting Optimodel Server...")
+
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-
     exc_str = f"{exc}".replace("\n", " ").replace("   ", " ")
-    # or logger.error(f'{exc}')
     logger.error(request, exc_str)
     content = {"status_code": 10422, "message": exc_str, "data": None}
     return JSONResponse(content=content, status_code=422)
@@ -51,8 +54,9 @@ async def read_root(data: QueryBody):
         errors = []
         for potentialProvider in orderedProviders:
             try:
+                providerName = potentialProvider["provider"]
                 logger.info(
-                    f"Attempting query model {data.modelToUse} with {potentialProvider['provider']}..."
+                    f"Attempting query model {data.modelToUse} with {providerName}..."
                 )
 
                 # If we're in SAAS mode, validate we have credentials
@@ -63,26 +67,25 @@ async def read_root(data: QueryBody):
                 maxGenLen = data.maxGenLen
 
                 try:
-                    response = config.providerInstances[
-                        potentialProvider["provider"]
-                    ].makeQuery(
-                        messages=data.messages,
-                        model=potentialProvider["name"],
-                        credentials=data.credentials,
-                        maxGenLen=maxGenLen,
-                        jsonMode=data.jsonMode,
+                    params: QueryParams = {
+                        "messages": data.messages,
+                        "model": potentialProvider["name"],
+                        "credentials": data.credentials,
+                        "maxGenLen": maxGenLen,
+                        "jsonMode": data.jsonMode,
+                    }
+                    response = config.providerInstances[providerName].makeQuery(
+                        params=params
                     )
                 except Exception as e:
                     logger.error(f"Error making query: {e}")
                     raise OptimodelError(
                         f"Error making query: {e}",
-                        provider=potentialProvider["provider"],
+                        provider=providerName,
                     )
 
                 if response:
-                    logger.info(
-                        f"Query successful with {potentialProvider['provider']}"
-                    )
+                    logger.info(f"Query successful with {providerName}")
                     try:
                         inputCost = (
                             response.promptTokens
@@ -96,17 +99,16 @@ async def read_root(data: QueryBody):
                     except Exception as e:
                         logger.error(f"Error getting cost: {e}")
                         cost = None
-                    return {
+                    queryResponse: QueryResponse = {
                         "modelResponse": response.modelOutput,
                         "promptTokens": response.promptTokens,
                         "generationTokens": response.generationTokens,
                         "cost": cost,
-                        "provider": potentialProvider["provider"],
+                        "provider": providerName,
                     }
+                    return queryResponse
             except Exception as e:
-                logger.error(
-                    f"Error with provider {potentialProvider['provider']}: {e}"
-                )
+                logger.error(f"Error with provider {providerName}: {e}")
                 if isinstance(e, OptimodelError):
                     # Add to list of errors
                     errors.append(e)
