@@ -111,9 +111,14 @@ class BedrockProvider(BaseProviderClass):
                 | ModelTypes.llama_3_70b_instruct.name
             ):
                 finalPrompt = "<|begin_of_text|>"
-                for message in messages:
-                    finalPrompt += f"<|start_header_id|>{message.role}<|end_header_id|>{message.content}<|eot_id|>"
-                finalPrompt += "<|start_header_id|>assistant<|end_header_id|>"
+                for index, message in enumerate(messages):
+                    newlineChar = ""
+                    if index != len(messages) - 1:
+                        newlineChar = "\n"
+                    finalPrompt += f"<|start_header_id|>{message.role}<|end_header_id|>{newlineChar}{message.content}"
+                finalPrompt += (
+                    "<|eot_id|>\n<|start_header_id|>assistant<|end_header_id|>"
+                )
                 native_request = {
                     "prompt": finalPrompt,
                 }
@@ -172,9 +177,13 @@ class BedrockProvider(BaseProviderClass):
                 ModelTypes.llama_3_8b_instruct.name
                 | ModelTypes.llama_3_70b_instruct.name
             ):
-                response_text = model_response["generation"].strip()
+                response_text: str = model_response["generation"].strip().lstrip("\n")
                 promptTokenCount = model_response["prompt_token_count"]
                 generationTokenCount = model_response["generation_token_count"]
+
+                # If response_text starts with  `<|end_header_id|>`, remove it
+                if response_text.startswith("<|end_header_id|>"):
+                    response_text = response_text[13:].lstrip("\n").strip()
 
                 return QueryResponse(
                     modelOutput=response_text,

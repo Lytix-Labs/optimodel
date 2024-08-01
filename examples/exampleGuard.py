@@ -3,7 +3,6 @@ import json
 import asyncio
 
 from optimodel import queryModel, listModels
-from optimodel_guard import Guards
 from optimodel_server_types import (
     LLamaPromptGuardConfig,
     ModelMessage,
