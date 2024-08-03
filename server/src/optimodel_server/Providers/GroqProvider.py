@@ -91,9 +91,25 @@ class GroqProvider(BaseProviderClass):
             case _:
                 raise OptimodelError(f"Model {model} not supported", provider="groq")
 
+        messages = []
+        for message in messages:
+            if isinstance(message.content, str):
+                messages.append({"role": message.role, "content": message.content})
+            else:
+                # Get the text from message.content
+                textForRole = next(
+                    (x.text for x in message.content if x.type == "text"), None
+                )
+                if textForRole is not None:
+                    messages.append({"role": message.role, "content": textForRole})
+                else:
+                    raise OptimodelError(
+                        f"No text found for role {message.role}", provider="groq"
+                    )
+
         response = client.chat.completions.create(
             model=modelId,
-            messages=[{"role": x.role, "content": x.content} for x in messages],
+            messages=messages,
             temperature=temperature,
             max_tokens=maxGenLen if maxGenLen else NOT_GIVEN,
         )

@@ -33,8 +33,8 @@ async def startup_event():
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     exc_str = f"{exc}".replace("\n", " ").replace("   ", " ")
-    logger.error(request, exc_str)
-    content = {"status_code": 10422, "message": exc_str, "data": None}
+    logger.error(request, exc_str[:1000])
+    content = {"status_code": 10422, "message": "Invalid request", "data": None}
     return JSONResponse(content=content, status_code=422)
 
 

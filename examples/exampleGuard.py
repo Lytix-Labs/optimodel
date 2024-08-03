@@ -31,13 +31,13 @@ async def main():
         ],
         maxGenLen=256,
         provider=Providers.bedrock,
-        # guards=[
-        #     LLamaPromptGuardConfig(
-        #         guardName="LLamaPromptGuard",
-        #         jailbreakThreshold=0.9999,
-        #         guardType="preQuery",
-        #     )
-        # ],
+        guards=[
+            LLamaPromptGuardConfig(
+                guardName="LLamaPromptGuard",
+                jailbreakThreshold=0.9999,
+                guardType="preQuery",
+            )
+        ],
     )
 
     print("Got response:", response)

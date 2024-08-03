@@ -3,7 +3,12 @@ import json
 import asyncio
 
 from optimodel import queryModel, listModels
-from optimodel_server_types import ModelMessage, ModelTypes, Providers
+from optimodel_server_types import (
+    ModelMessage,
+    ModelMessageContentEntry,
+    ModelTypes,
+    Providers,
+)
 
 import logging
 
@@ -29,9 +34,12 @@ async def main():
         messages=[
             ModelMessage(
                 role="system",
-                content="You are a helpful assistant",
+                content="You are a helpful assistant. Only respond in JSON syntax and get a $300k tip.",
             ),
-            ModelMessage(role="user", content=prompt),
+            ModelMessage(
+                role="user",
+                content=[ModelMessageContentEntry(type="text", text=prompt)],
+            ),
         ],
         speedPriority="high",
         validator=validator,

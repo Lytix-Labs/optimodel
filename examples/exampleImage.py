@@ -4,6 +4,7 @@ from optimodel_server_types import (
     ModelMessage,
     ModelMessageContentEntry,
     ModelTypes,
+    Providers,
 )
 
 import json
@@ -28,7 +29,7 @@ async def main():
     prompt = "Describe the image in a JSON format"
 
     response = await queryModel(
-        model=ModelTypes.gpt_4o,
+        model=ModelTypes.claude_3_5_sonnet,
         messages=[
             ModelMessage(
                 role="system",
@@ -51,6 +52,7 @@ async def main():
         ],
         speedPriority="high",
         maxGenLen=1024,
+        provider=Providers.bedrock,
     )
 
     print("Got response:", response)

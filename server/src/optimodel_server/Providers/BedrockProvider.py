@@ -54,8 +54,14 @@ class BedrockProvider(BaseProviderClass):
         """
         @NOTE Bedrock does not currently support image types
         """
-        if containsImageInMessages(messages):
-            raise OptimodelError("Bedrock does not currently support image types")
+        if (
+            model != ModelTypes.claude_3_haiku.name
+            and model != ModelTypes.claude_3_5_sonnet.name
+            and containsImageInMessages(messages)
+        ):
+            raise OptimodelError(
+                "Bedrock with this model does not currently support image types"
+            )
 
         if SAAS_MODE is not None:
             if credentials is None:
@@ -115,7 +121,15 @@ class BedrockProvider(BaseProviderClass):
                     newlineChar = ""
                     if index != len(messages) - 1:
                         newlineChar = "\n"
-                    finalPrompt += f"<|start_header_id|>{message.role}<|end_header_id|>{newlineChar}{message.content}"
+
+                    if isinstance(message.content, str):
+                        finalPrompt += f"<|start_header_id|>{message.role}<|end_header_id|>{newlineChar}{message.content}"
+                    else:
+                        # Find the text content of the message
+                        textContent = next(
+                            (x.text for x in message.content if x.type == "text"), None
+                        )
+                        finalPrompt += f"<|start_header_id|>{message.role}<|end_header_id|>{newlineChar}{textContent}"
                 finalPrompt += (
                     "<|eot_id|>\n<|start_header_id|>assistant<|end_header_id|>"
                 )
@@ -131,14 +145,36 @@ class BedrockProvider(BaseProviderClass):
                 systemPrompt = next((x for x in messages if x.role == "system"), None)
 
                 # Filter our system role from messages
-                messagesNoSystem = [
-                    {
-                        "role": x.role,
-                        "content": [{"text": x.content, "type": "text"}],
-                    }
-                    for x in messages
-                    if x.role != "system"
-                ]
+                messagesNoSystem = []
+                for message in messages:
+                    if message.role != "system":
+                        if isinstance(message.content, str):
+                            messagesNoSystem.append(
+                                {"role": message.role, "content": message.content}
+                            )
+                        else:
+                            # We can pass images to claude via the same syntax
+                            contentToUse = []
+                            role = message.role
+                            for content in message.content:
+                                if content.type == "text":
+                                    contentToUse.append(
+                                        {"type": "text", "text": content.text}
+                                    )
+                                else:
+                                    contentToUse.append(
+                                        {
+                                            "type": "image",
+                                            "source": {
+                                                "type": content.source.type,
+                                                "media_type": content.source.mediaType,
+                                                "data": content.source.data,
+                                            },
+                                        }
+                                    )
+                            messagesNoSystem.append(
+                                {"role": role, "content": contentToUse}
+                            )
                 native_request = {
                     "anthropic_version": "bedrock-2023-05-31",
                     "messages": messagesNoSystem,
@@ -148,14 +184,28 @@ class BedrockProvider(BaseProviderClass):
                 if maxGenLen is not None:
                     native_request["max_tokens"] = maxGenLen
                 if systemPrompt is not None:
-                    native_request["system"] = systemPrompt.content
+                    if isinstance(systemPrompt.content, str):
+                        native_request["system"] = systemPrompt.content
+                    else:
+                        # Find the text content of the system prompt
+                        textContent = next(
+                            (x for x in systemPrompt.text if x.type == "text"), None
+                        )
+                        native_request["system"] = textContent.content
             case (
                 ModelTypes.mistral_7b_instruct.name
                 | ModelTypes.mixtral_8x7b_instruct.name
             ):
                 formattedMessage = f"<s> [INST] "
                 for message in messages:
-                    formattedMessage += f"{message.content}"
+                    if isinstance(message.content, str):
+                        formattedMessage += f"{message.content}"
+                    else:
+                        # Find the text content of the message
+                        textContent = next(
+                            (x for x in message.text if x.type == "text"), None
+                        )
+                        formattedMessage += f"{textContent.content}"
                 formattedMessage += " [/INST]"
                 native_request = {
                     "prompt": formattedMessage,
