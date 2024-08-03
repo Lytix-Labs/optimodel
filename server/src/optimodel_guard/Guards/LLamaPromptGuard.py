@@ -17,13 +17,13 @@ class LLamaPromptGuard(GuardBaseClass):
     def handlePreQuery(
         self, messages: List[ModelMessage], config: LLamaPromptGuardConfig
     ) -> bool:
-        logger.info(f"LLamaPromptGuard is checking pre-query....")
+        logger.info(f"META_LLAMA_PROMPT_GUARD_86M is checking pre-query....")
         return self._evaluateUserMessages(messages, config, "user")
 
     def handlePostQuery(
         self, messages: List[ModelMessage], config: LLamaPromptGuardConfig
     ) -> bool:
-        logger.info(f"LLamaPromptGuard is checking post-query....")
+        logger.info(f"META_LLAMA_PROMPT_GUARD_86M is checking post-query....")
         return self._evaluateUserMessages(messages, config, "assistant")
 
     def _evaluateUserMessages(
@@ -39,7 +39,6 @@ class LLamaPromptGuard(GuardBaseClass):
             [message.content for message in messages if message.role == role]
         )
         results = self.classifier(messages)
-        logger.info(f"LLamaPromptGuard results: {results} with {messages}")
 
         # Pull out `INJECTION` and/or `JAILBREAK` from the response
         injectionList = [
@@ -55,7 +54,7 @@ class LLamaPromptGuard(GuardBaseClass):
             and config.injectionThreshold < max(injectionList)
         ):
             logger.info(
-                f"LLamaPromptGuard found injection. Failed {role} check. Got {max(injectionList)}"
+                f"META_LLAMA_PROMPT_GUARD_86M found injection. Failed {role} check. Got {max(injectionList)}"
             )
             return True
         if (
@@ -64,7 +63,7 @@ class LLamaPromptGuard(GuardBaseClass):
             and config.jailbreakThreshold < max(jailbreakList)
         ):
             logger.info(
-                f"LLamaPromptGuard found jailbreak. Failed {role} check. Got {max(jailbreakList)}"
+                f"META_LLAMA_PROMPT_GUARD_86M found jailbreak. Failed {role} check. Got {max(jailbreakList)}"
             )
             return True
 

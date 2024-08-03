@@ -41,7 +41,7 @@ class TogetherProvider(BaseProviderClass):
         credentials = params.get("credentials", None)
         jsonMode = params.get("jsonMode", False)
 
-        if jsonMode is not None:
+        if jsonMode is True:
             raise OptimodelError("JSON mode not supported for Together")
 
         """

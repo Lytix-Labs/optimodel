@@ -81,7 +81,7 @@ async def queryModel(
                                 )
                                 raise Exception("Validation failed")
 
-                        return jsonResponse["modelResponse"]
+                        return jsonResponse
                 except Exception as e:
                     """
                     If we have any more models to try, try them first

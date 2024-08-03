@@ -97,10 +97,12 @@ class GuardQueryBase(BaseModel):
     """
 
     guardType: GuardType
+    blockRequest: bool = False
+    blockRequestMessage: str | None = None
 
 
 class LLamaPromptGuardConfig(GuardQueryBase):
-    guardName: Literal["LLamaPromptGuard"]
+    guardName: Literal["META_LLAMA_PROMPT_GUARD_86M"]
     jailbreakThreshold: float | None = None
     injectionThreshold: float | None = None
 

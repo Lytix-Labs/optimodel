@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -72,6 +73,7 @@ async def read_root(data: QueryBody):
         Now attempt the query with each provider in order
         """
         errors = []
+        guardErrors = []
         for potentialProvider in orderedProviders:
             try:
                 providerName = potentialProvider["provider"]
@@ -94,10 +96,22 @@ async def read_root(data: QueryBody):
                             guards=guard, messages=data.messages
                         )
                         if guardResponse["failure"] is True:
-                            raise OptimodelGuardError(
-                                f"Guard failed",
-                                guard=guard.guardName,
-                            )
+                            guardErrors.append(guard.guardName)
+                            if guard.blockRequest is True:
+                                # Short circuit calling the model
+                                queryResponse: QueryResponse = {
+                                    "modelResponse": (
+                                        guard.blockRequestMessage
+                                        if guard.blockRequestMessage
+                                        else ""
+                                    ),
+                                    "promptTokens": 0,
+                                    "generationTokens": 0,
+                                    "cost": 0,
+                                    "provider": providerName,
+                                    "guardErrors": guardErrors,
+                                }
+                                return queryResponse
 
                 maxGenLen = data.maxGenLen
 
@@ -140,6 +154,7 @@ async def read_root(data: QueryBody):
                         "generationTokens": response.generationTokens,
                         "cost": cost,
                         "provider": providerName,
+                        "guardErrors": guardErrors,
                     }
 
                     """
@@ -153,12 +168,16 @@ async def read_root(data: QueryBody):
                                 messages=data.messages,
                                 modelOutput=response.modelOutput,
                             )
-                            logger.info(f">>>>> {guardResponse}")
                             if guardResponse["failure"] is True:
-                                raise OptimodelGuardError(
-                                    f"Guard failed",
-                                    guard=guard.guardName,
-                                )
+                                guardErrors.append(guard.guardName)
+                                if guard.blockRequest is True:
+                                    # If the user wants to return a custom message
+                                    queryResponse.modelResponse = (
+                                        guard.blockRequestMessage
+                                        if guard.blockRequestMessage
+                                        else ""
+                                    )
+                                    queryResponse.guardErrors = guardErrors
 
                     return queryResponse
             except Exception as e:
