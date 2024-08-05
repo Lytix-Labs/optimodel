@@ -35,9 +35,20 @@ class LLamaPromptGuard(GuardBaseClass):
         """
         Extract any instructions from the query that the user has given.
         """
-        messages = ",".join(
-            [message.content for message in messages if message.role == role]
-        )
+        relatedMessages = [message for message in messages if message.role == role]
+        messagesRaw = []
+
+        for message in relatedMessages:
+            if isinstance(message.content, str):
+                messagesRaw.append(message.content)
+            else:
+                for entry in message.content:
+                    if isinstance(entry, str):
+                        messagesRaw.append(entry)
+                    elif entry.type == "text":
+                        messagesRaw.append(entry.text)
+
+        messages = ",".join(messagesRaw)
         results = self.classifier(messages)
 
         # Pull out `INJECTION` and/or `JAILBREAK` from the response

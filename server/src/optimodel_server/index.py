@@ -56,6 +56,7 @@ async def read_root(data: QueryBody):
         Extract out any guards from the query if present
         """
         guards = data.guards
+        logger.info(f"Guards: {guards}")
 
         """
         If we have any guards, split them up based on pre vs post query

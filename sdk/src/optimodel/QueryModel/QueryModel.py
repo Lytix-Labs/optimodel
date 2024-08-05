@@ -6,14 +6,12 @@ import aiohttp
 from optimodel.envVars import LytixCreds
 from optimodel_server_types import (
     Guards,
-    ModelImageMessageSource,
     ModelMessage,
-    ModelMessageContentEntry,
     SpeedPriority,
     ModelTypes,
     Providers,
 )
-
+from optimodel_server_types.providerTypes import QueryResponse
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +29,7 @@ async def queryModel(
     userId: str | None = None,
     sessionId: str | None = None,
     guards: list[Guards] | None = None,
-):
+) -> QueryResponse:
     """
     Query a model
     @param model: The model to use
@@ -55,21 +53,26 @@ async def queryModel(
                     Convert model int to string
                     """
                     modelToUse = ModelTypes(model).name
+                    body = {
+                        "modelToUse": modelToUse,
+                        "messages": messages,
+                        "speedPriority": speedPriority,
+                        "temperature": temperature,
+                        "jsonMode": jsonMode,
+                        "provider": provider.name if provider else None,
+                        "userId": userId if userId else None,
+                        "sessionId": sessionId if sessionId else None,
+                        "guards": guards,
+                    }
+                    if maxGenLen:
+                        body["maxGenLen"] = maxGenLen
                     async with session.post(
                         url=f"{LytixCreds.LX_BASE_URL.rstrip('/')}/optimodel/api/v1/query",
-                        json={
-                            "modelToUse": modelToUse,
-                            "messages": messages,
-                            "speedPriority": speedPriority,
-                            "maxGenLen": maxGenLen,
-                            "temperature": temperature,
-                            "jsonMode": jsonMode,
-                            "provider": provider.name if provider else None,
-                            "userId": userId if userId else None,
-                            "sessionId": sessionId if sessionId else None,
-                            "guards": guards,
+                        json=body,
+                        headers={
+                            "Authorization": f"Bearer {LytixCreds.LX_API_KEY}",
+                            "Content-Type": "application/json",
                         },
-                        headers={"Authorization": f"Bearer {LytixCreds.LX_API_KEY}"},
                     ) as response:
                         jsonResponse = await response.json()
                         if jsonResponse.get("modelResponse", None) is None:

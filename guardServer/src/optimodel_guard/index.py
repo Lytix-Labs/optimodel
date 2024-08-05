@@ -48,6 +48,7 @@ async def query(data: GuardBody):
     Get an instance of the guard passed
     """
     guard: GuardBaseClass = GuardMapping[data.guard.guardName]
+    logger.info(f"Guard: {guard}, {data}")
 
     """
     Then check the guard

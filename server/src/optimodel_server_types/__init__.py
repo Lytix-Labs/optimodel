@@ -107,15 +107,25 @@ class LLamaPromptGuardConfig(GuardQueryBase):
     injectionThreshold: float | None = None
 
 
-Guards = LLamaPromptGuardConfig
+class LytixRegexConfig(GuardQueryBase):
+    guardName: Literal["LYTIX_REGEX_GUARD"]
+    regex: str
+
+
+class MicrosoftPresidioConfig(GuardQueryBase):
+    guardName: Literal["MICROSOFT_PRESIDIO_GUARD"]
+    entitiesToCheck: list[str]
+
+
+Guards = LLamaPromptGuardConfig | LytixRegexConfig | MicrosoftPresidioConfig
 
 
 class QueryBody(BaseModel):
     messages: list[ModelMessage]
     modelToUse: str
     speedPriority: SpeedPriority | None = None
-    temperature: float = 0.2
-    maxGenLen: int = None
+    temperature: float | None = 0.2
+    maxGenLen: int | None = None
     jsonMode: bool | None = None
 
     """

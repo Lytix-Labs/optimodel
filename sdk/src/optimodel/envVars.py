@@ -8,6 +8,9 @@ class LytixEnvVars:
     def setAPIKey(self, apiKey):
         self.LX_API_KEY = apiKey
 
+    def setBaseURL(self, baseURL):
+        self.LX_BASE_URL = baseURL
+
     def validateEnvVars(self):
         if self.LX_BASE_URL is None:
             print("LX_BASE_URL envvar is not set")
