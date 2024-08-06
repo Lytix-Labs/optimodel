@@ -74,6 +74,8 @@ class OpenAIProvider(BaseProviderClass):
                 modelId = "gpt-3.5-turbo-0125"
             case ModelTypes.gpt_4o_mini.name:
                 modelId = "gpt-4o-mini"
+            case ModelTypes.gpt_4o_mini_2024_07_18.name:
+                modelId = "gpt-4o-mini-2024-07-18"
             case _:
                 raise OptimodelError(f"Model {model} not supported", provider="openai")
 

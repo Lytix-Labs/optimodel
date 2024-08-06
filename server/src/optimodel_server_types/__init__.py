@@ -26,6 +26,7 @@ class ModelTypes(enum.Enum):
     gpt_4_turbo = "gpt_4_turbo"
     gpt_3_5_turbo_0125 = "gpt_3_5_turbo_0125"
     gpt_4o_mini = "gpt_4o_mini"
+    gpt_4o_mini_2024_07_18 = "gpt_4o_mini_2024_07_18"
 
 
 class Providers(enum.Enum):

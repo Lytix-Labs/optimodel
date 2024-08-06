@@ -173,12 +173,12 @@ async def read_root(data: QueryBody):
                                 guardErrors.append(guard.guardName)
                                 if guard.blockRequest is True:
                                     # If the user wants to return a custom message
-                                    queryResponse.modelResponse = (
+                                    queryResponse["modelResponse"] = (
                                         guard.blockRequestMessage
                                         if guard.blockRequestMessage
                                         else ""
                                     )
-                                    queryResponse.guardErrors = guardErrors
+                                    queryResponse["guardErrors"] = guardErrors
 
                     return queryResponse
             except Exception as e:
