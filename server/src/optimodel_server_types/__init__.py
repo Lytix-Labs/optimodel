@@ -10,6 +10,9 @@ class ModelTypes(enum.Enum):
     llama_3_1_405b = "llama_3_1_405b"
     llama_3_1_70b = "llama_3_1_70b"
     llama_3_1_8b = "llama_3_1_8b"
+    llama_3_1_405b_instruct = "llama_3_1_405b_instruct"
+    llama_3_1_70b_instruct = "llama_3_1_70b_instruct"
+    llama_3_1_8b_instruct = "llama_3_1_8b_instruct"
 
     # Anthropic
     claude_3_5_sonnet_20240620 = "claude_3_5_sonnet_20240620"

@@ -100,6 +100,12 @@ class BedrockProvider(BaseProviderClass):
                 modelId = "meta.llama3-8b-instruct-v1:0"
             case ModelTypes.llama_3_70b_instruct.name:
                 modelId = "meta.llama3-70b-instruct-v1:0"
+            case ModelTypes.llama_3_1_8b_instruct.name:
+                modelId = "meta.llama3-1-8b-instruct-v1:0"
+            case ModelTypes.llama_3_1_70b_instruct.name:
+                modelId = "meta.llama3-1-70b-instruct-v1:0"
+            case ModelTypes.llama_3_1_405b_instruct.name:
+                modelId = "meta.llama3-1-405b-instruct-v1:0"
             case ModelTypes.claude_3_5_sonnet_20240620.name:
                 modelId = "anthropic.claude-3-5-sonnet-20240620-v1:0"
             case ModelTypes.claude_3_5_sonnet.name:
@@ -117,6 +123,9 @@ class BedrockProvider(BaseProviderClass):
             case (
                 ModelTypes.llama_3_8b_instruct.name
                 | ModelTypes.llama_3_70b_instruct.name
+                | ModelTypes.llama_3_1_8b_instruct.name
+                | ModelTypes.llama_3_1_70b_instruct.name
+                | ModelTypes.llama_3_1_405b_instruct.name
             ):
                 finalPrompt = "<|begin_of_text|>"
                 for index, message in enumerate(messages):
@@ -245,6 +254,9 @@ class BedrockProvider(BaseProviderClass):
             case (
                 ModelTypes.llama_3_8b_instruct.name
                 | ModelTypes.llama_3_70b_instruct.name
+                | ModelTypes.llama_3_1_8b_instruct.name
+                | ModelTypes.llama_3_1_70b_instruct.name
+                | ModelTypes.llama_3_1_405b_instruct.name
             ):
                 response_text: str = model_response["generation"].strip().lstrip("\n")
                 promptTokenCount = model_response["prompt_token_count"]

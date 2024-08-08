@@ -94,6 +94,24 @@
         "speed": 0.38,
         "pricePer1MInput": 0.45,
         "pricePer1MOutput": 0.7
+      },
+      {
+        "name": "llama_3_1_8b_instruct",
+        "pricePer1MInput": 0.3,
+        "pricePer1MOutput": 0.3,
+        "speed": 0.31
+      },
+      {
+        "name": "llama_3_1_70b_instruct",
+        "pricePer1MInput": 3.075,
+        "pricePer1MOutput": 3.075,
+        "speed": 0.5
+      },
+      {
+        "name": "llama_3_1_405b_instruct",
+        "pricePer1MInput": 5.32,
+        "pricePer1MOutput": 16,
+        "speed": 0.5
       }
     ],
     "openai": [
