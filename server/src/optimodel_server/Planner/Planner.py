@@ -34,17 +34,9 @@ def getAllAvailableProviders(body: QueryBody):
         ]
 
     """
-    Filter out any that dont meet our maxGenLen passed
-    """
-    allAvailableProviders = [
-        provider
-        for provider in allAvailableProviders
-        if not body.maxGenLen or provider["maxGenLen"] >= body.maxGenLen
-    ]
-
-    """
     If we are running in SAAS mode, filter our any that we dont have creds for
     """
+
     if SAAS_MODE is not None:
         if body.credentials is None:
             raise ValueError("No credentials provided")

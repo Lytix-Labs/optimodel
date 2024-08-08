@@ -68,8 +68,10 @@ class AnthropicProvider(BaseProviderClass):
             client = self.anthropicClient
 
         match model:
+            case ModelTypes.claude_3_5_sonnet_20240620.name:
+                modelId = "claude-3-5-sonnet-20240620"
             case ModelTypes.claude_3_5_sonnet.name:
-                modelId = "claude-3-sonnet-20240229"
+                modelId = "claude-3-5-sonnet-20240620"
             case ModelTypes.claude_3_haiku.name:
                 modelId = "claude-3-haiku-20240307"
             case _:
@@ -116,10 +118,10 @@ class AnthropicProvider(BaseProviderClass):
 
         response = client.messages.create(
             model=modelId,
-            system=systemMessage.content if systemMessage else None,
+            system=systemMessage.content if systemMessage else anthropic.NOT_GIVEN,
             messages=messageToPass,
-            temperature=temperature,
-            max_tokens=maxGenLen if maxGenLen else anthropic.NOT_GIVEN,
+            temperature=temperature if temperature is not None else anthropic.NOT_GIVEN,
+            max_tokens=maxGenLen if maxGenLen is not None else 1024,
         )
         promptTokenCount = response.usage.input_tokens
         generationTokenCount = response.usage.output_tokens

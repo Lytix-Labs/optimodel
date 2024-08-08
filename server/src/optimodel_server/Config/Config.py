@@ -75,6 +75,7 @@ class Config:
             """
             for model in models:
                 if model["name"] not in ModelTypes:
+                    print(model["name"], ModelTypes)
                     raise ValueError(f"Invalid model name: {model['name']}")
 
             """

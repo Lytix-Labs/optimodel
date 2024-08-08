@@ -12,6 +12,7 @@ class ModelTypes(enum.Enum):
     llama_3_1_8b = "llama_3_1_8b"
 
     # Anthropic
+    claude_3_5_sonnet_20240620 = "claude_3_5_sonnet_20240620"
     claude_3_5_sonnet = "claude_3_5_sonnet"
     claude_3_haiku = "claude_3_haiku"
 
@@ -27,6 +28,7 @@ class ModelTypes(enum.Enum):
     gpt_3_5_turbo_0125 = "gpt_3_5_turbo_0125"
     gpt_4o_mini = "gpt_4o_mini"
     gpt_4o_mini_2024_07_18 = "gpt_4o_mini_2024_07_18"
+    gpt_4o_2024_08_06 = "gpt_4o_2024_08_06"
 
 
 class Providers(enum.Enum):

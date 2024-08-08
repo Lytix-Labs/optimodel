@@ -5,15 +5,13 @@
         "name": "llama_3_8b_instruct",
         "pricePer1MInput": 0.2,
         "pricePer1MOutput": 0.2,
-        "speed": 0.46,
-        "maxGenLen": 4000
+        "speed": 0.46
       },
       {
         "name": "llama_3_70b_instruct",
         "pricePer1MInput": 0.9,
         "pricePer1MOutput": 0.9,
-        "speed": 0.68,
-        "maxGenLen": 4000
+        "speed": 0.68
       }
     ],
     "groq": [
@@ -21,43 +19,37 @@
         "name": "llama_3_8b_instruct",
         "pricePer1MInput": 0.05,
         "pricePer1MOutput": 0.08,
-        "speed": 0.34,
-        "maxGenLen": 8192
+        "speed": 0.34
       },
       {
         "name": "llama_3_70b_instruct",
         "pricePer1MInput": 0.59,
         "pricePer1MOutput": 0.79,
-        "speed": 0.36,
-        "maxGenLen": 8192
+        "speed": 0.36
       },
       {
         "name": "mixtral_8x7b_instruct",
         "pricePer1MInput": 0.24,
         "pricePer1MOutput": 0.24,
-        "speed": 0.23,
-        "maxGenLen": 32768
+        "speed": 0.23
       },
       {
         "name": "llama_3_1_405b",
         "speed": 0.43,
         "pricePer1MInput": 0.59,
-        "pricePer1MOutput": 0.79,
-        "maxGenLen": 131072
+        "pricePer1MOutput": 0.79
       },
       {
         "name": "llama_3_1_70b",
         "speed": 0.43,
         "pricePer1MInput": 0.59,
-        "pricePer1MOutput": 0.79,
-        "maxGenLen": 131072
+        "pricePer1MOutput": 0.79
       },
       {
         "name": "llama_3_1_8b",
         "speed": 0.43,
         "pricePer1MInput": 0.59,
-        "pricePer1MOutput": 0.79,
-        "maxGenLen": 131072
+        "pricePer1MOutput": 0.79
       }
     ],
     "bedrock": [
@@ -65,43 +57,43 @@
         "name": "llama_3_8b_instruct",
         "pricePer1MInput": 0.3,
         "pricePer1MOutput": 0.3,
-        "speed": 0.31,
-        "maxGenLen": 2048
+        "speed": 0.31
       },
       {
         "name": "llama_3_70b_instruct",
         "pricePer1MInput": 3.075,
         "pricePer1MOutput": 3.075,
-        "speed": 0.5,
-        "maxGenLen": 2048
+        "speed": 0.5
       },
       {
         "name": "claude_3_5_sonnet",
         "pricePer1MInput": 3,
         "pricePer1MOutput": 15,
-        "speed": 110,
-        "maxGenLen": 200000
+        "speed": 110
+      },
+      {
+        "name": "claude_3_5_sonnet_20240620",
+        "pricePer1MInput": 3,
+        "pricePer1MOutput": 15,
+        "speed": 1.14
       },
       {
         "name": "claude_3_haiku",
         "speed": 0.43,
         "pricePer1MInput": 0.25,
-        "pricePer1MOutput": 1.25,
-        "maxGenLen": 200000
+        "pricePer1MOutput": 1.25
       },
       {
         "name": "mistral_7b_instruct",
         "speed": 0.35,
         "pricePer1MInput": 0.15,
-        "pricePer1MOutput": 0.2,
-        "maxGenLen": 32000
+        "pricePer1MOutput": 0.2
       },
       {
         "name": "mixtral_8x7b_instruct",
         "speed": 0.38,
         "pricePer1MInput": 0.45,
-        "pricePer1MOutput": 0.7,
-        "maxGenLen": 32000
+        "pricePer1MOutput": 0.7
       }
     ],
     "openai": [
@@ -109,59 +101,69 @@
         "name": "gpt_4o",
         "pricePer1MInput": 5,
         "pricePer1MOutput": 15,
-        "speed": 0.46,
-        "maxGenLen": 128000
+        "speed": 0.46
+      },
+      {
+        "name": "gpt_4o_2024_08_06",
+        "pricePer1MInput": 2.5,
+        "pricePer1MOutput": 10,
+        "speed": 0.46
       },
       {
         "name": "gpt_4_turbo",
         "pricePer1MInput": 10,
         "pricePer1MOutput": 30,
-        "speed": 0.64,
-        "maxGenLen": 128000
+        "speed": 0.64
+      },
+      {
+        "name": "gpt_4o_mini_2024_07_18",
+        "pricePer1MInput": 0.15,
+        "pricePer1MOutput": 0.6,
+        "speed": 0.62
       },
       {
         "name": "gpt_4o_mini",
         "pricePer1MInput": 0.15,
         "pricePer1MOutput": 0.6,
-        "speed": 0.64,
-        "maxGenLen": 128000
+        "speed": 0.62
       },
       {
         "name": "gpt_4",
         "pricePer1MInput": 30,
         "pricePer1MOutput": 60,
-        "speed": 0.6,
-        "maxGenLen": 8192
+        "speed": 0.6
       },
       {
         "name": "gpt_3_5_turbo_0125",
         "pricePer1MInput": 0.5,
         "pricePer1MOutput": 1.5,
-        "speed": 0.43,
-        "maxGenLen": 16385
+        "speed": 0.43
       },
       {
         "name": "gpt_3_5_turbo",
         "pricePer1MInput": 3,
         "pricePer1MOutput": 6,
-        "speed": 0.43,
-        "maxGenLen": 16385
+        "speed": 0.43
       }
     ],
     "anthropic": [
       {
+        "name": "claude_3_5_sonnet_20240620",
+        "pricePer1MInput": 3,
+        "pricePer1MOutput": 15,
+        "speed": 1.14
+      },
+      {
         "name": "claude_3_5_sonnet",
         "pricePer1MInput": 3,
         "pricePer1MOutput": 15,
-        "speed": 1.14,
-        "maxGenLen": 4096
+        "speed": 1.14
       },
       {
         "name": "claude_3_haiku",
         "speed": 0.64,
         "pricePer1MInput": 0.25,
-        "pricePer1MOutput": 1.25,
-        "maxGenLen": 4096
+        "pricePer1MOutput": 1.25
       }
     ]
   }

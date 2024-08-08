@@ -100,6 +100,8 @@ class BedrockProvider(BaseProviderClass):
                 modelId = "meta.llama3-8b-instruct-v1:0"
             case ModelTypes.llama_3_70b_instruct.name:
                 modelId = "meta.llama3-70b-instruct-v1:0"
+            case ModelTypes.claude_3_5_sonnet_20240620.name:
+                modelId = "anthropic.claude-3-5-sonnet-20240620-v1:0"
             case ModelTypes.claude_3_5_sonnet.name:
                 modelId = "anthropic.claude-3-5-sonnet-20240620-v1:0"
             case ModelTypes.claude_3_haiku.name:
@@ -140,17 +142,24 @@ class BedrockProvider(BaseProviderClass):
                     native_request["temperature"] = temperature
                 if maxGenLen is not None:
                     native_request["max_gen_len"] = maxGenLen
-            case ModelTypes.claude_3_5_sonnet.name | ModelTypes.claude_3_haiku.name:
-                # Check if we have a system prompt in messages
-                systemPrompt = next((x for x in messages if x.role == "system"), None)
-
+            case (
+                ModelTypes.claude_3_5_sonnet.name
+                | ModelTypes.claude_3_haiku.name
+                | ModelTypes.claude_3_5_sonnet_20240620.name
+            ):
                 # Filter our system role from messages
                 messagesNoSystem = []
+                messageSystem = None
                 for message in messages:
                     if message.role != "system":
                         if isinstance(message.content, str):
                             messagesNoSystem.append(
-                                {"role": message.role, "content": message.content}
+                                {
+                                    "role": message.role,
+                                    "content": [
+                                        {"type": "text", "text": message.content}
+                                    ],
+                                }
                             )
                         else:
                             # We can pass images to claude via the same syntax
@@ -175,23 +184,33 @@ class BedrockProvider(BaseProviderClass):
                             messagesNoSystem.append(
                                 {"role": role, "content": contentToUse}
                             )
+                    else:
+                        if isinstance(message.content, str):
+                            messageSystem = message
+                        else:
+                            # We can pass images to claude via the same syntax
+                            for content in message.content:
+                                if content.type == "text":
+                                    messageSystem = content.text
                 native_request = {
                     "anthropic_version": "bedrock-2023-05-31",
                     "messages": messagesNoSystem,
                 }
                 if temperature is not None:
                     native_request["temperature"] = temperature
+
                 if maxGenLen is not None:
                     native_request["max_tokens"] = maxGenLen
-                if systemPrompt is not None:
-                    if isinstance(systemPrompt.content, str):
-                        native_request["system"] = systemPrompt.content
-                    else:
-                        # Find the text content of the system prompt
-                        textContent = next(
-                            (x for x in systemPrompt.text if x.type == "text"), None
-                        )
-                        native_request["system"] = textContent.content
+                else:
+                    """
+                    Claud via bedrock requires this to be set
+                    @see https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-anthropic-claude-messages.html
+                    """
+                    native_request["max_tokens"] = 1024
+                if messageSystem is not None:
+                    native_request["system"] = messageSystem.content
+
+                print(native_request)
             case (
                 ModelTypes.mistral_7b_instruct.name
                 | ModelTypes.mixtral_8x7b_instruct.name
@@ -240,7 +259,11 @@ class BedrockProvider(BaseProviderClass):
                     promptTokens=promptTokenCount,
                     generationTokens=generationTokenCount,
                 )
-            case ModelTypes.claude_3_5_sonnet.name | ModelTypes.claude_3_haiku.name:
+            case (
+                ModelTypes.claude_3_5_sonnet.name
+                | ModelTypes.claude_3_haiku.name
+                | ModelTypes.claude_3_5_sonnet_20240620.name
+            ):
                 response_text = model_response["content"][0]["text"].strip()
                 promptTokenCount = model_response["usage"]["input_tokens"]
                 generationTokenCount = model_response["usage"]["output_tokens"]
