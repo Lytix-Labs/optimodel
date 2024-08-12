@@ -15,9 +15,11 @@ Guards and protection agnostic to your model or provider
 
 #### Packages
 
-[Server](https://badge.fury.io/py/optimodel-server) <img src="https://badge.fury.io/py/optimodel-server.svg" alt="PyPI version"> |
-[Python Client](https://badge.fury.io/py/optimodel-py) <img src="https://badge.fury.io/py/optimodel-py.svg" alt="PyPI version"> |
-[Node.js Client](https://badge.fury.io/js/@lytix%2Fclient) <img src="https://badge.fury.io/js/@lytix%2Fclient.svg" alt="npm version"> | [Guard Server](https://badge.fury.io/py/optimodel-guard-server.svg) <img src="https://badge.fury.io/py/optimodel-guard-server.svg" alt="PyPI version">
+<p align="center">
+<a href="https://badge.fury.io/py/optimodel-server">[Server]</a> <img src="https://badge.fury.io/py/optimodel-server.svg" alt="PyPI version"> |
+<a href="https://badge.fury.io/py/optimodel-py">[Python Client]</a> <img src="https://badge.fury.io/py/optimodel-py.svg" alt="PyPI version"> |
+<a href="https://badge.fury.io/js/@lytix%2Fclient">[Node.js Client]</a> <img src="https://badge.fury.io/js/@lytix%2Fclient.svg" alt="npm version"> | <a href="https://badge.fury.io/py/optimodel-guard-server">[Guard Server]</a> <img src="https://badge.fury.io/py/optimodel-guard-server.svg" alt="PyPI version">
+</p>
 
 ## [Quickstart](#quickstart)
 
