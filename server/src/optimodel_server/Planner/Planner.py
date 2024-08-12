@@ -85,6 +85,9 @@ def getAllAvailableProviders(body: QueryBody):
                 if credsForProvider is not None:
                     filteredProviders.append(provider)
 
+        print(body.credentials)
+        print(f"All available providers: {allAvailableProviders}")
+        print(f"Filtered providers: {filteredProviders}")
         allAvailableProviders = filteredProviders
 
     # Bad luck, no providers for the model passed
