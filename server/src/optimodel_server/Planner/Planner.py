@@ -85,15 +85,12 @@ def getAllAvailableProviders(body: QueryBody):
                 if credsForProvider is not None:
                     filteredProviders.append(provider)
 
-        print(body.credentials)
-        print(f"All available providers: {allAvailableProviders}")
-        print(f"Filtered providers: {filteredProviders}")
         allAvailableProviders = filteredProviders
 
     # Bad luck, no providers for the model passed
     if len(allAvailableProviders) == 0:
         raise OptimodelError(
-            f"Model {body.modelToUse} not found or nothing matches criteria (e.g. maxGenLen or no valid provider available)"
+            f"Model {body.modelToUse} not found or nothing matches criteria (e.g. no valid credentials available)"
         )
 
     return allAvailableProviders

@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 from typing import Callable
@@ -29,6 +30,7 @@ async def queryModel(
     userId: str | None = None,
     sessionId: str | None = None,
     guards: list[Guards] | None = None,
+    retries: int | None = None,
 ) -> QueryResponse:
     """
     Query a model
@@ -41,60 +43,86 @@ async def queryModel(
     @param userId: The user id to use for the query
     @param sessionId: The session id to use for the query
     @param guard: A list of guards to use for the query
+    @param retries: The number of retries to attempt if the model fails.
     """
-    async with aiohttp.ClientSession(
-        json_serialize=lambda object: json.dumps(object, indent=4, cls=ObjectEncoder)
-    ) as session:
-        try:
-            allModels = [model, *fallbackModels]
-            for index, model in enumerate(allModels):
-                try:
-                    """
-                    Convert model int to string
-                    """
-                    modelToUse = ModelTypes(model).name
-                    body = {
-                        "modelToUse": modelToUse,
-                        "messages": messages,
-                        "speedPriority": speedPriority,
-                        "temperature": temperature,
-                        "jsonMode": jsonMode,
-                        "provider": provider.name if provider else None,
-                        "userId": userId if userId else None,
-                        "sessionId": sessionId if sessionId else None,
-                        "guards": guards,
-                    }
-                    if maxGenLen:
-                        body["maxGenLen"] = maxGenLen
-                    async with session.post(
-                        url=f"{LytixCreds.LX_BASE_URL.rstrip('/')}/optimodel/api/v1/query",
-                        json=body,
-                        headers={
-                            "Authorization": f"Bearer {LytixCreds.LX_API_KEY}",
-                            "Content-Type": "application/json",
-                        },
-                    ) as response:
-                        jsonResponse = await response.json()
-                        if jsonResponse.get("modelResponse", None) is None:
-                            raise Exception(f"Bad request: {jsonResponse}")
-                        if validator:
-                            if not validator(jsonResponse["modelResponse"]):
-                                logger.warn(
-                                    f"Failed validation when trying model {model}"
-                                )
-                                raise Exception("Validation failed")
+    # Either 0 retries or whatevers passed
+    retriesParsed = retries if retries else 1
 
-                        return jsonResponse
+    while retriesParsed > 0:
+        # Make our request
+        try:
+            async with aiohttp.ClientSession(
+                json_serialize=lambda object: json.dumps(
+                    object, indent=4, cls=ObjectEncoder
+                )
+            ) as session:
+                try:
+                    allModels = [model, *fallbackModels]
+                    for index, model in enumerate(allModels):
+                        try:
+                            """
+                            Convert model int to string
+                            """
+                            modelToUse = ModelTypes(model).name
+                            body = {
+                                "modelToUse": modelToUse,
+                                "messages": messages,
+                                "speedPriority": speedPriority,
+                                "temperature": temperature,
+                                "jsonMode": jsonMode,
+                                "provider": provider.name if provider else None,
+                                "userId": userId if userId else None,
+                                "sessionId": sessionId if sessionId else None,
+                                "guards": guards,
+                            }
+                            if maxGenLen:
+                                body["maxGenLen"] = maxGenLen
+                            async with session.post(
+                                url=f"{LytixCreds.LX_BASE_URL.rstrip('/')}/optimodel/api/v1/query",
+                                json=body,
+                                headers={
+                                    "Authorization": f"Bearer {LytixCreds.LX_API_KEY}",
+                                    "Content-Type": "application/json",
+                                },
+                            ) as response:
+                                jsonResponse = await response.json()
+                                if jsonResponse.get("modelResponse", None) is None:
+                                    raise Exception(f"Bad request: {jsonResponse}")
+                                if validator:
+                                    if not validator(jsonResponse["modelResponse"]):
+                                        logger.warn(
+                                            f"Failed validation when trying model {model}"
+                                        )
+                                        raise Exception("Validation failed")
+
+                                return jsonResponse
+                        except Exception as e:
+                            """
+                            If we have any more models to try, try them first
+                            """
+                            # If we got more models to try
+                            if index < len(allModels) - 1:
+                                continue
+                            else:
+                                raise e
                 except Exception as e:
-                    """
-                    If we have any more models to try, try them first
-                    """
-                    if index < len(allModels) - 1:
-                        continue
-                    else:
-                        raise e
+                    raise e
         except Exception as e:
-            raise e
+            # If we have more retries to try
+            if retriesParsed > 0:
+                retriesParsed -= 1
+                logger.warn(
+                    f"Retrying model {model} due to error: {e}. Remaining retries: {retriesParsed}"
+                )
+
+                # Do exponential backoff
+                sleepTime = 2 ** ((retries - retriesParsed) + 3)
+                logger.info(f"Sleeping for {sleepTime} seconds")
+                await asyncio.sleep(sleepTime)
+                continue
+            else:
+                raise e
+    raise Exception("Failed to query model")
 
 
 class ObjectEncoder(json.JSONEncoder):
