@@ -31,6 +31,7 @@ async def queryModel(
     sessionId: str | None = None,
     guards: list[Guards] | None = None,
     retries: int | None = None,
+    timeout: int | None = None,
 ) -> QueryResponse:
     """
     Query a model
@@ -44,9 +45,10 @@ async def queryModel(
     @param sessionId: The session id to use for the query
     @param guard: A list of guards to use for the query
     @param retries: The number of retries to attempt if the model fails.
+    @param timeout: The timeout in seconds to wait for the model to respond.
     """
     # Either 0 retries or whatevers passed
-    retriesParsed = retries if retries else 1
+    retriesParsed = retries if retries else 0
 
     while retriesParsed > 0:
         # Make our request
@@ -54,7 +56,8 @@ async def queryModel(
             async with aiohttp.ClientSession(
                 json_serialize=lambda object: json.dumps(
                     object, indent=4, cls=ObjectEncoder
-                )
+                ),
+                timeout=aiohttp.ClientTimeout(total=timeout) if timeout else None,
             ) as session:
                 try:
                     allModels = [model, *fallbackModels]
@@ -109,7 +112,7 @@ async def queryModel(
                     raise e
         except Exception as e:
             # If we have more retries to try
-            if retriesParsed > 0:
+            if retriesParsed > 0 and retries:
                 retriesParsed -= 1
                 logger.warn(
                     f"Retrying model {model} due to error: {e}. Remaining retries: {retriesParsed}"
