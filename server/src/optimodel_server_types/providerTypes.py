@@ -1,5 +1,5 @@
 from typing import List, Optional, TypedDict
-from optimodel_server_types import Credentials, ModelMessage, ModelTypes
+from optimodel_server_types import Credentials, ModelMessage, ModelTypes, Providers
 
 
 class QueryResponse:
@@ -15,6 +15,19 @@ class QueryResponse:
     modelOutput: str
     promptTokens: int
     generationTokens: int
+
+
+class MakeQueryResponse(TypedDict):
+    """
+    Response from a query to the provider
+    """
+
+    modelResponse: str
+    promptTokens: int
+    generationTokens: int
+    cost: float
+    provider: Providers
+    guardErrors: List[str]
 
 
 class QueryParams(TypedDict, total=False):

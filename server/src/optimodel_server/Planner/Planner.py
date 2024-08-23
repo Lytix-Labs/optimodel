@@ -10,6 +10,7 @@ from optimodel_server_types import (
     AWSBedrockCredentials,
     OpenAICredentials,
     AnthropicCredentials,
+    Providers,
 )
 from optimodel_server.Config.types import SAAS_MODE
 
@@ -96,7 +97,7 @@ def getAllAvailableProviders(body: QueryBody):
     return allAvailableProviders
 
 
-def orderProviders(allAvailableProviders: list, body: QueryBody) -> list:
+def orderProviders(allAvailableProviders: list[Providers], body: QueryBody) -> list:
     """
     Now we have a list of providers, and we need to pick the best one by lining them up in order of priority
     Heres our gameplan

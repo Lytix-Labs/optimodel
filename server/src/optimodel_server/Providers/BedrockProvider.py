@@ -49,8 +49,9 @@ class BedrockProvider(BaseProviderClass):
         credentials = params.get("credentials", None)
         jsonMode = params.get("jsonMode", False)
 
-        if jsonMode is True:
-            raise OptimodelError("JSON mode not supported for Bedrock")
+        # if jsonMode is True:
+        #     logger.warn("JSON mode not supported for Bedrock")
+
         """
         @NOTE Bedrock does not currently support image types
         """
@@ -219,7 +220,6 @@ class BedrockProvider(BaseProviderClass):
                 if messageSystem is not None:
                     native_request["system"] = messageSystem.content
 
-                print(native_request)
             case (
                 ModelTypes.mistral_7b_instruct.name
                 | ModelTypes.mixtral_8x7b_instruct.name

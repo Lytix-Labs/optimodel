@@ -43,10 +43,6 @@ class AnthropicProvider(BaseProviderClass):
         temperature = params.get("temperature", None)
         maxGenLen = params.get("maxGenLen", None)
         credentials = params.get("credentials", None)
-        jsonMode = params.get("jsonMode", False)
-
-        if jsonMode is True:
-            raise OptimodelError("JSON mode not supported for Anthropic")
 
         if SAAS_MODE is not None:
             if credentials is None:
@@ -63,6 +59,7 @@ class AnthropicProvider(BaseProviderClass):
 
             client = anthropic.Anthropic(api_key=anthropicCreds.anthropicApiKey)
         else:
+            print("here>>13", self.anthropicClient)
             if self.anthropicClient is None:
                 raise OptimodelError("Anthropic client not initialized")
             client = self.anthropicClient
@@ -115,7 +112,7 @@ class AnthropicProvider(BaseProviderClass):
                             }
                         )
                 messageToPass.append({"role": message.role, "content": baseContent})
-
+        print("here>>14", messageToPass)
         response = client.messages.create(
             model=modelId,
             system=systemMessage.content if systemMessage else anthropic.NOT_GIVEN,

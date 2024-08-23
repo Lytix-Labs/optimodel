@@ -12,7 +12,7 @@ from optimodel_server_types import (
     ModelTypes,
     Providers,
 )
-from optimodel_server_types.providerTypes import QueryResponse
+from optimodel_server_types.providerTypes import MakeQueryResponse
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,8 @@ async def queryModel(
     guards: list[Guards] | None = None,
     retries: int | None = None,
     timeout: int | None = None,
-) -> QueryResponse:
+    workflowName: str | None = None,
+) -> MakeQueryResponse:
     """
     Query a model
     @param model: The model to use
@@ -41,14 +42,15 @@ async def queryModel(
     @param validator: A function that takes in the model output and returns a boolean if it passed/failed validation
     @param fallbackModels: A list of models to use if the first model fails.
     @param jsonMode: Whether to return the response in JSON mode
-    @param userId: The user id to use for the query
-    @param sessionId: The session id to use for the query
+    @param userId: [Lytix Specific] The user id to use for the query
+    @param sessionId: [Lytix Specific] The session id to use for the query
     @param guard: A list of guards to use for the query
     @param retries: The number of retries to attempt if the model fails.
     @param timeout: The timeout in seconds to wait for the model to respond.
+    @param workflowName: [Lytix Specific] The workflow name to use for the query
     """
     # Either 0 retries or whatevers passed
-    retriesParsed = retries if retries else 0
+    retriesParsed = retries if retries else 1
 
     while retriesParsed > 0:
         # Make our request
@@ -77,6 +79,7 @@ async def queryModel(
                                 "userId": userId if userId else None,
                                 "sessionId": sessionId if sessionId else None,
                                 "guards": guards,
+                                "workflowName": workflowName if workflowName else None,
                             }
                             if maxGenLen:
                                 body["maxGenLen"] = maxGenLen
@@ -111,18 +114,21 @@ async def queryModel(
                 except Exception as e:
                     raise e
         except Exception as e:
+            retriesParsed -= 1
+
             # If we have more retries to try
-            if retriesParsed > 0 and retries:
-                retriesParsed -= 1
+            if retriesParsed > 0 and retries and retries > 0:
                 logger.warn(
                     f"Retrying model {model} due to error: {e}. Remaining retries: {retriesParsed}"
                 )
-
-                # Do exponential backoff
-                sleepTime = 2 ** ((retries - retriesParsed) + 3)
-                logger.info(f"Sleeping for {sleepTime} seconds")
-                await asyncio.sleep(sleepTime)
-                continue
+                try:
+                    # Do exponential backoff
+                    sleepTime = 2 ** ((retries - retriesParsed) + 3)
+                    logger.info(f"Sleeping for {sleepTime} seconds")
+                    await asyncio.sleep(sleepTime)
+                except Exception as e:
+                    logger.warn(f"Error sleeping. Going to do it normally. Error: {e}")
+                    await asyncio.sleep(15)
             else:
                 raise e
     raise Exception("Failed to query model")

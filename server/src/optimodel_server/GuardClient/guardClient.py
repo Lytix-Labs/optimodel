@@ -1,8 +1,13 @@
 import aiohttp
 from urllib.parse import urljoin
 import json
-
+import logging
+import sys
 from optimodel_server_types import GuardResponse, ModelMessage, Guards
+from optimodel_server.OptimodelError import OptimodelError
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class GuardClient:
@@ -18,7 +23,7 @@ class GuardClient:
         """
         Check a single guard given an input
         """
-
+        print(f"self.guardServerURL: {self.guardServerURL}")
         # Make our request to our guard server
         async with aiohttp.ClientSession(
             json_serialize=lambda object: json.dumps(
@@ -28,15 +33,21 @@ class GuardClient:
             if modelOutput:
                 # Add it to messages with the assistant role
                 messages.append(ModelMessage(role="assistant", content=modelOutput))
-            async with session.post(
-                self.guardServerURL,
-                json={
-                    "guard": guards,
-                    "messages": messages,
-                },
-            ) as response:
-                response_data = await response.json()
-                return response_data
+            try:
+                print(f"self.guardServerURL222: {self.guardServerURL}")
+                async with session.post(
+                    self.guardServerURL,
+                    json={
+                        "guard": guards,
+                        "messages": messages,
+                    },
+                ) as response:
+                    print(f"response: {response}")
+                    response_data = await response.json()
+                    return response_data
+            except Exception as e:
+                logger.error(f"Error checking guard: {e}")
+                raise OptimodelError(f"Error checking guard: {e}")
 
 
 class GuardObjectEncoder(json.JSONEncoder):

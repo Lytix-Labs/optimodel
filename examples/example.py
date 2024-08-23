@@ -30,7 +30,7 @@ async def main():
     prompt = "Hello How are you?"
 
     response = await queryModel(
-        model=ModelTypes.llama_3_8b_instruct,
+        model=ModelTypes.gpt_3_5_turbo,
         messages=[
             ModelMessage(
                 role="system",

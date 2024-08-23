@@ -9,7 +9,11 @@ from optimodel_server.Config import config
 from optimodel_server.Planner import getAllAvailableProviders, orderProviders
 from optimodel_server_types import QueryBody
 from optimodel_server.Config.types import SAAS_MODE
-from optimodel_server_types.providerTypes import QueryParams, QueryResponse
+from optimodel_server_types.providerTypes import (
+    MakeQueryResponse,
+    QueryParams,
+    QueryResponse,
+)
 
 import logging
 import sys
@@ -93,9 +97,14 @@ async def read_root(data: QueryBody):
                 if preQueryGuards:
                     for guard in preQueryGuards:
                         logger.info(f"Checking preQuery guard {guard.guardName}")
-                        guardResponse = await guardClientInstance.checkGuard(
-                            guards=guard, messages=data.messages
-                        )
+                        try:
+                            guardResponse = await guardClientInstance.checkGuard(
+                                guards=guard, messages=data.messages
+                            )
+                        except Exception as e:
+                            logger.error(f"Error checking guard: {e}")
+                            if guard.blockRequest is True:
+                                raise OptimodelError(f"Error checking guard: {e}")
                         if guardResponse["failure"] is True:
                             guardErrors.append(guard.guardName)
                             if guard.blockRequest is True:
@@ -149,7 +158,7 @@ async def read_root(data: QueryBody):
                     except Exception as e:
                         logger.error(f"Error getting cost: {e}")
                         cost = None
-                    queryResponse: QueryResponse = {
+                    queryResponse: MakeQueryResponse = {
                         "modelResponse": response.modelOutput,
                         "promptTokens": response.promptTokens,
                         "generationTokens": response.generationTokens,
