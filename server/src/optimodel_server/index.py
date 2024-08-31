@@ -51,7 +51,6 @@ async def read_root(data: QueryBody):
     """
     try:
         allAvailableProviders = getAllAvailableProviders(data)
-
         """
         Now its time to just pick the best one based on our criteria
         """
