@@ -1,5 +1,11 @@
-from optimodel_server_types import GuardType
+from typing import Dict, Any
 from optimodel_server_types.providerTypes import QueryParams, QueryResponse
+from pydantic import BaseModel
+
+
+class GuardEvalResponse(BaseModel):
+    failure: bool
+    metadata: Dict[str, Any] | None = {}
 
 
 class GuardBaseClass:
@@ -7,7 +13,7 @@ class GuardBaseClass:
     Common interface for all guards to implement
     """
 
-    def handlePreQuery(self, query: QueryParams) -> bool:
+    def handlePreQuery(self, query: QueryParams) -> GuardEvalResponse:
         """
         Handle a pre-query event.
 
@@ -17,7 +23,9 @@ class GuardBaseClass:
         """
         pass
 
-    def handlePostQuery(self, query: QueryParams, response: QueryResponse) -> bool:
+    def handlePostQuery(
+        self, query: QueryParams, response: QueryResponse
+    ) -> GuardEvalResponse:
         """
         Handle a post-query event.
 

@@ -111,6 +111,8 @@ class BedrockProvider(BaseProviderClass):
                 modelId = "anthropic.claude-3-5-sonnet-20240620-v1:0"
             case ModelTypes.claude_3_5_sonnet.name:
                 modelId = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+            case ModelTypes.claude_3_sonnet.name:
+                modelId = "anthropic.claude-3-sonnet-20240229-v1:0"
             case ModelTypes.claude_3_haiku.name:
                 modelId = "anthropic.claude-3-haiku-20240307-v1:0"
             case ModelTypes.mistral_7b_instruct.name:
@@ -156,6 +158,7 @@ class BedrockProvider(BaseProviderClass):
                 ModelTypes.claude_3_5_sonnet.name
                 | ModelTypes.claude_3_haiku.name
                 | ModelTypes.claude_3_5_sonnet_20240620.name
+                | ModelTypes.claude_3_sonnet.name
             ):
                 # Filter our system role from messages
                 messagesNoSystem = []
@@ -275,6 +278,7 @@ class BedrockProvider(BaseProviderClass):
                 ModelTypes.claude_3_5_sonnet.name
                 | ModelTypes.claude_3_haiku.name
                 | ModelTypes.claude_3_5_sonnet_20240620.name
+                | ModelTypes.claude_3_sonnet.name
             ):
                 response_text = model_response["content"][0]["text"].strip()
                 promptTokenCount = model_response["usage"]["input_tokens"]

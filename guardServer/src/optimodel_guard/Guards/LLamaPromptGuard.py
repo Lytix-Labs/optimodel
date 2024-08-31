@@ -1,7 +1,7 @@
 import logging
 from typing import List, Literal
 
-from optimodel_guard.Guards.GuardBaseClass import GuardBaseClass
+from optimodel_guard.Guards.GuardBaseClass import GuardBaseClass, GuardEvalResponse
 from optimodel_server_types import LLamaPromptGuardConfig, ModelMessage
 from optimodel_server_types.providerTypes import QueryParams, QueryResponse
 
@@ -31,7 +31,7 @@ class LLamaPromptGuard(GuardBaseClass):
         messages: List[ModelMessage],
         config: LLamaPromptGuardConfig,
         role: Literal["user", "assistant"],
-    ) -> bool:
+    ) -> GuardEvalResponse:
         """
         Extract any instructions from the query that the user has given.
         """
@@ -67,7 +67,9 @@ class LLamaPromptGuard(GuardBaseClass):
             logger.info(
                 f"META_LLAMA_PROMPT_GUARD_86M found injection. Failed {role} check. Got {max(injectionList)}"
             )
-            return True
+            return GuardEvalResponse(
+                failure=True, metadata={"injectionScore": max(injectionList)}
+            )
         if (
             len(jailbreakList) > 0
             and config.jailbreakThreshold
@@ -76,6 +78,8 @@ class LLamaPromptGuard(GuardBaseClass):
             logger.info(
                 f"META_LLAMA_PROMPT_GUARD_86M found jailbreak. Failed {role} check. Got {max(jailbreakList)}"
             )
-            return True
+            return GuardEvalResponse(
+                failure=True, metadata={"jailbreakScore": max(jailbreakList)}
+            )
 
-        return False
+        return GuardEvalResponse(failure=False, metadata={})

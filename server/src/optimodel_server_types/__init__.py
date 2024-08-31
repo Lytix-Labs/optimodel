@@ -1,5 +1,5 @@
 import enum
-from typing import Literal
+from typing import Literal, Dict, Any
 from pydantic import BaseModel
 
 
@@ -18,6 +18,7 @@ class ModelTypes(enum.Enum):
     claude_3_5_sonnet_20240620 = "claude_3_5_sonnet_20240620"
     claude_3_5_sonnet = "claude_3_5_sonnet"
     claude_3_haiku = "claude_3_haiku"
+    claude_3_sonnet = "claude_3_sonnet"
 
     # Mistral
     mistral_7b_instruct = "mistral_7b_instruct"
@@ -32,6 +33,11 @@ class ModelTypes(enum.Enum):
     gpt_4o_mini = "gpt_4o_mini"
     gpt_4o_mini_2024_07_18 = "gpt_4o_mini_2024_07_18"
     gpt_4o_2024_08_06 = "gpt_4o_2024_08_06"
+
+    # MistralAI
+    codestral_latest = "codestral_latest"
+    mistral_large_latest = "mistral_large_latest"
+    open_mistral_nemo = "open_mistral_nemo"
 
 
 class Providers(enum.Enum):
@@ -86,12 +92,17 @@ class AWSBedrockCredentials(BaseModel):
     awsRegion: str
 
 
+class MistralAICredentials(BaseModel):
+    mistralApiKey: str
+
+
 Credentials = (
     TogetherAICredentials
     | OpenAICredentials
     | AWSBedrockCredentials
     | GroqCredentials
     | AnthropicCredentials
+    | MistralAICredentials
 )
 
 GuardType = Literal["preQuery", "postQuery"]
@@ -173,3 +184,8 @@ class GuardResponse(BaseModel):
     Map of guard name to whether it passed or failed
     """
     failure: bool
+
+    """
+    Metadata associated with the failure
+    """
+    metadata: Dict[str, Any] | None = {}

@@ -8,6 +8,7 @@ from optimodel_server_types import (
     ModelMessageContentEntry,
     ModelTypes,
     Providers,
+    MistralAICredentials,
 )
 
 import logging
@@ -28,9 +29,10 @@ def validator(x) -> bool:
 
 async def main():
     prompt = "Hello How are you?"
+    # creds = MistralAICredentials(mistralApiKey="kPxTDWs4wWD1EEMmvIKXWz80bSt1rodw")
 
     response = await queryModel(
-        model=ModelTypes.gpt_3_5_turbo,
+        model=ModelTypes.codestral_latest,
         messages=[
             ModelMessage(
                 role="system",
@@ -41,11 +43,7 @@ async def main():
                 content=[ModelMessageContentEntry(type="text", text=prompt)],
             ),
         ],
-        speedPriority="high",
-        validator=validator,
-        fallbackModels=[ModelTypes.llama_3_70b_instruct],
-        maxGenLen=256,
-        provider=Providers.bedrock,
+        # credentials=[creds],
     )
 
     print("Got response:", response)

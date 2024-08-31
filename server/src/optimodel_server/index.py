@@ -13,6 +13,7 @@ from optimodel_server_types.providerTypes import (
     MakeQueryResponse,
     QueryParams,
     QueryResponse,
+    GuardError,
 )
 
 import logging
@@ -78,7 +79,7 @@ async def read_root(data: QueryBody):
         Now attempt the query with each provider in order
         """
         errors = []
-        guardErrors = []
+        guardErrors: List[GuardError] = []
         for potentialProvider in orderedProviders:
             try:
                 providerName = potentialProvider["provider"]
@@ -105,8 +106,18 @@ async def read_root(data: QueryBody):
                             logger.error(f"Error checking guard: {e}")
                             if guard.blockRequest is True:
                                 raise OptimodelError(f"Error checking guard: {e}")
+                            else:
+                                guardResponse = {"failure": False}
+                        print(f"guardResponse: {guardResponse}")
                         if guardResponse["failure"] is True:
-                            guardErrors.append(guard.guardName)
+                            guardErrors.append(
+                                GuardError(
+                                    guardName=guard.guardName,
+                                    failure=True,
+                                    metadata=guardResponse["metadata"],
+                                    blockRequest=guard.blockRequest,
+                                )
+                            )
                             if guard.blockRequest is True:
                                 # Short circuit calling the model
                                 queryResponse: QueryResponse = {
@@ -179,7 +190,14 @@ async def read_root(data: QueryBody):
                                 modelOutput=response.modelOutput,
                             )
                             if guardResponse["failure"] is True:
-                                guardErrors.append(guard.guardName)
+                                guardErrors.append(
+                                    GuardError(
+                                        guardName=guard.guardName,
+                                        failure=True,
+                                        metadata=guardResponse["metadata"],
+                                        blockRequest=guard.blockRequest,
+                                    )
+                                )
                                 if guard.blockRequest is True:
                                     # If the user wants to return a custom message
                                     queryResponse["modelResponse"] = (

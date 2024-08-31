@@ -1,4 +1,4 @@
-from typing import List, Optional, TypedDict
+from typing import List, Optional, TypedDict, Dict, Any
 from optimodel_server_types import Credentials, ModelMessage, ModelTypes, Providers
 
 
@@ -17,6 +17,12 @@ class QueryResponse:
     generationTokens: int
 
 
+class GuardError(TypedDict):
+    guardName: str
+    failure: bool
+    metadata: Dict[str, Any]
+
+
 class MakeQueryResponse(TypedDict):
     """
     Response from a query to the provider
@@ -27,7 +33,7 @@ class MakeQueryResponse(TypedDict):
     generationTokens: int
     cost: float
     provider: Providers
-    guardErrors: List[str]
+    guardErrors: List[GuardError]
 
 
 class QueryParams(TypedDict, total=False):

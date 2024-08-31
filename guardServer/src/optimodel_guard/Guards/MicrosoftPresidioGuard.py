@@ -1,7 +1,7 @@
 import logging
 from typing import List, Literal
 
-from optimodel_guard.Guards.GuardBaseClass import GuardBaseClass
+from optimodel_guard.Guards.GuardBaseClass import GuardBaseClass, GuardEvalResponse
 from optimodel_server_types import MicrosoftPresidioConfig, ModelMessage
 from presidio_analyzer import AnalyzerEngine
 from presidio_analyzer.nlp_engine import TransformersNlpEngine
@@ -43,7 +43,7 @@ class MicrosoftPresidioGuard(GuardBaseClass):
         messages: List[ModelMessage],
         config: MicrosoftPresidioConfig,
         role: Literal["user", "assistant"],
-    ) -> bool:
+    ) -> GuardEvalResponse:
         """
         Extract any instructions from the query that the user has given.
         """
@@ -69,6 +69,9 @@ class MicrosoftPresidioGuard(GuardBaseClass):
 
         if len(results) > 0:
             logger.info(f"Found entities in microsoft presidio: {results}")
-            return True
+            return GuardEvalResponse(
+                failure=True,
+                metadata={"entitiesFound": [x.entity_type for x in results]},
+            )
 
-        return False
+        return GuardEvalResponse(failure=False, metadata={})

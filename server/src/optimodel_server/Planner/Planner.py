@@ -4,6 +4,7 @@ from optimodel_server.Config import config
 from optimodel_server.OptimodelError import OptimodelError
 from optimodel_server_types import (
     GroqCredentials,
+    MistralAICredentials,
     QueryBody,
     SpeedPriority,
     TogetherAICredentials,
@@ -27,6 +28,8 @@ def getAllAvailableProviders(body: QueryBody):
     """
     If we've explicitly passed a provider, filter our list to only that provider
     """
+    logger.info(f"allAvailableProviders: {allAvailableProviders}")
+
     if body.provider is not None:
         allAvailableProviders = [
             provider
@@ -81,6 +84,14 @@ def getAllAvailableProviders(body: QueryBody):
             if provider["provider"] == "anthropic":
                 credsForProvider = next(
                     (x for x in body.credentials if type(x) == AnthropicCredentials),
+                    None,
+                )
+                if credsForProvider is not None:
+                    filteredProviders.append(provider)
+
+            if provider["provider"] == "mistralai":
+                credsForProvider = next(
+                    (x for x in body.credentials if type(x) == MistralAICredentials),
                     None,
                 )
                 if credsForProvider is not None:

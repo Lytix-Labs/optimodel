@@ -57,7 +57,9 @@ async def query(data: GuardBody):
     elif data.guard.guardType == "postQuery":
         guardResponse = guard.handlePostQuery(messages=data.messages, config=data.guard)
 
-    toReturn = GuardResponse(failure=guardResponse)
+    toReturn = GuardResponse(
+        failure=guardResponse.failure, metadata=guardResponse.metadata
+    )
     return toReturn
 
 

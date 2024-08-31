@@ -3,7 +3,7 @@ import re
 from typing import List, Literal
 
 
-from optimodel_guard.Guards.GuardBaseClass import GuardBaseClass
+from optimodel_guard.Guards.GuardBaseClass import GuardBaseClass, GuardEvalResponse
 from optimodel_server_types import (
     LytixRegexConfig,
     ModelMessage,
@@ -31,7 +31,7 @@ class LytixRegexGuard(GuardBaseClass):
         messages: List[ModelMessage],
         config: LytixRegexConfig,
         role: Literal["user", "assistant"],
-    ) -> bool:
+    ) -> GuardEvalResponse:
         """
         Extract any instructions from the query that the user has given.
         """
@@ -55,12 +55,12 @@ class LytixRegexGuard(GuardBaseClass):
             match = pattern.search(messages)
         except re.error as e:
             logger.error(f"Error compiling regex pattern: {e}")
-            return False
+            return GuardEvalResponse(failure=False, metadata={})
 
         if match:
             logger.info(f"Regex pattern matched: {match.group()}")
-            return True
+            return GuardEvalResponse(failure=True, metadata={"matched": match.group()})
         else:
             logger.info("No match found for the regex pattern.")
 
-        return False
+        return GuardEvalResponse(failure=False, metadata={})

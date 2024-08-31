@@ -6,6 +6,7 @@ import aiohttp
 
 from optimodel.envVars import LytixCreds
 from optimodel_server_types import (
+    Credentials,
     Guards,
     ModelMessage,
     SpeedPriority,
@@ -33,6 +34,7 @@ async def queryModel(
     retries: int | None = None,
     timeout: int | None = None,
     workflowName: str | None = None,
+    credentials: list[Credentials] | None = None,
 ) -> MakeQueryResponse:
     """
     Query a model
@@ -80,6 +82,7 @@ async def queryModel(
                                 "sessionId": sessionId if sessionId else None,
                                 "guards": guards,
                                 "workflowName": workflowName if workflowName else None,
+                                "credentials": credentials,
                             }
                             if maxGenLen:
                                 body["maxGenLen"] = maxGenLen

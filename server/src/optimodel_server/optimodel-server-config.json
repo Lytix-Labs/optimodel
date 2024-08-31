@@ -1,5 +1,25 @@
 {
   "availableModels": {
+    "mistralai": [
+      {
+        "name": "mistral_large_latest",
+        "pricePer1MInput": 4,
+        "pricePer1MOutput": 12,
+        "speed": 0.45
+      },
+      {
+        "name": "codestral_latest",
+        "pricePer1MInput": 1,
+        "pricePer1MOutput": 3,
+        "speed": 0.37
+      },
+      {
+        "name": "open_mistral_nemo",
+        "pricePer1MInput": 0.3,
+        "pricePer1MOutput": 1,
+        "speed": 0.35
+      }
+    ],
     "together": [
       {
         "name": "llama_3_8b_instruct",
@@ -76,6 +96,12 @@
         "pricePer1MInput": 3,
         "pricePer1MOutput": 15,
         "speed": 1.14
+      },
+      {
+        "name": "claude_3_sonnet",
+        "speed": 0.43,
+        "pricePer1MInput": 3,
+        "pricePer1MOutput": 15
       },
       {
         "name": "claude_3_haiku",

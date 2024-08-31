@@ -23,7 +23,6 @@ class GuardClient:
         """
         Check a single guard given an input
         """
-        print(f"self.guardServerURL: {self.guardServerURL}")
         # Make our request to our guard server
         async with aiohttp.ClientSession(
             json_serialize=lambda object: json.dumps(
@@ -34,7 +33,6 @@ class GuardClient:
                 # Add it to messages with the assistant role
                 messages.append(ModelMessage(role="assistant", content=modelOutput))
             try:
-                print(f"self.guardServerURL222: {self.guardServerURL}")
                 async with session.post(
                     self.guardServerURL,
                     json={
