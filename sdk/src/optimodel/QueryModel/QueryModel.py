@@ -35,6 +35,7 @@ async def queryModel(
     timeout: int | None = None,
     workflowName: str | None = None,
     credentials: list[Credentials] | None = None,
+    cacheTTL: int | None = None,
 ) -> MakeQueryResponse:
     """
     Query a model
@@ -50,6 +51,8 @@ async def queryModel(
     @param retries: The number of retries to attempt if the model fails.
     @param timeout: The timeout in seconds to wait for the model to respond.
     @param workflowName: [Lytix Specific] The workflow name to use for the query
+    @param credentials: Explicitly pass in credentials to use for the query (used in SAAS_MODE)
+    @param cacheTTL: [Lytix Specific] The time to cache the response for if cache is enabled in Lytix
     """
     # Either 0 retries or whatevers passed
     retriesParsed = retries if retries else 1
@@ -83,6 +86,7 @@ async def queryModel(
                                 "guards": guards,
                                 "workflowName": workflowName if workflowName else None,
                                 "credentials": credentials,
+                                "cacheTTL": cacheTTL,
                             }
                             if maxGenLen:
                                 body["maxGenLen"] = maxGenLen
