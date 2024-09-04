@@ -10,6 +10,7 @@ from optimodel_server.Providers import (
     OpenAIProvider,
     AnthropicProvider,
     MistralAIProvider,
+    GeminiProvider,
 )
 from optimodel_server.Config.types import SAAS_MODE
 from optimodel_server_types import ModelTypes
@@ -96,6 +97,8 @@ class Config:
                     providerClient = AnthropicProvider()
                 case "mistralai":
                     providerClient = MistralAIProvider()
+                case "gemini":
+                    providerClient = GeminiProvider()
                 case _:
                     logger.warn(f"Provider {provider} is not supported")
                     continue

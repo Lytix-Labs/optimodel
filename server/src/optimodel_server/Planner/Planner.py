@@ -3,6 +3,7 @@ import logging
 from optimodel_server.Config import config
 from optimodel_server.OptimodelError import OptimodelError
 from optimodel_server_types import (
+    GeminiCredentials,
     GroqCredentials,
     MistralAICredentials,
     QueryBody,
@@ -92,6 +93,14 @@ def getAllAvailableProviders(body: QueryBody):
             if provider["provider"] == "mistralai":
                 credsForProvider = next(
                     (x for x in body.credentials if type(x) == MistralAICredentials),
+                    None,
+                )
+                if credsForProvider is not None:
+                    filteredProviders.append(provider)
+
+            if provider["provider"] == "gemini":
+                credsForProvider = next(
+                    (x for x in body.credentials if type(x) == GeminiCredentials),
                     None,
                 )
                 if credsForProvider is not None:

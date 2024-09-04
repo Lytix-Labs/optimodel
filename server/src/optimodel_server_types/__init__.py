@@ -39,6 +39,18 @@ class ModelTypes(enum.Enum):
     mistral_large_latest = "mistral_large_latest"
     open_mistral_nemo = "open_mistral_nemo"
 
+    # Google
+    gemini_1_5_pro = "gemini_1_5_pro"
+    gemini_1_5_pro_001 = "gemini_1_5_pro_001"
+    gemini_1_5_pro_exp_0801 = "gemini_1_5_pro_exp_0801"
+    gemini_1_5_pro_exp_0827 = "gemini_1_5_pro_exp_0827"
+    gemini_1_5_flash = "gemini_1_5_flash"
+    gemini_1_5_flash_latest = "gemini_1_5_flash_latest"
+    gemini_1_5_flash_001 = "gemini_1_5_flash_001"
+    gemini_1_5_flash_001_tuning = "gemini_1_5_flash_001_tuning"
+    gemini_1_5_flash_exp_0827 = "gemini_1_5_flash_exp_0827"
+    gemini_1_5_flash_8b_exp_0827 = "gemini_1_5_flash_8b_exp_0827"
+
 
 class Providers(enum.Enum):
     openai = "openai"
@@ -46,6 +58,7 @@ class Providers(enum.Enum):
     groq = "groq"
     anthropic = "anthropic"
     bedrock = "bedrock"
+    gemini = "gemini"
 
 
 class SpeedPriority(enum.Enum):
@@ -96,6 +109,10 @@ class MistralAICredentials(BaseModel):
     mistralApiKey: str
 
 
+class GeminiCredentials(BaseModel):
+    geminiApiKey: str
+
+
 Credentials = (
     TogetherAICredentials
     | OpenAICredentials
@@ -103,6 +120,7 @@ Credentials = (
     | GroqCredentials
     | AnthropicCredentials
     | MistralAICredentials
+    | GeminiCredentials
 )
 
 GuardType = Literal["preQuery", "postQuery"]

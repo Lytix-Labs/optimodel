@@ -8,6 +8,7 @@ from optimodel_server_types import (
     ModelMessageContentEntry,
     ModelTypes,
     Providers,
+    GeminiCredentials,
     MistralAICredentials,
 )
 
@@ -29,7 +30,6 @@ def validator(x) -> bool:
 
 async def main():
     prompt = "Hello How are you?"
-    # creds = MistralAICredentials(mistralApiKey="kPxTDWs4wWD1EEMmvIKXWz80bSt1rodw")
 
     response = await queryModel(
         model=ModelTypes.codestral_latest,
@@ -43,7 +43,6 @@ async def main():
                 content=[ModelMessageContentEntry(type="text", text=prompt)],
             ),
         ],
-        # credentials=[creds],
     )
 
     print("Got response:", response)
