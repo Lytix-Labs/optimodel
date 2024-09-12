@@ -4,7 +4,7 @@ from typing import List, Literal
 
 
 from optimodel_guard.Guards.GuardBaseClass import GuardBaseClass, GuardEvalResponse
-from optimodel_server_types import (
+from optimodel_types import (
     LytixRegexConfig,
     ModelMessage,
 )

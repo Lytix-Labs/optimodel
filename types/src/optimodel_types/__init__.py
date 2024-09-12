@@ -33,6 +33,10 @@ class ModelTypes(enum.Enum):
     gpt_4o_mini = "gpt_4o_mini"
     gpt_4o_mini_2024_07_18 = "gpt_4o_mini_2024_07_18"
     gpt_4o_2024_08_06 = "gpt_4o_2024_08_06"
+    o1_preview = "o1_preview"
+    o1_preview_2024_09_12 = "o1_preview_2024_09_12"
+    o1_mini = "o1_mini"
+    o1_mini_2024_09_12 = "o1_mini_2024_09_12"
 
     # MistralAI
     codestral_latest = "codestral_latest"
@@ -59,6 +63,7 @@ class Providers(enum.Enum):
     anthropic = "anthropic"
     bedrock = "bedrock"
     gemini = "gemini"
+    mistralai = "mistralai"
 
 
 class SpeedPriority(enum.Enum):
@@ -159,7 +164,7 @@ class QueryBody(BaseModel):
     messages: list[ModelMessage]
     modelToUse: str
     speedPriority: SpeedPriority | None = None
-    temperature: float | None = 0.2
+    temperature: float | None = None
     maxGenLen: int | None = None
     jsonMode: bool | None = None
 

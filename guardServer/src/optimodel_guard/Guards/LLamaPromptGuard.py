@@ -2,8 +2,8 @@ import logging
 from typing import List, Literal
 
 from optimodel_guard.Guards.GuardBaseClass import GuardBaseClass, GuardEvalResponse
-from optimodel_server_types import LLamaPromptGuardConfig, ModelMessage
-from optimodel_server_types.providerTypes import QueryParams, QueryResponse
+from optimodel_types import LLamaPromptGuardConfig, ModelMessage
+from optimodel_types.providerTypes import QueryParams, QueryResponse
 
 from transformers import pipeline
 

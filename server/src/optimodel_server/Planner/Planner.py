@@ -2,7 +2,7 @@ import logging
 
 from optimodel_server.Config import config
 from optimodel_server.OptimodelError import OptimodelError
-from optimodel_server_types import (
+from optimodel_types import (
     GeminiCredentials,
     GroqCredentials,
     MistralAICredentials,

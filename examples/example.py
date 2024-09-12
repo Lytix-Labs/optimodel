@@ -3,13 +3,10 @@ import json
 import asyncio
 
 from optimodel import queryModel, listModels
-from optimodel_server_types import (
+from optimodel_types import (
     ModelMessage,
     ModelMessageContentEntry,
     ModelTypes,
-    Providers,
-    GeminiCredentials,
-    MistralAICredentials,
 )
 
 import logging
@@ -32,7 +29,7 @@ async def main():
     prompt = "Hello How are you?"
 
     response = await queryModel(
-        model=ModelTypes.codestral_latest,
+        model=ModelTypes.o1_mini,
         messages=[
             ModelMessage(
                 role="system",

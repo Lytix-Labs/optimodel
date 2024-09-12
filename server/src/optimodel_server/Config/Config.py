@@ -13,7 +13,7 @@ from optimodel_server.Providers import (
     GeminiProvider,
 )
 from optimodel_server.Config.types import SAAS_MODE
-from optimodel_server_types import ModelTypes
+from optimodel_types import ModelTypes
 
 
 logger = logging.getLogger(__name__)

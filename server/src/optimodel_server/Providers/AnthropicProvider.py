@@ -3,7 +3,7 @@ from optimodel_server import OptimodelError
 
 import anthropic
 
-from optimodel_server_types import (
+from optimodel_types import (
     AnthropicCredentials,
     ModelTypes,
 )

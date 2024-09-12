@@ -1,4 +1,4 @@
-from optimodel_server_types.providerTypes import QueryParams, QueryResponse
+from optimodel_types.providerTypes import QueryParams, QueryResponse
 
 
 class BaseProviderClass:

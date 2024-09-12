@@ -1,6 +1,6 @@
 import json
 
-# from optimodel_server_types import GuardQueryBase
+# from optimodel_types import GuardQueryBase
 
 
 class GuardObjectEncoder(json.JSONEncoder):

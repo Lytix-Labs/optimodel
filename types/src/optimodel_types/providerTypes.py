@@ -1,5 +1,5 @@
 from typing import List, Optional, TypedDict, Dict, Any
-from optimodel_server_types import Credentials, ModelMessage, ModelTypes, Providers
+from optimodel_types import Credentials, ModelMessage, ModelTypes, Providers
 
 
 class QueryResponse:

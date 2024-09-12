@@ -3,7 +3,7 @@ import json
 import asyncio
 
 from optimodel import queryModel, listModels
-from optimodel_server_types import (
+from optimodel_types import (
     LLamaPromptGuardConfig,
     LytixRegexConfig,
     MicrosoftPresidioConfig,
@@ -46,7 +46,7 @@ async def main():
                 guardType="preQuery",
                 entitiesToCheck=["EMAIL_ADDRESS"],
                 blockRequest=True,
-                blockRequestMessage="You are not allowed to ask about this email address",
+                blockRequestMessage="I'm not allowed to work with email addresses",
             ),
         ],
     )

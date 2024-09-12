@@ -5,7 +5,7 @@ from typing import Callable
 import aiohttp
 
 from optimodel.envVars import LytixCreds
-from optimodel_server_types import (
+from optimodel_types import (
     Credentials,
     Guards,
     ModelMessage,
@@ -13,7 +13,7 @@ from optimodel_server_types import (
     ModelTypes,
     Providers,
 )
-from optimodel_server_types.providerTypes import MakeQueryResponse
+from optimodel_types.providerTypes import MakeQueryResponse
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ async def queryModel(
     validator: Callable[[str], bool] = None,
     fallbackModels: list[ModelTypes] = [],
     maxGenLen: int = None,
-    temperature: float = 0.2,
+    temperature: float = None,
     jsonMode: bool = None,
     provider: Providers | None = None,
     userId: str | None = None,

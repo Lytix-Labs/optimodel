@@ -9,7 +9,7 @@ from optimodel_server.Providers.BaseProviderClass import (
     QueryResponse,
     QueryParams,
 )
-from optimodel_server_types import ModelTypes, OpenAICredentials
+from optimodel_types import ModelTypes, OpenAICredentials
 
 
 class OpenAIProvider(BaseProviderClass):
@@ -33,6 +33,7 @@ class OpenAIProvider(BaseProviderClass):
         self,
         params: QueryParams,
     ):
+
         messages = params["messages"]
         model = params["model"]
         temperature = params.get("temperature", None)
@@ -78,6 +79,14 @@ class OpenAIProvider(BaseProviderClass):
                 modelId = "gpt-4o-mini-2024-07-18"
             case ModelTypes.gpt_4o_2024_08_06.name:
                 modelId = "gpt-4o-2024-08-06"
+            case ModelTypes.o1_preview.name:
+                modelId = "o1-preview"
+            case ModelTypes.o1_preview_2024_09_12.name:
+                modelId = "o1-preview-2024-09-12"
+            case ModelTypes.o1_mini.name:
+                modelId = "o1-mini"
+            case ModelTypes.o1_mini_2024_09_12.name:
+                modelId = "o1-mini-2024-09-12"
             case _:
                 raise OptimodelError(f"Model {model} not supported", provider="openai")
 
@@ -115,7 +124,7 @@ class OpenAIProvider(BaseProviderClass):
         response = client.chat.completions.create(
             model=modelId,
             messages=messageToPass,
-            temperature=temperature,
+            **({"temperature": temperature} if temperature is not None else {}),
             max_tokens=maxGenLen if maxGenLen else NOT_GIVEN,
             response_format={"type": "json_object"} if jsonMode else None,
         )

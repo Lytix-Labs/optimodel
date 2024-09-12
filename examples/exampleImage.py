@@ -1,5 +1,5 @@
 from optimodel import queryModel, listModels
-from optimodel_server_types import (
+from optimodel_types import (
     ModelImageMessageSource,
     ModelMessage,
     ModelMessageContentEntry,

@@ -5,7 +5,7 @@ from optimodel_server.OptimodelError import OptimodelError
 from optimodel_server.Providers.CommonUtils import containsImageInMessages
 
 
-from optimodel_server_types import (
+from optimodel_types import (
     GroqCredentials,
     ModelTypes,
 )

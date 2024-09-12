@@ -7,9 +7,9 @@ from optimodel_server.GuardClient import GuardClient
 from optimodel_server.OptimodelError import OptimodelError, OptimodelGuardError
 from optimodel_server.Config import config
 from optimodel_server.Planner import getAllAvailableProviders, orderProviders
-from optimodel_server_types import QueryBody
+from optimodel_types import QueryBody
 from optimodel_server.Config.types import SAAS_MODE
-from optimodel_server_types.providerTypes import (
+from optimodel_types.providerTypes import (
     MakeQueryResponse,
     QueryParams,
     QueryResponse,
@@ -142,6 +142,7 @@ async def read_root(data: QueryBody):
                         "credentials": data.credentials,
                         "maxGenLen": maxGenLen,
                         "jsonMode": data.jsonMode,
+                        "temperature": data.temperature,
                     }
                     response = config.providerInstances[providerName].makeQuery(
                         params=params

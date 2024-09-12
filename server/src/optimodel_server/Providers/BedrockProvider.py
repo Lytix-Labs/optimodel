@@ -5,7 +5,7 @@ import boto3
 from optimodel_server.OptimodelError import OptimodelError
 from optimodel_server.Providers.CommonUtils import containsImageInMessages
 
-from optimodel_server_types import AWSBedrockCredentials, ModelTypes
+from optimodel_types import AWSBedrockCredentials, ModelTypes
 from optimodel_server.Config.types import SAAS_MODE
 from optimodel_server.Providers.BaseProviderClass import (
     BaseProviderClass,

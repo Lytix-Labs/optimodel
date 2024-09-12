@@ -3,7 +3,7 @@ from urllib.parse import urljoin
 import json
 import logging
 import sys
-from optimodel_server_types import GuardResponse, ModelMessage, Guards
+from optimodel_types import GuardResponse, ModelMessage, Guards
 from optimodel_server.OptimodelError import OptimodelError
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)

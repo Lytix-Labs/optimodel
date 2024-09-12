@@ -1,4 +1,4 @@
-from optimodel_server_types import ModelMessage, ModelMessageContentEntry
+from optimodel_types import ModelMessage, ModelMessageContentEntry
 
 
 def isStringOrTextType(message: ModelMessage):

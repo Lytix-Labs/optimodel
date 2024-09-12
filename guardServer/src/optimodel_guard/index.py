@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from huggingface_hub import login
 
 from optimodel_guard.Guards import GuardBaseClass, GuardMapping
-from optimodel_server_types import GuardBody, GuardResponse
+from optimodel_types import GuardBody, GuardResponse
 
 import logging
 import sys

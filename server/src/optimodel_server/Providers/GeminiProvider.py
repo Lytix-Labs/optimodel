@@ -9,7 +9,7 @@ from optimodel_server.Providers.BaseProviderClass import (
     QueryResponse,
     QueryParams,
 )
-from optimodel_server_types import GeminiCredentials, ModelTypes, OpenAICredentials
+from optimodel_types import GeminiCredentials, ModelTypes, OpenAICredentials
 from google.ai import generativelanguage as glm
 import google.generativeai as genai
 

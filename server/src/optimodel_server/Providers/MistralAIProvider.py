@@ -3,7 +3,7 @@ from optimodel_server.OptimodelError import OptimodelError
 from mistralai import Mistral
 
 from optimodel_server.Providers.CommonUtils import containsImageInMessages
-from optimodel_server_types import (
+from optimodel_types import (
     MistralAICredentials,
     ModelTypes,
 )

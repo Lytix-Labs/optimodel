@@ -2,7 +2,7 @@ import logging
 from typing import List, Literal
 
 from optimodel_guard.Guards.GuardBaseClass import GuardBaseClass, GuardEvalResponse
-from optimodel_server_types import MicrosoftPresidioConfig, ModelMessage
+from optimodel_types import MicrosoftPresidioConfig, ModelMessage
 from presidio_analyzer import AnalyzerEngine
 from presidio_analyzer.nlp_engine import TransformersNlpEngine
 from presidio_anonymizer import AnonymizerEngine
