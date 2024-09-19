@@ -28,14 +28,16 @@ async def queryModel(
     temperature: float = None,
     jsonMode: bool = None,
     provider: Providers | None = None,
-    userId: str | None = None,
-    sessionId: str | None = None,
     guards: list[Guards] | None = None,
     retries: int | None = None,
     timeout: int | None = None,
-    workflowName: str | None = None,
     credentials: list[Credentials] | None = None,
+    # Lytix Specific
+    workflowName: str | None = None,
     cacheTTL: int | None = None,
+    userId: str | None = None,
+    sessionId: str | None = None,
+    metadata: dict | None = None,
 ) -> MakeQueryResponse:
     """
     Query a model
@@ -53,6 +55,7 @@ async def queryModel(
     @param workflowName: [Lytix Specific] The workflow name to use for the query
     @param credentials: Explicitly pass in credentials to use for the query (used in SAAS_MODE)
     @param cacheTTL: [Lytix Specific] The time to cache the response for if cache is enabled in Lytix
+    @param metadata: [Lytix Specific] Metadata to pass to the query
     """
     # Either 0 retries or whatevers passed
     retriesParsed = retries if retries else 1
@@ -87,6 +90,7 @@ async def queryModel(
                                 "workflowName": workflowName if workflowName else None,
                                 "credentials": credentials,
                                 "cacheTTL": cacheTTL,
+                                "metadata": metadata,
                             }
                             if maxGenLen:
                                 body["maxGenLen"] = maxGenLen

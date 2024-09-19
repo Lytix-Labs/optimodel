@@ -121,13 +121,22 @@ class OpenAIProvider(BaseProviderClass):
 
                 messageToPass.append({"role": message.role, "content": baseContent})
 
-        response = client.chat.completions.create(
-            model=modelId,
-            messages=messageToPass,
-            **({"temperature": temperature} if temperature is not None else {}),
-            max_tokens=maxGenLen if maxGenLen else NOT_GIVEN,
-            response_format={"type": "json_object"} if jsonMode else None,
-        )
+        if modelId.startswith("o1"):
+            response = client.chat.completions.create(
+                model=modelId,
+                messages=messageToPass,
+                **({"temperature": temperature} if temperature is not None else {}),
+                max_completion_tokens=maxGenLen if maxGenLen else NOT_GIVEN,
+                response_format={"type": "json_object"} if jsonMode else None,
+            )
+        else:
+            response = client.chat.completions.create(
+                model=modelId,
+                messages=messageToPass,
+                **({"temperature": temperature} if temperature is not None else {}),
+                max_tokens=maxGenLen if maxGenLen else NOT_GIVEN,
+                response_format={"type": "json_object"} if jsonMode else None,
+            )
         promptTokenCount = response.usage.prompt_tokens
         generationTokenCount = response.usage.completion_tokens
         modelOutput = response.choices[0].message.content

@@ -18,12 +18,18 @@ from optimodel_types.providerTypes import (
 
 import logging
 import sys
+from fastapi import FastAPI
+from optimodel_server.Routes.Proxy.AnthropicProxy import anthropicRouter
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 app = FastAPI()
+
+# Include the Anthropic proxy router
+app.include_router(anthropicRouter, prefix="/proxy/v1/anthropic", tags=["proxy"])
 
 baseURL = "/optimodel/api/v1"
 
