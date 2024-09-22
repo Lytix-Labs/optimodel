@@ -5,6 +5,7 @@ from mistralai import Mistral
 from optimodel_server.Providers.CommonUtils import containsImageInMessages
 from optimodel_types import (
     MistralAICredentials,
+    MistralCodeStralCredentials,
     ModelTypes,
 )
 from optimodel_server.Config.types import SAAS_MODE
@@ -15,13 +16,16 @@ from optimodel_server.Providers.BaseProviderClass import (
 )
 
 
-class MistralAIProvider(BaseProviderClass):
+class MistralCodestralProvider(BaseProviderClass):
     supportSAASMode = True
     supportJSONMode = False
 
     def __init__(self):
-        if os.environ.get("MISTRAL_API_KEY", None):
-            self.mistralClient = Mistral(api_key=os.environ.get("MISTRAL_API_KEY"))
+        if os.environ.get("MISTRAL_CODESTRAL_API_KEY", None):
+            self.mistralClient = Mistral(
+                server_url="https://codestral.mistral.ai",
+                api_key=os.environ.get("MISTRAL_CODESTRAL_API_KEY"),
+            )
 
     def validateProvider(self):
         """
@@ -44,51 +48,55 @@ class MistralAIProvider(BaseProviderClass):
         jsonMode = params.get("jsonMode", False)
 
         if jsonMode is True:
-            raise OptimodelError("JSON mode not supported for MistralAI")
+            raise OptimodelError("JSON mode not supported for MistralCodestral")
 
         """
         @NOTE Together does not currently support image types
         """
         if containsImageInMessages(messages):
             raise OptimodelError(
-                "MistralAI does not currently support image types", provider="mistralai"
+                "MistralCodestral does not currently support image types",
+                provider="mistralcodestral",
             )
 
         if SAAS_MODE is not None:
             if credentials is None:
                 # This should have been filtered out in the planner
                 raise OptimodelError(
-                    "MistralAI credentials not provided", provider="mistralai"
+                    "MistralCodestral credentials not provided",
+                    provider="mistralcodestral",
                 )
 
             # Try to find the together credentials
-            mistralCreds = next(
-                (x for x in credentials if type(x) == MistralAICredentials), None
+            mistralCodestralCreds = next(
+                (x for x in credentials if type(x) == MistralCodeStralCredentials),
+                None,
             )
-            if mistralCreds is None:
+            if mistralCodestralCreds is None:
                 # This should have been filtered out in the planner
                 raise OptimodelError(
-                    "MistralAI credentials not found", provider="mistralai"
+                    "MistralCodestral credentials not found",
+                    provider="mistralcodestral",
                 )
 
-            client = Mistral(api_key=mistralCreds.mistralApiKey)
+            client = Mistral(
+                api_key=mistralCodestralCreds.mistralCodeStralApiKey,
+                server_url="https://codestral.mistral.ai",
+            )
         else:
             if self.mistralClient is None:
                 raise OptimodelError(
-                    "MistralAI client not initialized", provider="mistralai"
+                    "MistralCodestral client not initialized",
+                    provider="mistralcodestral",
                 )
             client = self.mistralClient
 
         match model:
-            case ModelTypes.open_mistral_nemo.name:
-                modelId = "open-mistral-nemo"
-            case ModelTypes.mistral_large_latest.name:
-                modelId = "mistral-large-latest"
             case ModelTypes.codestral_latest.name:
                 modelId = "codestral-latest"
             case _:
                 raise OptimodelError(
-                    f"Model {model} not supported", provider="mistralai"
+                    f"Model {model} not supported", provider="mistralcodestral"
                 )
 
         finalMessages = []
@@ -105,7 +113,7 @@ class MistralAIProvider(BaseProviderClass):
                 else:
                     raise OptimodelError(
                         f"No text found for role {message.role}",
-                        provider="mistralai",
+                        provider="mistralcodestral",
                     )
 
         response = client.chat.complete(

@@ -8,3 +8,4 @@ from optimodel_server.Providers.GroqProvider import GroqProvider
 from optimodel_server.Providers.AnthropicProvider import AnthropicProvider
 from optimodel_server.Providers.MistralAIProvider import MistralAIProvider
 from optimodel_server.Providers.GeminiProvider import GeminiProvider
+from optimodel_server.Providers.MistralCodestralProvider import MistralCodestralProvider

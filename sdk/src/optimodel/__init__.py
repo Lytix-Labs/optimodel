@@ -15,6 +15,7 @@ from optimodel_types import (
     OpenAICredentials,
     AWSBedrockCredentials,
     MistralAICredentials,
+    MistralCodeStralCredentials,
     GeminiCredentials,
     Credentials,
     GuardType,

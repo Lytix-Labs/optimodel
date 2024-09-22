@@ -64,6 +64,7 @@ class Providers(enum.Enum):
     bedrock = "bedrock"
     gemini = "gemini"
     mistralai = "mistralai"
+    mistralcodestral = "mistralcodestral"
 
 
 class SpeedPriority(enum.Enum):
@@ -114,6 +115,10 @@ class MistralAICredentials(BaseModel):
     mistralApiKey: str
 
 
+class MistralCodeStralCredentials(BaseModel):
+    mistralCodeStralApiKey: str
+
+
 class GeminiCredentials(BaseModel):
     geminiApiKey: str
 
@@ -125,6 +130,7 @@ Credentials = (
     | GroqCredentials
     | AnthropicCredentials
     | MistralAICredentials
+    | MistralCodeStralCredentials
     | GeminiCredentials
 )
 

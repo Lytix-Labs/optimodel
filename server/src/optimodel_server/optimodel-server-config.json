@@ -82,6 +82,14 @@
         "speed": 0.35
       }
     ],
+    "mistralcodestral": [
+      {
+        "name": "codestral_latest",
+        "pricePer1MInput": 1,
+        "pricePer1MOutput": 3,
+        "speed": 0.37
+      }
+    ],
     "together": [
       {
         "name": "llama_3_8b_instruct",

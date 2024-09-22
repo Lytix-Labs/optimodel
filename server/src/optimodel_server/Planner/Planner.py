@@ -6,6 +6,7 @@ from optimodel_types import (
     GeminiCredentials,
     GroqCredentials,
     MistralAICredentials,
+    MistralCodeStralCredentials,
     QueryBody,
     SpeedPriority,
     TogetherAICredentials,
@@ -93,6 +94,18 @@ def getAllAvailableProviders(body: QueryBody):
             if provider["provider"] == "mistralai":
                 credsForProvider = next(
                     (x for x in body.credentials if type(x) == MistralAICredentials),
+                    None,
+                )
+                if credsForProvider is not None:
+                    filteredProviders.append(provider)
+
+            if provider["provider"] == "mistralcodestral":
+                credsForProvider = next(
+                    (
+                        x
+                        for x in body.credentials
+                        if type(x) == MistralCodeStralCredentials
+                    ),
                     None,
                 )
                 if credsForProvider is not None:

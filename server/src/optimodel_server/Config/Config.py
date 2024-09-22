@@ -6,6 +6,7 @@ from optimodel_server.Providers.BaseProviderClass import BaseProviderClass
 from optimodel_server.Providers import (
     BedrockProvider,
     GroqProvider,
+    MistralCodestralProvider,
     TogetherProvider,
     OpenAIProvider,
     AnthropicProvider,
@@ -97,6 +98,8 @@ class Config:
                     providerClient = AnthropicProvider()
                 case "mistralai":
                     providerClient = MistralAIProvider()
+                case "mistralcodestral":
+                    providerClient = MistralCodestralProvider()
                 case "gemini":
                     providerClient = GeminiProvider()
                 case _:
