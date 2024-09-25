@@ -73,7 +73,7 @@ async def openai_chat_proxy(request: Request, path: str):
     fallbackModels = body.get("lytix-fallbackModels", [])
     speedPriority = body.get("lytix-speedPriority", 0)
     provider = body.get("lytix-provider", None)
-    
+
     # Rewrite since optimodel generally uses "guards" instead of "lytix-guards"
     body["speedPriority"] = speedPriority
     body["guards"] = guards
@@ -145,7 +145,7 @@ async def openai_chat_proxy(request: Request, path: str):
 
     for index, modelToTry in enumerate(allModelsToTry):
         try:
-            match modelToTry.lower().replace("-", "_"):
+            match modelToTry.lower().replace("-", "_").replace(".", "_"):
                 case (
                     ModelTypes.gpt_4.name
                     | ModelTypes.gpt_3_5_turbo.name
@@ -391,6 +391,8 @@ async def openai_chat_proxy(request: Request, path: str):
             body.pop("speedPriority", None)
             body.pop("lytix-fallbackModels", None)
             body.pop("fallbackModels", None)
+            body.pop("lytix-provider", None)
+            body.pop("provider", None)
 
             """
             Redefine model field
