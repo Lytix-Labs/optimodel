@@ -238,14 +238,6 @@ You'll also get access to a powerful dashboard that support:
 
 and more! 🚀
 
-## [Architecture Diagram](#architecture-diagram)
-
-Following is a high level overview of the architecture of the server along with how it interacts with the client and different API providers.
-
-<p align="center">
-    <img src="./assets/optimodel-diagram.jpg" alt="OptiModel Architecture Diagram">
-</p>
-
 ## [Guards](#guards)
 
 ```py
@@ -465,6 +457,14 @@ curl --location 'BASE_URL/query' \
     }]
 }'
 ```
+
+## [Architecture Diagram](#architecture-diagram)
+
+Following is a high level overview of the architecture of the server along with how it interacts with the client and different API providers.
+
+<p align="center">
+    <img src="./assets/optimodel-diagram.jpg" alt="OptiModel Architecture Diagram">
+</p>
 
 ## [Contributing](#contributing)
 
