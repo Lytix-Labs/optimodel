@@ -254,13 +254,6 @@ and more! 🚀
 ```py
 response = client.chat.completions.create(
     ...,
-    messages=[
-        ModelMessage(
-            role="system",
-            content="You are a helpful assistant. Always respond in JSON syntax",
-        ),
-        ModelMessage(role="user", content=prompt),
-    ],
     extra_body={
         "lytix-guards": guards # Optional guards param
     }
