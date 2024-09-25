@@ -279,7 +279,43 @@ async def openai_chat_proxy(request: Request, path: str):
             GuardErrors here for some reason is a object that is the expected return
             TODO: This is horrible code but it works for now, refactor
             """
-            return guardErrors
+            if guardErrors["modelResponse"] is not None:
+                messages.append(
+                    {
+                        "role": "assistant",
+                        "content": [
+                            {"type": "text", "text": guardErrors["modelResponse"]}
+                        ],
+                    }
+                )
+            lytixProxyPayload = LytixProxyResponse(
+                messagesV2=messages,
+                inputTokens=0,
+                outputTokens=0,
+                cost=0,
+                provider="openai",
+            ).dict()
+
+            return {
+                "lytix-proxy-payload": lytixProxyPayload,
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "index": 0,
+                        "logprobs": None,
+                        "message": {
+                            "content": guardErrors["modelResponse"],
+                            "role": "assistant",
+                        },
+                    }
+                ],
+                "usage": {
+                    "completion_tokens": 0,
+                    "prompt_tokens": 0,
+                    "total_tokens": 0,
+                },
+            }
+
         if guardErrors:
             guardErrorsFinal.append(guardErrors)
 
