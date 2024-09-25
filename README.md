@@ -20,7 +20,18 @@ Guards and protection agnostic to your model or provider
 <a href="https://badge.fury.io/py/optimodel-py"> <a href="https://badge.fury.io/py/optimodel-guard-server">[Guard Server]</a> <img src="https://badge.fury.io/py/optimodel-guard-server.svg" alt="PyPI version">
 </p>
 
-## [Quickstart](#quickstart)
+## 📚 Table of Contents
+
+- [⚡ Quickstart](#quickstart)
+- [Passing In Images](#passing-in-images)
+- [Optional Parameters](#optional-parameters)
+- [Cloud Quickstart (lytix)](#cloud-quickstart)
+- [Guards](#guards)
+- [Supported Providers](#supported-providers)
+- [Architecture Diagram](#architecture-diagram)
+- [Contributing](#contributing)
+
+## [⚡ Quickstart](#quickstart)
 
 To get started you'll need to setup the server and then use the SDK to call the models.
 
