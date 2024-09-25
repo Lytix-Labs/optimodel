@@ -13,6 +13,41 @@ anthropicRouter = APIRouter()
 ANTHROPIC_API_URL = "https://api.anthropic.com/v1"
 
 
+@anthropicRouter.api_route("/{path:path}", methods=["GET"])
+async def anthropic_get_proxy(request: Request, path: str):
+    """
+    Blindly forward and get requests, dont intercept anything just proxy
+    """
+    # Construct the full URL for the Anthropic API request
+    full_url = f"{ANTHROPIC_API_URL}/{path}"
+
+    # Prepare the headers for the Anthropic API call
+    headers = {
+        "X-API-Key": request.headers.get("anthropicApiKey"),
+        "anthropic-version": "2023-06-01",
+        **{
+            k: v
+            for k, v in request.headers.items()
+            if k.lower() not in ["host", "content-length"]
+        },
+    }
+
+    # Remove any headers with None values
+    headers = {k: v for k, v in headers.items() if v is not None}
+
+    # Get query parameters
+    params = dict(request.query_params)
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(full_url, headers=headers, params=params)
+
+    return Response(
+        content=response.content,
+        status_code=response.status_code,
+        headers=dict(response.headers),
+    )
+
+
 @anthropicRouter.api_route("/{path:path}", methods=["POST"])
 async def anthropic_chat_proxy(request: Request, path: str):
     # Get the request body as JSON

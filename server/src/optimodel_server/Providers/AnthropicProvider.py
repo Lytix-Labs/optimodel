@@ -112,7 +112,6 @@ class AnthropicProvider(BaseProviderClass):
                             }
                         )
                 messageToPass.append({"role": message.role, "content": baseContent})
-        print("here>>14", messageToPass)
         response = client.messages.create(
             model=modelId,
             system=systemMessage.content if systemMessage else anthropic.NOT_GIVEN,

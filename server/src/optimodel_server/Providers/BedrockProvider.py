@@ -219,7 +219,7 @@ class BedrockProvider(BaseProviderClass):
                     Claud via bedrock requires this to be set
                     @see https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-anthropic-claude-messages.html
                     """
-                    native_request["max_tokens"] = 1024
+                    native_request["max_tokens"] = 200000
                 if messageSystem is not None:
                     native_request["system"] = messageSystem.content
 
@@ -240,9 +240,10 @@ class BedrockProvider(BaseProviderClass):
                 formattedMessage += " [/INST]"
                 native_request = {
                     "prompt": formattedMessage,
-                    "max_tokens": maxGenLen,
                     "temperature": temperature,
                 }
+                if maxGenLen is not None:
+                    native_request["max_tokens"] = maxGenLen
 
         # Convert the native request to JSON.
         request = json.dumps(native_request)
