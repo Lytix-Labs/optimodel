@@ -16,9 +16,8 @@ Guards and protection agnostic to your model or provider
 #### Packages
 
 <p align="center">
-<a href="https://badge.fury.io/py/optimodel-server">[Server]</a> <img src="https://badge.fury.io/py/optimodel-server.svg" alt="PyPI version"> |
-<a href="https://badge.fury.io/py/optimodel-py">[Python Client]</a> <img src="https://badge.fury.io/py/optimodel-py.svg" alt="PyPI version"> |
-<a href="https://badge.fury.io/js/@lytix%2Fclient">[Node.js Client]</a> <img src="https://badge.fury.io/js/@lytix%2Fclient.svg" alt="npm version"> | <a href="https://badge.fury.io/py/optimodel-guard-server">[Guard Server]</a> <img src="https://badge.fury.io/py/optimodel-guard-server.svg" alt="PyPI version">
+<a href="https://badge.fury.io/py/optimodel-server">[Server]</a> <img src="https://badge.fury.io/py/optimodel-server.svg" alt="PyPI version"> | 
+<a href="https://badge.fury.io/py/optimodel-py"> <a href="https://badge.fury.io/py/optimodel-guard-server">[Guard Server]</a> <img src="https://badge.fury.io/py/optimodel-guard-server.svg" alt="PyPI version">
 </p>
 
 ## [Quickstart](#quickstart)
