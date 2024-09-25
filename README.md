@@ -249,8 +249,8 @@ Following is a high level overview of the architecture of the server along with 
 ## [Guards](#guards)
 
 ```py
-response = await queryModel(
-    ....
+response = client.chat.completions.create(
+    ...,
     messages=[
         ModelMessage(
             role="system",
@@ -258,7 +258,9 @@ response = await queryModel(
         ),
         ModelMessage(role="user", content=prompt),
     ],
-    guards=[...] # Optional guards param
+    extra_body={
+        "lytix-guards": guards # Optional guards param
+    }
 )
 ```
 
@@ -275,7 +277,7 @@ guards=[MicrosoftPresidioConfig(
     entitiesToCheck=["EMAIL_ADDRESS"],
     blockRequest=True, # Pass this to block the request
     blockRequestMessage="You are not allowed to ask about this email address" # Pass this to give a custom message
-)]
+).dict()]
 ```
 
 ### meta-llama/Prompt-Guard-86M <img src="./assets/logos/meta-logo-small.png" alt="Lytix" height=18>
@@ -289,7 +291,7 @@ guards=[LLamaPromptGuardConfig(
     guardName="LLamaPromptGuard",
     jailbreakThreshold=0.9999,
     guardType="preQuery", # You'll likely only want to guard the input here
-)]
+).dict()]
 ```
 
 ### microsoft/Presidio-Guard <img src="./assets/logos/microsoft-logo-small.png" alt="Lytix" height=18>
@@ -301,7 +303,7 @@ guards=[MicrosoftPresidioConfig(
     guardName="MICROSOFT_PRESIDIO_GUARD",
     guardType="preQuery",
     entitiesToCheck=["EMAIL_ADDRESS"], # See the model card for the full list of entities to check
-)]
+).dict()]
 ```
 
 ### lytix/Regex-Guard <img src="./assets/logos/lytix-logo.svg" alt="Lytix" height=18>
@@ -313,7 +315,7 @@ guards=[LytixRegexConfig(
     guardName="LYTIX_REGEX_GUARD",
     regex="secrets",
     guardType="preQuery",
-)]
+).dict()]
 ```
 
 ## [Supported Providers](#supported-providers)
