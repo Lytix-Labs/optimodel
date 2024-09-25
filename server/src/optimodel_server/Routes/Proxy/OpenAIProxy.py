@@ -70,11 +70,21 @@ async def openai_chat_proxy(request: Request, path: str):
     model = body.get("model")
     stream = body.get("stream", False)
     guards = body.get("lytix-guards", [])
+    fallbackModels = body.get("lytix-fallbackModels", [])
     speedPriority = body.get("lytix-speedPriority", 0)
+    provider = body.get("lytix-provider", None)
+    
     # Rewrite since optimodel generally uses "guards" instead of "lytix-guards"
     body["speedPriority"] = speedPriority
     body["guards"] = guards
+    body["fallbackModels"] = fallbackModels
+    body["provider"] = provider
     messages = []
+
+    """
+    Define all models to try, its our main model + any fallbacks
+    """
+    allModelsToTry = [model, *fallbackModels]
 
     """
     If we have any guards, split them up based on pre vs post query
@@ -88,11 +98,10 @@ async def openai_chat_proxy(request: Request, path: str):
             if guard["guardType"] == "postQuery":
                 postQueryGuards.append(guard)
 
-    # # """
-    # # Now attempt the query with each provider in order
-    # # """
-    # # errors = []
-    # guardErrors: List[GuardError] = []
+    """
+    Keep track of what models have failed, along with their error message
+    @TODO this
+    """
 
     try:
         # Parse user and system messages
@@ -101,18 +110,28 @@ async def openai_chat_proxy(request: Request, path: str):
             content = message.get("content")
 
             if isinstance(content, list):
-                # If content is a list, extract text content
-                text_content = next(
-                    (item["content"] for item in content if item["type"] == "text"),
-                    None,
-                )
-                if text_content:
-                    messages.append(
-                        {
-                            "role": role,
-                            "content": [{"type": "text", "text": text_content}],
-                        }
-                    )
+                processed_content = []
+                for item in content:
+                    if item.get("type") == "text":
+                        processed_content.append({"type": "text", "text": item["text"]})
+                    elif item.get("type") == "image_url":
+                        image_url = item["image_url"]["url"]
+                        if image_url.startswith("data:"):
+                            # Parse the data URL
+                            _, data = image_url.split(",", 1)
+                            media_type = image_url.split(";")[0].split(":")[1]
+                            processed_content.append(
+                                {
+                                    "type": "image",
+                                    "source": {
+                                        "type": "base64",
+                                        "mediaType": media_type,
+                                        "data": data,
+                                    },
+                                }
+                            )
+                if processed_content:
+                    messages.append({"role": role, "content": processed_content})
             elif isinstance(content, str):
                 # If content is a string, add it directly
                 messages.append(
@@ -124,342 +143,383 @@ async def openai_chat_proxy(request: Request, path: str):
     if model is None:
         raise OptimodelError("model is required")
 
-    match model.lower().replace("-", "_"):
-        case (
-            ModelTypes.gpt_4.name
-            | ModelTypes.gpt_3_5_turbo.name
-            | ModelTypes.gpt_4o.name
-            | ModelTypes.gpt_4_turbo.name
-            | ModelTypes.gpt_3_5_turbo_0125.name
-            | ModelTypes.gpt_4o_mini.name
-            | ModelTypes.gpt_4o_mini_2024_07_18.name
-            | ModelTypes.gpt_4o_2024_08_06.name
-            | ModelTypes.o1_preview.name
-            | ModelTypes.o1_preview_2024_09_12.name
-            | ModelTypes.o1_mini.name
-            | ModelTypes.o1_mini_2024_09_12.name
-        ):
-            """
-            Nothing to do here, this is just the normal openai proxy
-            """
-            pass
-        case _:
-            """
-            Based on the headers create our credentials object
-            """
-            credentials: list[Credentials] = []
-            if "mistralapikey" in request.headers:
-                credentials.append(
-                    MistralAICredentials(mistralApiKey=request.headers["mistralapikey"])
-                )
-            if "anthropicapikey" in request.headers:
-                credentials.append(
-                    AnthropicCredentials(
-                        anthropicApiKey=request.headers["anthropicapikey"]
+    for index, modelToTry in enumerate(allModelsToTry):
+        try:
+            match modelToTry.lower().replace("-", "_"):
+                case (
+                    ModelTypes.gpt_4.name
+                    | ModelTypes.gpt_3_5_turbo.name
+                    | ModelTypes.gpt_4o.name
+                    | ModelTypes.gpt_4_turbo.name
+                    | ModelTypes.gpt_3_5_turbo_0125.name
+                    | ModelTypes.gpt_4o_mini.name
+                    | ModelTypes.gpt_4o_mini_2024_07_18.name
+                    | ModelTypes.gpt_4o_2024_08_06.name
+                    | ModelTypes.o1_preview.name
+                    | ModelTypes.o1_preview_2024_09_12.name
+                    | ModelTypes.o1_mini.name
+                    | ModelTypes.o1_mini_2024_09_12.name
+                ):
+                    """
+                    Nothing to do here, this is just the normal openai proxy
+                    """
+                    pass
+                case _:
+                    """
+                    Based on the headers create our credentials object
+                    """
+                    credentials: list[Credentials] = []
+                    if "mistralapikey" in request.headers:
+                        credentials.append(
+                            MistralAICredentials(
+                                mistralApiKey=request.headers["mistralapikey"]
+                            )
+                        )
+                    if "anthropicapikey" in request.headers:
+                        credentials.append(
+                            AnthropicCredentials(
+                                anthropicApiKey=request.headers["anthropicapikey"]
+                            )
+                        )
+                    if "groqapikey" in request.headers:
+                        credentials.append(
+                            GroqCredentials(groqApiKey=request.headers["groqapikey"])
+                        )
+                    if "togetherapikey" in request.headers:
+                        credentials.append(
+                            TogetherAICredentials(
+                                togetherApiKey=request.headers["togetherapikey"]
+                            )
+                        )
+                    if "geminiapikey" in request.headers:
+                        credentials.append(
+                            GeminiCredentials(
+                                geminiApiKey=request.headers["geminiapikey"]
+                            )
+                        )
+                    if "mistralcodestralapikey" in request.headers:
+                        credentials.append(
+                            MistralCodeStralCredentials(
+                                mistralCodeStralApiKey=request.headers[
+                                    "mistralcodestralapikey"
+                                ]
+                            )
+                        )
+
+                    body = QueryBody(
+                        messages=messages,
+                        modelToUse=modelToTry,
+                        credentials=credentials,
+                        guards=guards,
                     )
-                )
-            if "groqapikey" in request.headers:
-                credentials.append(
-                    GroqCredentials(groqApiKey=request.headers["groqapikey"])
-                )
-            if "togetherapikey" in request.headers:
-                credentials.append(
-                    TogetherAICredentials(
-                        togetherApiKey=request.headers["togetherapikey"]
-                    )
-                )
-            if "geminiapikey" in request.headers:
-                credentials.append(
-                    GeminiCredentials(geminiApiKey=request.headers["geminiapikey"])
-                )
-            if "mistralcodestralapikey" in request.headers:
-                credentials.append(
-                    MistralCodeStralCredentials(
-                        mistralCodeStralApiKey=request.headers["mistralcodestralapikey"]
-                    )
-                )
+                    response = await queryModelMain(body, guardClientInstance)
 
-            body = QueryBody(
-                messages=messages,
-                modelToUse=model,
-                credentials=credentials,
-                guards=guards,
-            )
-            response = await queryModelMain(body, guardClientInstance)
+                    if isinstance(response, JSONResponse):
+                        return response
 
-            if isinstance(response, JSONResponse):
-                return response
+                    responseParsed: MakeQueryResponse = response
 
-            responseParsed: MakeQueryResponse = response
-
-            lytixProxyPayload: LytixProxyResponse | None = None
-            try:
-                """
-                We need to get the lytix-proxy-payload from the response
-                """
-                lytixProxyPayload = {
-                    "messagesV2": messages
-                    + [
-                        {
-                            "role": "assistant",
-                            "content": [
+                    lytixProxyPayload: LytixProxyResponse | None = None
+                    try:
+                        """
+                        We need to get the lytix-proxy-payload from the response
+                        """
+                        lytixProxyPayload = {
+                            "messagesV2": messages
+                            + [
                                 {
-                                    "type": "text",
-                                    "text": responseParsed["modelResponse"],
+                                    "role": "assistant",
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": responseParsed["modelResponse"],
+                                        }
+                                    ],
                                 }
                             ],
+                            "inputTokens": responseParsed["promptTokens"],
+                            "outputTokens": responseParsed["generationTokens"],
+                            "cost": responseParsed["cost"],
+                            "provider": responseParsed["provider"],
+                            "guardErrors": responseParsed["guardErrors"],
                         }
-                    ],
-                    "inputTokens": responseParsed["promptTokens"],
-                    "outputTokens": responseParsed["generationTokens"],
-                    "cost": responseParsed["cost"],
-                    "provider": responseParsed["provider"],
-                    "guardErrors": responseParsed["guardErrors"],
-                }
-            except Exception as e:
-                logger.error(f"Error attempting to extract lytix-proxy-payload", e)
+                    except Exception as e:
+                        logger.error(
+                            f"Error attempting to extract lytix-proxy-payload", e
+                        )
 
-            return Response(
-                content=json.dumps(
-                    {
+                    return Response(
+                        content=json.dumps(
+                            {
+                                "lytix-proxy-payload": lytixProxyPayload,
+                                "id": str(uuid.uuid4()),
+                                "choices": [
+                                    {
+                                        "finish_reason": "stop",
+                                        "index": 0,
+                                        "logprobs": None,
+                                        "message": {
+                                            "content": responseParsed["modelResponse"],
+                                            "role": "assistant",
+                                        },
+                                    },
+                                ],
+                                "created": time.time(),
+                                "model": modelToTry,
+                                "object": "chat.completion",
+                                "service_tier": None,
+                                "usage": {
+                                    "completion_tokens": responseParsed[
+                                        "generationTokens"
+                                    ],
+                                    "prompt_tokens": responseParsed["promptTokens"],
+                                    "total_tokens": responseParsed["promptTokens"]
+                                    + responseParsed["generationTokens"],
+                                },
+                            }
+                        ),
+                        status_code=200,
+                        media_type="application/json",
+                    )
+
+            """
+            If we have any guards, split them up based on pre vs post query
+            every other model gets it inside queryModelMain
+            """
+            preQueryGuards = []
+            postQueryGuards = []
+            if guards:
+                for guard in guards:
+                    if guard["guardType"] == "preQuery":
+                        preQueryGuards.append(guard)
+                    if guard["guardType"] == "postQuery":
+                        postQueryGuards.append(guard)
+
+            guardErrorsFinal: List[GuardError] = []
+
+            if preQueryGuards:
+                guardErrors, should_return = await check_pre_query_guards(
+                    preQueryGuards=[create_guard(x) for x in preQueryGuards],
+                    guardClientInstance=guardClientInstance,
+                    messages=messages,
+                    providerName="openai",
+                )
+                if should_return:
+                    """
+                    GuardErrors here for some reason is a object that is the expected return
+                    TODO: This is horrible code but it works for now, refactor
+                    """
+                    if guardErrors["modelResponse"] is not None:
+                        messages.append(
+                            {
+                                "role": "assistant",
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": guardErrors["modelResponse"],
+                                    }
+                                ],
+                            }
+                        )
+                    lytixProxyPayload = LytixProxyResponse(
+                        messagesV2=messages,
+                        inputTokens=0,
+                        outputTokens=0,
+                        cost=0,
+                        provider="openai",
+                        guardErrors=(
+                            guardErrors["guardErrors"]
+                            if "guardErrors" in guardErrors
+                            else guardErrors
+                        ),
+                    ).dict()
+
+                    return {
                         "lytix-proxy-payload": lytixProxyPayload,
-                        "id": str(uuid.uuid4()),
                         "choices": [
                             {
                                 "finish_reason": "stop",
                                 "index": 0,
                                 "logprobs": None,
                                 "message": {
-                                    "content": responseParsed["modelResponse"],
+                                    "content": guardErrors["modelResponse"],
                                     "role": "assistant",
                                 },
-                            },
+                            }
                         ],
-                        "created": time.time(),
-                        "model": model,
-                        "object": "chat.completion",
-                        "service_tier": None,
                         "usage": {
-                            "completion_tokens": responseParsed["generationTokens"],
-                            "prompt_tokens": responseParsed["promptTokens"],
-                            "total_tokens": responseParsed["promptTokens"]
-                            + responseParsed["generationTokens"],
+                            "completion_tokens": 0,
+                            "prompt_tokens": 0,
+                            "total_tokens": 0,
                         },
                     }
-                ),
-                status_code=200,
-                media_type="application/json",
-            )
 
-    """
-    If we have any guards, split them up based on pre vs post query
-    every other model gets it inside queryModelMain
-    """
-    preQueryGuards = []
-    postQueryGuards = []
-    if guards:
-        for guard in guards:
-            if guard["guardType"] == "preQuery":
-                preQueryGuards.append(guard)
-            if guard["guardType"] == "postQuery":
-                postQueryGuards.append(guard)
+                if guardErrors:
+                    guardErrorsFinal.extend(guardErrors)
 
-    guardErrorsFinal: List[GuardError] = []
-
-    if preQueryGuards:
-        guardErrors, should_return = await check_pre_query_guards(
-            preQueryGuards=[create_guard(x) for x in preQueryGuards],
-            guardClientInstance=guardClientInstance,
-            messages=messages,
-            providerName="openai",
-        )
-        if should_return:
-            """
-            GuardErrors here for some reason is a object that is the expected return
-            TODO: This is horrible code but it works for now, refactor
-            """
-            if guardErrors["modelResponse"] is not None:
-                messages.append(
-                    {
-                        "role": "assistant",
-                        "content": [
-                            {"type": "text", "text": guardErrors["modelResponse"]}
-                        ],
-                    }
-                )
-            lytixProxyPayload = LytixProxyResponse(
-                messagesV2=messages,
-                inputTokens=0,
-                outputTokens=0,
-                cost=0,
-                provider="openai",
-            ).dict()
-
-            return {
-                "lytix-proxy-payload": lytixProxyPayload,
-                "choices": [
-                    {
-                        "finish_reason": "stop",
-                        "index": 0,
-                        "logprobs": None,
-                        "message": {
-                            "content": guardErrors["modelResponse"],
-                            "role": "assistant",
-                        },
-                    }
-                ],
-                "usage": {
-                    "completion_tokens": 0,
-                    "prompt_tokens": 0,
-                    "total_tokens": 0,
+            # Prepare the headers for the opeanai API call
+            headers = {
+                "content-type": "application/json",
+                "Authorization": f"Bearer {request.headers.get('openaikey')}",
+                **{
+                    k: v
+                    for k, v in request.headers.items()
+                    if k
+                    not in [
+                        "Content-Type",
+                        "authorization",
+                        "content-length",
+                        "host",
+                    ]
                 },
             }
 
-        if guardErrors:
-            guardErrorsFinal.extend(guardErrors)
+            # Remove any headers with None values
+            headers = {k: str(v) for k, v in headers.items() if v is not None}
 
-    # Prepare the headers for the opeanai API call
-    headers = {
-        "content-type": "application/json",
-        "Authorization": f"Bearer {request.headers.get('openaikey')}",
-        **{
-            k: v
-            for k, v in request.headers.items()
-            if k
-            not in [
-                "Content-Type",
-                "authorization",
-                "content-length",
-                "host",
-            ]
-        },
-    }
+            # Construct the full path for the Anthropic API request
+            full_url = f"{OPENAI_API_URL}/{path.lstrip('openai/')}"
 
-    # Remove any headers with None values
-    headers = {k: str(v) for k, v in headers.items() if v is not None}
+            """
+            Delete lytix-guards and guards, and lytix-speedPriority and speedPriority
+            Otherwise openAI will complain
+            """
+            body = body.copy()
+            body.pop("lytix-guards", None)
+            body.pop("guards", None)
+            body.pop("lytix-speedPriority", None)
+            body.pop("speedPriority", None)
+            body.pop("lytix-fallbackModels", None)
+            body.pop("fallbackModels", None)
 
-    # Construct the full path for the Anthropic API request
-    full_url = f"{OPENAI_API_URL}/{path.lstrip('openai/')}"
+            """
+            Redefine model field
+            """
+            body["model"] = modelToTry
 
-    """
-    Delete lytix-guards and guards, and lytix-speedPriority and speedPriority
-    Otherwise openAI will complain
-    """
-    body = body.copy()
-    body.pop("lytix-guards", None)
-    body.pop("guards", None)
-    body.pop("lytix-speedPriority", None)
-    body.pop("speedPriority", None)
+            async def event_stream():
+                async with httpx.AsyncClient() as client:
+                    async with client.stream(
+                        "POST", full_url, json=body, headers=headers
+                    ) as response:
+                        async for chunk in response.aiter_bytes():
+                            yield chunk
 
-    async def event_stream():
-        async with httpx.AsyncClient() as client:
-            async with client.stream(
-                "POST", full_url, json=body, headers=headers
-            ) as response:
-                async for chunk in response.aiter_bytes():
-                    yield chunk
+            if stream:
+                return StreamingResponse(event_stream(), media_type="text/event-stream")
+            else:
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(full_url, json=body, headers=headers)
 
-    if stream:
-        return StreamingResponse(event_stream(), media_type="text/event-stream")
-    else:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(full_url, json=body, headers=headers)
+                response_data = response.json()
 
-        response_data = response.json()
-
-        lytixProxyPayload = None
-        try:
-            # Extract model messages
-            if "choices" in response_data:
-                for choice in response_data["choices"]:
-                    if "message" in choice:
-                        message = choice["message"]
-                        if "content" in message:
-                            try:
-                                # Attempt to parse the content as JSON
-                                content_json = json.loads(message["content"])
-                                if "response" in content_json:
-                                    messages.append(
-                                        {
-                                            "role": message["role"],
-                                            "content": [
+                lytixProxyPayload = None
+                try:
+                    # Extract model messages
+                    if "choices" in response_data:
+                        for choice in response_data["choices"]:
+                            if "message" in choice:
+                                message = choice["message"]
+                                if "content" in message:
+                                    try:
+                                        # Attempt to parse the content as JSON
+                                        content_json = json.loads(message["content"])
+                                        if "response" in content_json:
+                                            messages.append(
                                                 {
-                                                    "type": "text",
-                                                    "text": content_json["response"],
+                                                    "role": message["role"],
+                                                    "content": [
+                                                        {
+                                                            "type": "text",
+                                                            "text": content_json[
+                                                                "response"
+                                                            ],
+                                                        }
+                                                    ],
                                                 }
-                                            ],
-                                        }
-                                    )
-                            except json.JSONDecodeError:
-                                # If parsing fails, treat the content as plain text
-                                messages.append(
-                                    {
-                                        "role": message["role"],
-                                        "content": [
+                                            )
+                                    except json.JSONDecodeError:
+                                        # If parsing fails, treat the content as plain text
+                                        messages.append(
                                             {
-                                                "type": "text",
-                                                "text": message["content"],
+                                                "role": message["role"],
+                                                "content": [
+                                                    {
+                                                        "type": "text",
+                                                        "text": message["content"],
+                                                    }
+                                                ],
                                             }
-                                        ],
-                                    }
-                                )
+                                        )
 
-            # Extract token usage
-            usage = response_data.get("usage", {})
-            input_tokens = usage.get("prompt_tokens")
-            output_tokens = usage.get("completion_tokens")
+                    # Extract token usage
+                    usage = response_data.get("usage", {})
+                    input_tokens = usage.get("prompt_tokens")
+                    output_tokens = usage.get("completion_tokens")
 
-            # Now attempt to calculate cost based on the model
-            modelData = config.modelToProvider.get(
-                model.lower().replace("-", "_"), None
-            )
+                    # Now attempt to calculate cost based on the model
+                    modelData = config.modelToProvider.get(
+                        model.lower().replace("-", "_"), None
+                    )
 
-            # Get the first openai provider
-            modelData = next((x for x in modelData if x["provider"] == "openai"), None)
+                    # Get the first openai provider
+                    modelData = next(
+                        (x for x in modelData if x["provider"] == "openai"), None
+                    )
 
-            cost = None
-            if modelData is not None:
-                cost = modelData["pricePer1MInput"] * (
-                    input_tokens / 1_000_000
-                ) + modelData["pricePer1MOutput"] * (output_tokens / 1_000_000)
-            lytixProxyPayload = LytixProxyResponse(
-                messagesV2=messages,
-                inputTokens=input_tokens,
-                outputTokens=output_tokens,
-                cost=cost,
-                provider="openai",
-            ).dict()
-        except Exception as e:
-            logger.error(f"Error attempting to extract usage tokens", e)
+                    cost = None
+                    if modelData is not None:
+                        cost = modelData["pricePer1MInput"] * (
+                            input_tokens / 1_000_000
+                        ) + modelData["pricePer1MOutput"] * (output_tokens / 1_000_000)
+                    lytixProxyPayload = LytixProxyResponse(
+                        messagesV2=messages,
+                        inputTokens=input_tokens,
+                        outputTokens=output_tokens,
+                        cost=cost,
+                        provider="openai",
+                    ).dict()
+                except Exception as e:
+                    logger.error(f"Error attempting to extract usage tokens", e)
 
-        if postQueryGuards:
-            if messages is None:
-                raise OptimodelError(
-                    "messages are required for guard. Please reach out to support@lytix.co if you believe this is an error"
+                if postQueryGuards:
+                    if messages is None:
+                        raise OptimodelError(
+                            "messages are required for guard. Please reach out to support@lytix.co if you believe this is an error"
+                        )
+                    guardErrors, queryResponse = await check_post_query_guards(
+                        postQueryGuards=[create_guard(x) for x in postQueryGuards],
+                        guardClientInstance=guardClientInstance,
+                        messages=messages,
+                        modelOutput=response_data["choices"][0]["message"]["content"],
+                        queryResponse={},
+                    )
+                    if guardErrors:
+                        guardErrorsFinal.extend(guardErrors)
+
+                if guardErrorsFinal:
+                    lytixProxyPayload["guardErrors"] = guardErrorsFinal
+
+                return Response(
+                    content=json.dumps(
+                        {
+                            "lytix-proxy-payload": lytixProxyPayload,
+                            **response_data,
+                        }
+                    ),
+                    status_code=response.status_code,
+                    media_type="application/json",
                 )
-            guardErrors, queryResponse = await check_post_query_guards(
-                postQueryGuards=[create_guard(x) for x in postQueryGuards],
-                guardClientInstance=guardClientInstance,
-                messages=messages,
-                modelOutput=response_data["choices"][0]["message"]["content"],
-                queryResponse={},
-            )
-            if guardErrors:
-                guardErrorsFinal.extend(guardErrors)
 
-        if guardErrorsFinal:
-            lytixProxyPayload["guardErrors"] = guardErrorsFinal
+        except Exception as e:
+            logger.error(f"Error attempting to process openai request", e)
 
-        return Response(
-            content=json.dumps(
-                {
-                    "lytix-proxy-payload": lytixProxyPayload,
-                    **response_data,
-                }
-            ),
-            status_code=response.status_code,
-            media_type="application/json",
-        )
+            """
+            Unless we are out of models, continue
+            """
+            if index == len(allModelsToTry) - 1:
+                logger.error(f"No more fallback models to try")
+                raise OptimodelError("No more fallback models to try")
 
 
 @openaiRouter.api_route("/{path:path}", methods=["GET"])

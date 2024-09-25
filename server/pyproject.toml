@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "optimodel-server"
-version = "1.16.4"
+version = "1.16.10"
 authors = [
   { name="Lytix", email="support@lytix.com" },
 ]

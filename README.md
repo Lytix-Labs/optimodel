@@ -40,38 +40,153 @@ $ optimodel-server
 
 #### Step 2: Call our server
 
-Now we can call our server from our python code. See the example block on what the code might look like. ,
+Optimodel uses the OpenAI SDK to call our server. See the example block on what the code might look like.
 
-```py
-async def main():
-    prompt = "Hello How are you?"
-
-    response = await queryModel(
-        model=ModelTypes.llama_3_8b_instruct,
-        messages=[
-            ModelMessage(
-                role="system",
-                content="You are a helpful assistant. Always respond in JSON syntax",
-            ),
-            ModelMessage(role="user", content=prompt),
-        ],
-        speedPriority="low",
-        maxGenLen=256,
-    )
-    print("Got response:", response)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+```
+pip3 install openai
 ```
 
-Just make sure to setup our `OPTIMODEL_BASE_URL` envvar correctly:
+Then you can call the server just like you would call any other OpenAI compatible API:
+
+```py
+from openai import OpenAI
+
+client = OpenAI(
+    base_url=f"http://localhost:8000/proxy/v1/openai",
+      default_headers={
+        "openaiKey": f"{OPENAI_API_KEY}",
+        # Optionally any other provider keys
+        "anthropicApiKey": f"{ANTHROPIC_API_KEY}"
+      },
+)
+
+response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    # Or any other model available
+    # model=ModelTypes.claude_3_5_sonnet.name,
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant. "},
+        ...
+    ],
+)
+```
+
+# [Passing In Images](#passing-in-images)
+
+Passing images to any model uses the OpenAIs syntax. Underneath we'll convert the syntax for the model you're using.
+
+```py Python
+import base64
+
+# Encode the image to base64
+with open("some.png", "rb") as image_file:
+    encoded_string = base64.b64encode(image_file.read())
+    encoded_string = encoded_string.decode('utf-8')
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[
+        ...
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "whats this image?"},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{encoded_string}"
+                    }
+                }
+            ]
+        },
+    ],
+)
+```
+
+Then you can switch to a model such as `claude-3-5-sonnet` and pass the image in with no code changes.
+
+```py Python
+from optimodel_server_types import ModelTypes,
+
+response = client.chat.completions.create(
+    model=ModelTypes.claude_3_5_sonnet.name,
+    messages=[
+      # Same as above
+      ...
+    ],
+)
+```
+
+# [Optional Parameters](#optional-parameters)
+
+Optimodel supports a variety of optional parameters to help you get the best results.
+
+```py
+response = client.chat.completions.create(
+   ...,
+    extra_body={
+        "lytix-fallbackModels": ...
+        ...
+    }
+)
+```
+
+You will need to use the `optimodel-py` package to use these parameters.
+
+```sh
+pip3 install optimodel-py
+```
+
+The following optional parameters are supported:
+
+- `lytix-fallbackModels`: Pass in a list of extra models to try if the primary model fails. This can be helpful in mitigating provider outages.
+  - ```py
+      from optimodel_server_types import ModelTypes
+      extra_body={
+        "lytix-fallbackModels": [ModelTypes.claude_3_5_sonnet.name, ...]
+      }
+    ```
+- `lytix-guards`: Pass in a list of fallback models to use
+  - ```py
+      from optimodel_server_types import LLamaPromptGuardConfig
+      extra_body={
+          "lytix-guards": [LLamaPromptGuardConfig(
+              guardName="LLamaPromptGuard",
+              jailbreakThreshold=0.9999,
+              guardType="preQuery", # You'll likely only want to guard the input here
+          ).dict()]
+      }
+    ```
+  - See [here](#guards) for a list of all supported guards
+- `lytix-speedPriority`: Pass in a speed priority to use
+
+  - ```py
+    extra_body={
+      "lytix-speedPriority": "low"
+    }
+    ```
+
+  - If set to `low`, optimodel will choose the cheapest possible model across all providers (for example if you have two providers `bedrock` and `anthropic` that both offer `claude-3-opus`, optimodel will choose the `claude-3-opus` model with the lowest price regardless of which provider is faster). If set to `high`, optimodel will choose the fastest possible model across all providers.
+
+- `lytix-provider`: Pass in a provider to use
+
+  - ```py
+    from optimodel_server_types import Providers
+
+    extra_body={
+        "lytix-provider": ProviderTypes.bedrock.name
+    }
+    ```
+
+  - Explicitly specify a provider to use incase you have multiple providers available for a specific model and want to force a specific one.
+
+<!-- Just make sure to setup our `OPTIMODEL_BASE_URL` envvar correctly:
 
 ```sh
 $ OPTIMODEL_BASE_URL="http://localhost:8000/optimodel/api/v1/" python3 example.py
-```
+``` -->
 
-#### Step 3: Add a validator
+<!-- #### Step 3: Add a validator
 
 You can also optionally pass in validators and fallback models to ensure your results are what you expect. Here is an example of a simple JSON validator:
 
@@ -109,13 +224,24 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 
-```
+``` -->
 
-## [Cloud Quickstart](#cloud-quickstart)
+## [Cloud Quickstart (lytix)](#cloud-quickstart)
 
-You can also use lytix to host your server for you and interact with it from the cloud. See [here](http://docs.lytix.co/OptiModel/getting-started) for more information.
+You can also use lytix to host your server for you and interact with it from the cloud. See [here](https://docs.lytix.co/Quickstart/openai-integration) for more information.
+
+You'll also get access to a powerful dashboard that support:
+
+- `sessionId`
+- `userId`
+- `workflowName`
+- `cacheTTL`
+
+and more! 🚀
 
 ## [Architecture Diagram](#architecture-diagram)
+
+Following is a high level overview of the architecture of the server along with how it interacts with the client and different API providers.
 
 <p align="center">
     <img src="./assets/optimodel-diagram.jpg" alt="OptiModel Architecture Diagram">
@@ -285,89 +411,60 @@ curl --location 'BASE_URL/query' \
 }'
 ```
 
-## [Adding A New Provider](#adding-a-new-provider)
+### Mistral <img src="./assets/logos/mistral-logo-small.png" alt="Mistral" height=18>
 
-You can always add a new provider (for example a custom local model that you'd like to use to save money if possible)
+**Locally:** Ensure you pass your Mistral API key in the following environment variable: `MISTRAL_API_KEY`
 
-We've tried to make this as easy as possible, There are 3 steps involved:
+**SAAS Mode:** When running in SAAS mode, the API will expect the credentials param to pass in your Mistral key. For example the curl would look like:
 
-### Step 1: Build a new provider
-
-We've defined a base provider [here](https://github.com/Lytix-Labs/optimodel/blob/master/server/src/optimodel_server/Providers/BaseProviderClass.py#L15). You'll need to implement the following function:
-
-- `validateProvider(self) => bool`: This is a function that will be used to validate the provider if running in local mode (e.g. do we have the credentials to use this provider)
-
-- `makeQuery(
-    self,
-    messages: list[ModelMessage],
-    model: ModelTypes,
-    temperature: int = 0.2,
-    maxGenLen: int = 1024,
-    credentials: list[NewModelCredentials] | None = None,
-) -> QueryResponse`: This is the function used to make the query. The only field to note is `NewModelCredentials` which is the credentials needed to use the model in SAAS mode.
-  - _Note:_ You can ignore `credentials` if you set `supportSAASMode` to `false` in your model definition
-
-### Step 2: Add our new model to the config
-
-You'll need to let our `Config` class know this new provider exists be adding a new `case` statement [here](https://github.com/Lytix-Labs/optimodel/blob/master/server/src/optimodel_server/Config/Config.py#L64)
-
-### Step 3: Add it to our providers enum
-
-You'll need to add your new provider to the `Providers` enum [here](https://github.com/Lytix-Labs/optimodel/blob/master/server/src/optimodel_server_types/__init__.py#L31)
-
-### Step 4 (optional): Add support for SAAS mode
-
-If you'd like this new provider to be available in SAAS mode, you'll need to add a new `case` statement [here](https://github.com/Lytix-Labs/optimodel/blob/master/server/src/optimodel_server/Planner/Planner.py#L39) (_Note:_ Remember you'll need to implement `credentials` support in your `makeQuery` implementation if you enable this.)
-
-## [Adding A New Guard](#adding-a-new-guard)
-
-You can also use Lytix to prevent or alert when certain types of guards are active.
-
-### Step 1: Build a new guard
-
-We've defined a base class that needs to be implemented [here](https://github.com/Lytix-Labs/optimodel/blob/master/guardServer/src/optimodel_guard/Guards/GuardBaseClass.py#L5). You'll need to implement the following function:
-
-- `handlePreQuery(self, query: QueryParams) -> bool`: This function will be invoked if you pass in `guardType: "preQuery"` into the guard config. Implementation of this should only target `user` or `system` messages, not responses (e.g. `assistant` messages). This will be called **before** the model has been called.
-
-- `handlePostQuery(self, query: QueryParams, response: QueryResponse) -> bool:`: This function will be invoked if you pass in `guardType: "postQuery"` into the guard config. Implementation of this should only target `assistant` messages, not `user` or `system` messages. This will be called **after** the model has been called and the response has been generated.
-
-Define a new interface for your guards config [here](https://github.com/Lytix-Labs/optimodel/blob/master/server/src/optimodel_server_types/__init__.py#L121) if you want to pass in custom fields to your guard.
-
-```py
-class NewTypeOfGuard(GuardQueryBase):
-    guardName: Literal["NEW_TYPE_OF_GUARD"]
-    # Add any additional fields here
-    foo: str
+```
+curl --location 'BASE_URL/query' \
+--header 'Content-Type: application/json' \
+--data '{
+    "messages": [{"role": "user", "content": "hello world!"}],
+    "modelToUse": "mistral_large_v2",
+    "credentials": [{
+        "mistralApiKey": "<mistral-api-key>"
+    }]
+}'
 ```
 
-### Step 2: Add support in `optimodel-guard-server`
+### Mistral Codestral <img src="./assets/logos/mistral-logo-small.png" alt="Mistral" height=18>
 
-Update [this](https://github.com/Lytix-Labs/optimodel/blob/master/guardServer/src/optimodel_guard/Guards/__init__.py#L5) file to include the new guard you have created
+**Locally:** Ensure you pass your Mistral Codestral API key in the following environment variable: `MISTRAL_CODESTRAL_API_KEY`
 
-### Step 3: Add support in the `optimodel-server`
+**SAAS Mode:** When running in SAAS mode, the API will expect the credentials param to pass in your Mistral Codestral key. For example the curl would look like:
 
-We need to update our types to support passing in our new guard type. Update this type [here](https://github.com/Lytix-Labs/optimodel/blob/master/server/src/optimodel_server_types/__init__.py#L126) and create a new type that you can use
-
-```py
-Guards = LLamaPromptGuardConfig | LytixRegexConfig | MicrosoftPresidioConfig | NewTypeOfGuard
+```
+curl --location 'BASE_URL/query' \
+--header 'Content-Type: application/json' \
+--data '{
+    "messages": [{"role": "user", "content": "hello world!"}],
+    "modelToUse": "codestral_latest",
+    "credentials": [{
+        "mistralCodeStralApiKey": "<mistral-codestral-api-key>"
+    }]
+}'
 ```
 
-All done 🚀, you should now be able to call your new guard when querying:
+### Gemini <img src="./assets/logos/gemini-logo-small.png" alt="Gemini" height=18>
 
-```py
-response = await queryModel(
-    ....
-    messages=[
-        ModelMessage(
-            role="system",
-            content="You are a helpful assistant. Always respond in JSON syntax",
-        ),
-        ModelMessage(role="user", content=prompt),
-    ],
-    guards=[NewTypeOfGuard(
-        guardName="NEW_TYPE_OF_GUARD",
-        # Add any additional fields here
-        foo="bar",
-    )]
-)
+**Locally:** Ensure you pass your Gemini API key in the following environment variable: `GEMINI_API_KEY`
+
+**SAAS Mode:** When running in SAAS mode, the API will expect the credentials param to pass in your Mistral Codestral key. For example the curl would look like:
+
 ```
+curl --location 'BASE_URL/query' \
+--header 'Content-Type: application/json' \
+--data '{
+    "messages": [{"role": "user", "content": "hello world!"}],
+    "modelToUse": "gemini_1_5_flash",
+    "credentials": [{
+        "geminiApiKey": "<gemini-api-key>"
+    }]
+}'
+```
+
+## [Contributing](#contributing)
+
+We have a couple of guides to quickly get started adding a new provider or guard. See [here](./CONTRIBUTING.md) for more information.

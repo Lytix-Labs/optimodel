@@ -21,6 +21,7 @@ class GuardError(TypedDict):
     guardName: str
     failure: bool
     metadata: Dict[str, Any]
+    blockRequest: bool
 
 
 class MakeQueryResponse(TypedDict):

@@ -35,7 +35,6 @@ async def check_pre_query_guards(
             else:
                 guardResponse = {"failure": False}
 
-        print(f"guardResponse: {guardResponse}")
         if guardResponse["failure"] is True:
             guardErrors.append(
                 GuardError(
@@ -45,6 +44,7 @@ async def check_pre_query_guards(
                     blockRequest=guard.blockRequest,
                 )
             )
+            print(">>>>", guard.blockRequest)
             if guard.blockRequest is True:
                 # Short circuit calling the model
                 return {
