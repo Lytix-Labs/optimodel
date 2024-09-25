@@ -216,7 +216,6 @@ async def openai_chat_proxy(request: Request, path: str):
                     "provider": responseParsed["provider"],
                     "guardErrors": responseParsed["guardErrors"],
                 }
-                print(f">>lytixProxyPayload: {lytixProxyPayload['guardErrors'][1]}")
             except Exception as e:
                 logger.error(f"Error attempting to extract lytix-proxy-payload", e)
 
@@ -317,7 +316,7 @@ async def openai_chat_proxy(request: Request, path: str):
             }
 
         if guardErrors:
-            guardErrorsFinal.append(guardErrors)
+            guardErrorsFinal.extend(guardErrors)
 
     # Prepare the headers for the opeanai API call
     headers = {
@@ -446,7 +445,7 @@ async def openai_chat_proxy(request: Request, path: str):
                 queryResponse={},
             )
             if guardErrors:
-                guardErrorsFinal.append(guardErrors)
+                guardErrorsFinal.extend(guardErrors)
 
         if guardErrorsFinal:
             lytixProxyPayload["guardErrors"] = guardErrorsFinal
