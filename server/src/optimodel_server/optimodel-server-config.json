@@ -311,6 +311,12 @@
         "speed": 0.64,
         "pricePer1MInput": 0.25,
         "pricePer1MOutput": 1.25
+      },
+      {
+        "name": "claude_3_haiku_20240307",
+        "speed": 0.64,
+        "pricePer1MInput": 0.25,
+        "pricePer1MOutput": 1.25
       }
     ]
   }

@@ -6,6 +6,7 @@ import httpx
 from typing import Dict, Any, List
 import os
 import json
+import brotli
 
 from optimodel_server.GuardClient.guardClient import GuardClient
 from optimodel_server.OptimodelError import OptimodelError
@@ -360,16 +361,17 @@ async def openai_chat_proxy(request: Request, path: str):
             # Prepare the headers for the opeanai API call
             headers = {
                 "content-type": "application/json",
+                "accept": "application/json",
                 "Authorization": f"Bearer {request.headers.get('openaikey')}",
                 **{
                     k: v
                     for k, v in request.headers.items()
-                    if k
+                    if k.lower()
                     not in [
-                        "Content-Type",
                         "authorization",
                         "content-length",
                         "host",
+                        "content-type",
                     ]
                 },
             }
@@ -415,7 +417,43 @@ async def openai_chat_proxy(request: Request, path: str):
                         full_url, json=body, headers=headers, timeout=600
                     )
 
-                response_data = response.json()
+                    print(f"Response status: {response.status_code}")
+                    print(f"Response headers: {response.headers}")
+
+                    content_type = response.headers.get("Content-Type", "")
+                    content_encoding = response.headers.get("Content-Encoding", "")
+
+                    if "br" in content_encoding.lower():
+                        try:
+                            # decompressed_data = brotli.decompress(response.content)
+                            decompressed_data = response.content
+                            response_data = json.loads(decompressed_data.decode('utf-8'))
+                        except Exception as e:
+                            print(
+                                f"Failed to decompress or parse brotli-compressed content: {e}"
+                            )
+                            print(f"bytes of compressed content: {response.content}")
+                            raise OptimodelError(
+                                "Failed to process brotli-compressed response from OpenAI API"
+                            )
+                    elif "application/json" in content_type:
+                        try:
+                            response_data = response.json()
+                        except json.JSONDecodeError:
+                            print("Failed to decode JSON. Raw content:")
+                            print(response.content)
+                            raise OptimodelError(
+                                "Failed to decode JSON response from OpenAI API"
+                            )
+                    else:
+                        print(
+                            f"Unexpected content type or encoding: {content_type}, {content_encoding}"
+                        )
+                        print("First 100 bytes of response:")
+                        print(response.content[:100])
+                        raise OptimodelError(
+                            f"Unexpected response format from OpenAI API"
+                        )
 
                 lytixProxyPayload = None
                 try:
@@ -482,6 +520,7 @@ async def openai_chat_proxy(request: Request, path: str):
                         outputTokens=output_tokens,
                         cost=cost,
                         provider="openai",
+                        model=modelToTry,
                     ).dict()
                 except Exception as e:
                     logger.error(f"Error attempting to extract usage tokens", e)
