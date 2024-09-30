@@ -5,6 +5,15 @@
         "name": "gemini_1_5_pro",
         "pricePer1MInput": 3.5,
         "pricePer1MOutput": 10.5,
+        "speed": 0.93,
+        "metadata": {
+          "pricePer1MInputAfter125k": 1.25
+        }
+      },
+      {
+        "name": "gemini_1_5_pro_latest",
+        "pricePer1MInput": 3.5,
+        "pricePer1MOutput": 10.5,
         "speed": 0.93
       },
       {

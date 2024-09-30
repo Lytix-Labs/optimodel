@@ -1,6 +1,5 @@
 import os
 
-from openai import NOT_GIVEN, OpenAI
 from optimodel_server.OptimodelError import OptimodelError
 
 from optimodel_server.Config.types import SAAS_MODE
@@ -12,6 +11,7 @@ from optimodel_server.Providers.BaseProviderClass import (
 from optimodel_types import GeminiCredentials, ModelTypes, OpenAICredentials
 from google.ai import generativelanguage as glm
 import google.generativeai as genai
+from google.generativeai import protos
 
 
 class GeminiProvider(BaseProviderClass):
@@ -113,21 +113,31 @@ class GeminiProvider(BaseProviderClass):
         )
         model._client = client
 
-        inputMessage: str = ""
-        for message in messages:
-            if isinstance(message.content, str):
-                inputMessage += message.content
-            else:
-                """
-                Loop over the content
-                """
-                for entry in message.content:
-                    if isinstance(entry, str):
-                        inputMessage += entry
-                    elif entry.type == "text":
-                        inputMessage += entry.text
+        inputMessage = ""
+        fileInput = None
 
-        response = model.generate_content(inputMessage)
+        for message in messages:
+            if message.role == "user":
+                if isinstance(message.content, str):
+                    inputMessage += message.content
+                else:
+                    for entry in message.content:
+                        if isinstance(entry, str):
+                            inputMessage += entry
+                        elif entry.type == "text":
+                            inputMessage += entry.text
+                        elif entry.type == "video-gemini":
+                            file_data = protos.FileData(
+                                mime_type=entry.data.mimeType,
+                                file_uri=entry.data.fileUri,
+                            )
+                            fileInput = file_data
+
+        content = [inputMessage]
+        if fileInput is not None:
+            content.append(fileInput)
+
+        response = model.generate_content(content)
         promptTokenCount = response.usage_metadata.prompt_token_count
         generationTokenCount = response.usage_metadata.candidates_token_count
         modelOutput = response.text

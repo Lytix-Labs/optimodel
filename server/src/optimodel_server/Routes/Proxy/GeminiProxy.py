@@ -13,6 +13,8 @@ from optimodel_server.Routes import LytixProxyResponse
 import logging
 from optimodel_server.Config import config
 import sys
+import re
+
 
 from optimodel_server.Utils.QueryModelMain import (
     check_post_query_guards,
@@ -42,9 +44,10 @@ from optimodel_types import (
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-openaiRouter = APIRouter()
+geminiRouter = APIRouter()
 
-OPENAI_API_URL = "https://api.openai.com/v1"
+GEMINI_API_URL = "https://generativelanguage.googleapis.com"
+
 
 guardClientInstance = GuardClient(config.guardServerURL)
 
@@ -61,13 +64,17 @@ def create_guard(guard_dict):
         raise ValueError(f"Unknown guard type: {guard_type}")
 
 
-@openaiRouter.api_route("/{path:path}", methods=["POST"])
-async def openai_chat_proxy(request: Request, path: str):
+@geminiRouter.api_route("/{path:path}", methods=["POST"])
+async def gemini_chat_proxy(request: Request, path: str):
     # Get the request body as JSON
     body = await request.json()
 
     # Extract necessary parameters from the request body
-    model = body.get("model")
+    # model = body.get("model")
+    # print(">>>>>", json.dumps(body, indent=2))
+
+    model_match = re.search(r"/v1beta/models/([^:]+)", path)
+    model = model_match.group(1) if model_match else None
     stream = body.get("stream", False)
     guards = body.get("lytix-guards", [])
     fallbackModels = body.get("lytix-fallbackModels", [])
@@ -105,38 +112,52 @@ async def openai_chat_proxy(request: Request, path: str):
 
     try:
         # Parse user and system messages
-        for message in body.get("messages", []):
-            role = message.get("role")
-            content = message.get("content")
+        for content in body.get("contents", []):
+            role = content.get("role")
+            parts = content.get("parts", [])
 
-            if isinstance(content, list):
-                processed_content = []
-                for item in content:
-                    if item.get("type") == "text":
-                        processed_content.append({"type": "text", "text": item["text"]})
-                    elif item.get("type") == "image_url":
-                        image_url = item["image_url"]["url"]
-                        if image_url.startswith("data:"):
-                            # Parse the data URL
-                            _, data = image_url.split(",", 1)
-                            media_type = image_url.split(";")[0].split(":")[1]
-                            processed_content.append(
-                                {
-                                    "type": "image",
-                                    "source": {
-                                        "type": "base64",
-                                        "mediaType": media_type,
-                                        "data": data,
-                                    },
-                                }
-                            )
-                if processed_content:
-                    messages.append({"role": role, "content": processed_content})
-            elif isinstance(content, str):
-                # If content is a string, add it directly
-                messages.append(
-                    {"role": role, "content": [{"type": "text", "text": content}]}
-                )
+            processed_content = []
+            for part in parts:
+                if "text" in part:
+                    processed_content.append({"type": "text", "text": part["text"]})
+                elif "image_url" in part:
+                    image_url = part["image_url"]["url"]
+                    if image_url.startswith("data:"):
+                        # Parse the data URL
+                        _, data = image_url.split(",", 1)
+                        media_type = image_url.split(";")[0].split(":")[1]
+                        processed_content.append(
+                            {
+                                "type": "image",
+                                "source": {
+                                    "type": "base64",
+                                    "mediaType": media_type,
+                                    "data": data,
+                                },
+                            }
+                        )
+        if processed_content:
+            messages.append({"role": role, "content": processed_content})
+
+        """
+        System message is next to model
+        """
+        # Extract system message from the body
+        system_instruction = body.get("systemInstruction", {})
+        if system_instruction:
+            system_message = {
+                "role": system_instruction.get("role", "system"),
+                "content": [
+                    {
+                        "type": "text",
+                        "text": system_instruction.get("parts", [{}])[0].get(
+                            "text", "You are a helpful assistant."
+                        ),
+                    }
+                ],
+            }
+            messages.append(system_message)
+
     except Exception as e:
         logger.error(f"Error attempting to extract messages", e)
 
@@ -147,21 +168,25 @@ async def openai_chat_proxy(request: Request, path: str):
         try:
             match modelToTry.lower().replace("-", "_").replace(".", "_"):
                 case (
-                    ModelTypes.gpt_4.name
-                    | ModelTypes.gpt_3_5_turbo.name
-                    | ModelTypes.gpt_4o.name
-                    | ModelTypes.gpt_4_turbo.name
-                    | ModelTypes.gpt_3_5_turbo_0125.name
-                    | ModelTypes.gpt_4o_mini.name
-                    | ModelTypes.gpt_4o_mini_2024_07_18.name
-                    | ModelTypes.gpt_4o_2024_08_06.name
-                    | ModelTypes.o1_preview.name
-                    | ModelTypes.o1_preview_2024_09_12.name
-                    | ModelTypes.o1_mini.name
-                    | ModelTypes.o1_mini_2024_09_12.name
+                    ModelTypes.gemini_1_5_pro.name
+                    | ModelTypes.gemini_1_5_pro_001.name
+                    | ModelTypes.gemini_1_5_pro_exp_0801
+                    | ModelTypes.gemini_1_5_pro_exp_0827.name
+                    | ModelTypes.gemini_1_5_flash.name
+                    | ModelTypes.gemini_1_5_flash_latest.name
+                    | ModelTypes.gemini_1_5_flash_001.name
+                    | ModelTypes.gemini_1_5_flash_001_tuning.name
+                    | ModelTypes.gemini_1_5_flash_exp_0827.name
+                    | ModelTypes.gemini_1_5_flash_8b_exp_0827.name
+                    | ModelTypes.gemini_1_5_pro_latest.name
                 ):
                     """
-                    Nothing to do here, this is just the normal openai proxy
+                    Nothing to do here, this is just the normal gemini proxy
+                    """
+                    pass
+                case modelToTry.lower() if "gemini" in modelToTry.lower():
+                    """
+                    Catch all, if any have the word gemini in them, we need to use the new gemini proxy
                     """
                     pass
                 case _:
@@ -302,7 +327,7 @@ async def openai_chat_proxy(request: Request, path: str):
                     preQueryGuards=[create_guard(x) for x in preQueryGuards],
                     guardClientInstance=guardClientInstance,
                     messages=messages,
-                    providerName="openai",
+                    providerName="gemini",
                 )
                 if should_return:
                     """
@@ -326,7 +351,7 @@ async def openai_chat_proxy(request: Request, path: str):
                         inputTokens=0,
                         outputTokens=0,
                         cost=0,
-                        provider="openai",
+                        provider="gemini",
                         guardErrors=(
                             guardErrors["guardErrors"]
                             if "guardErrors" in guardErrors
@@ -357,17 +382,14 @@ async def openai_chat_proxy(request: Request, path: str):
                 if guardErrors:
                     guardErrorsFinal.extend(guardErrors)
 
-            # Prepare the headers for the opeanai API call
+            # Prepare the headers for the gemini API call
             headers = {
-                "content-type": "application/json",
-                "Authorization": f"Bearer {request.headers.get('openaikey')}",
                 **{
                     k: v
                     for k, v in request.headers.items()
                     if k
                     not in [
                         "Content-Type",
-                        "authorization",
                         "content-length",
                         "host",
                     ]
@@ -378,11 +400,11 @@ async def openai_chat_proxy(request: Request, path: str):
             headers = {k: str(v) for k, v in headers.items() if v is not None}
 
             # Construct the full path for the Anthropic API request
-            full_url = f"{OPENAI_API_URL}/{path.lstrip('openai/')}"
+            full_url = f"{GEMINI_API_URL}/{path.lstrip('gemini/')}"
 
             """
             Delete lytix-guards and guards, and lytix-speedPriority and speedPriority
-            Otherwise openAI will complain
+            Otherwise gemini will complain
             """
             body = body.copy()
             body.pop("lytix-guards", None)
@@ -420,68 +442,56 @@ async def openai_chat_proxy(request: Request, path: str):
                 lytixProxyPayload = None
                 try:
                     # Extract model messages
-                    if "choices" in response_data:
-                        for choice in response_data["choices"]:
-                            if "message" in choice:
-                                message = choice["message"]
-                                if "content" in message:
-                                    try:
-                                        # Attempt to parse the content as JSON
-                                        content_json = json.loads(message["content"])
-                                        if "response" in content_json:
+                    if "candidates" in response_data:
+                        for candidate in response_data["candidates"]:
+                            if "content" in candidate:
+                                content = candidate["content"]
+                                if "parts" in content:
+                                    for part in content["parts"]:
+                                        if "text" in part:
                                             messages.append(
                                                 {
-                                                    "role": message["role"],
+                                                    "role": "assistant",
                                                     "content": [
                                                         {
                                                             "type": "text",
-                                                            "text": content_json[
-                                                                "response"
-                                                            ],
+                                                            "text": part["text"],
                                                         }
                                                     ],
                                                 }
                                             )
-                                    except json.JSONDecodeError:
-                                        # If parsing fails, treat the content as plain text
-                                        messages.append(
-                                            {
-                                                "role": message["role"],
-                                                "content": [
-                                                    {
-                                                        "type": "text",
-                                                        "text": message["content"],
-                                                    }
-                                                ],
-                                            }
-                                        )
 
                     # Extract token usage
-                    usage = response_data.get("usage", {})
-                    input_tokens = usage.get("prompt_tokens")
-                    output_tokens = usage.get("completion_tokens")
+                    usage = response_data.get("usageMetadata", {})
+                    input_tokens = usage.get("promptTokenCount")
+                    output_tokens = usage.get("candidatesTokenCount")
 
                     # Now attempt to calculate cost based on the model
                     modelData = config.modelToProvider.get(
                         modelToTry.lower().replace("-", "_").replace(".", "_"), None
                     )
 
-                    # Get the first openai provider
+                    # Get the first gemini provider
                     modelData = next(
-                        (x for x in modelData if x["provider"] == "openai"), None
+                        (x for x in modelData if x["provider"] == "gemini"), None
                     )
 
                     cost = None
                     if modelData is not None:
+                        """
+                        Attempt to pull out data from the file Uris
+                        """
+
                         cost = modelData["pricePer1MInput"] * (
                             input_tokens / 1_000_000
                         ) + modelData["pricePer1MOutput"] * (output_tokens / 1_000_000)
                     lytixProxyPayload = LytixProxyResponse(
                         messagesV2=messages,
+                        model=modelToTry,
                         inputTokens=input_tokens,
                         outputTokens=output_tokens,
                         cost=cost,
-                        provider="openai",
+                        provider="gemini",
                     ).dict()
                 except Exception as e:
                     logger.error(f"Error attempting to extract usage tokens", e)
@@ -516,7 +526,7 @@ async def openai_chat_proxy(request: Request, path: str):
                 )
 
         except Exception as e:
-            logger.error(f"Error attempting to process openai request", e)
+            logger.error(f"Error attempting to process gemini request", e)
 
             """
             Unless we are out of models, continue
@@ -529,18 +539,16 @@ async def openai_chat_proxy(request: Request, path: str):
                     raise e
 
 
-@openaiRouter.api_route("/{path:path}", methods=["GET"])
-async def openai_get_proxy(request: Request, path: str):
+@geminiRouter.api_route("/{path:path}", methods=["GET"])
+async def gemini_get_proxy(request: Request, path: str):
     """
     Blindly forward and get requests, dont intercept anything just proxy
     """
     # Construct the full URL for the Anthropic API request
-    full_url = f"{OPENAI_API_URL}/{path}"
+    full_url = f"{GEMINI_API_URL}/{path}"
 
     # Prepare the headers for the Anthropic API call
     headers = {
-        "X-API-Key": request.headers.get("openaiApiKey"),
-        "anthropic-version": "2023-06-01",
         **{
             k: v
             for k, v in request.headers.items()

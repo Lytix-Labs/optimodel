@@ -23,6 +23,8 @@ from fastapi import FastAPI
 from optimodel_server.Routes.Proxy.AnthropicProxy import anthropicRouter
 from optimodel_server.Routes.Proxy.OpenAIProxy import openaiRouter
 
+from optimodel_server.Routes.Proxy.GeminiProxy import geminiRouter
+
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -34,6 +36,9 @@ app.include_router(anthropicRouter, prefix="/proxy/v1/anthropic", tags=["proxy"]
 
 # Include the OpenAI proxy router
 app.include_router(openaiRouter, prefix="/proxy/v1/openai", tags=["proxy"])
+
+# Include the Gemini proxy router
+app.include_router(geminiRouter, prefix="/proxy/v1/gemini", tags=["proxy"])
 
 baseURL = "/optimodel/api/v1"
 

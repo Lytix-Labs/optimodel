@@ -44,7 +44,6 @@ async def check_pre_query_guards(
                     blockRequest=guard.blockRequest,
                 )
             )
-            print(">>>>", guard.blockRequest)
             if guard.blockRequest is True:
                 # Short circuit calling the model
                 return {

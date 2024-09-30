@@ -19,7 +19,7 @@ async def anthropic_get_proxy(request: Request, path: str):
     Blindly forward and get requests, dont intercept anything just proxy
     """
     # Construct the full URL for the Anthropic API request
-    full_url = f"{ANTHROPIC_API_URL}/{path}"
+    full_url = f"{ANTHROPIC_API_URL}/{path.lstrip('anthropic/v1')}"
 
     # Prepare the headers for the Anthropic API call
     headers = {
@@ -28,7 +28,7 @@ async def anthropic_get_proxy(request: Request, path: str):
         **{
             k: v
             for k, v in request.headers.items()
-            if k.lower() not in ["host", "content-length"]
+            if k.lower() not in ["host", "content-length", "anthropicapikey"]
         },
     }
 
@@ -62,13 +62,11 @@ async def anthropic_chat_proxy(request: Request, path: str):
 
     # Prepare the headers for the Anthropic API call
     headers = {
-        "Content-Type": "application/json",
         "X-API-Key": request.headers.get("anthropicApiKey"),
-        "anthropic-version": "2023-06-01",
         **{
             k: v
             for k, v in request.headers.items()
-            if k not in ["Content-Type", "X-API-Key", "anthropic-version"]
+            if k.lower() not in ["host", "content-length", "anthropicapikey"]
         },
     }
 
@@ -76,7 +74,7 @@ async def anthropic_chat_proxy(request: Request, path: str):
     headers = {k: str(v) for k, v in headers.items() if v is not None}
 
     # Construct the full path for the Anthropic API request
-    full_url = f"{ANTHROPIC_API_URL}/{path.lstrip('anthropic/')}"
+    full_url = f"{ANTHROPIC_API_URL}/{path.lstrip('anthropic/v1')}"
 
     async def event_stream():
         async with httpx.AsyncClient() as client:
@@ -90,7 +88,10 @@ async def anthropic_chat_proxy(request: Request, path: str):
         return StreamingResponse(event_stream(), media_type="text/event-stream")
     else:
         async with httpx.AsyncClient() as client:
-            response = await client.post(full_url, json=body, headers=headers)
+            response = await client.post(
+                full_url, json=body, headers=headers, timeout=600
+            )
+            raw_response = response.text
 
         response_data = response.json()
 

@@ -45,6 +45,7 @@ class ModelTypes(enum.Enum):
 
     # Google
     gemini_1_5_pro = "gemini_1_5_pro"
+    gemini_1_5_pro_latest = "gemini_1_5_pro_latest"
     gemini_1_5_pro_001 = "gemini_1_5_pro_001"
     gemini_1_5_pro_exp_0801 = "gemini_1_5_pro_exp_0801"
     gemini_1_5_pro_exp_0827 = "gemini_1_5_pro_exp_0827"
@@ -78,10 +79,16 @@ class ModelImageMessageSource(BaseModel):
     data: str
 
 
+class GeminiFileData(BaseModel):
+    fileUri: str
+    mimeType: str
+
+
 class ModelMessageContentEntry(BaseModel):
     type: str
     text: str | None = None
     source: ModelImageMessageSource | None = None
+    data: GeminiFileData | None = None
 
 
 class ModelMessage(BaseModel):
