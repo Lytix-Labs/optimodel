@@ -165,6 +165,12 @@ async def openai_chat_proxy(request: Request, path: str):
                     Nothing to do here, this is just the normal openai proxy
                     """
                     pass
+                case model if "gpt" in model.lower():
+                    """
+                    Handle any GPT model that wasn't explicitly listed above
+                    """
+                    logger.info(f"Handling unlisted GPT model: {model}")
+                    pass
                 case _:
                     """
                     Based on the headers create our credentials object
@@ -417,9 +423,6 @@ async def openai_chat_proxy(request: Request, path: str):
                         full_url, json=body, headers=headers, timeout=600
                     )
 
-                    print(f"Response status: {response.status_code}")
-                    print(f"Response headers: {response.headers}")
-
                     content_type = response.headers.get("Content-Type", "")
                     content_encoding = response.headers.get("Content-Encoding", "")
 
@@ -427,7 +430,9 @@ async def openai_chat_proxy(request: Request, path: str):
                         try:
                             # decompressed_data = brotli.decompress(response.content)
                             decompressed_data = response.content
-                            response_data = json.loads(decompressed_data.decode('utf-8'))
+                            response_data = json.loads(
+                                decompressed_data.decode("utf-8")
+                            )
                         except Exception as e:
                             print(
                                 f"Failed to decompress or parse brotli-compressed content: {e}"
@@ -440,17 +445,10 @@ async def openai_chat_proxy(request: Request, path: str):
                         try:
                             response_data = response.json()
                         except json.JSONDecodeError:
-                            print("Failed to decode JSON. Raw content:")
-                            print(response.content)
                             raise OptimodelError(
                                 "Failed to decode JSON response from OpenAI API"
                             )
                     else:
-                        print(
-                            f"Unexpected content type or encoding: {content_type}, {content_encoding}"
-                        )
-                        print("First 100 bytes of response:")
-                        print(response.content[:100])
                         raise OptimodelError(
                             f"Unexpected response format from OpenAI API"
                         )
@@ -463,36 +461,17 @@ async def openai_chat_proxy(request: Request, path: str):
                             if "message" in choice:
                                 message = choice["message"]
                                 if "content" in message:
-                                    try:
-                                        # Attempt to parse the content as JSON
-                                        content_json = json.loads(message["content"])
-                                        if "response" in content_json:
-                                            messages.append(
+                                    messages.append(
+                                        {
+                                            "role": "assistant",
+                                            "content": [
                                                 {
-                                                    "role": message["role"],
-                                                    "content": [
-                                                        {
-                                                            "type": "text",
-                                                            "text": content_json[
-                                                                "response"
-                                                            ],
-                                                        }
-                                                    ],
+                                                    "type": "text",
+                                                    "text": message["content"],
                                                 }
-                                            )
-                                    except json.JSONDecodeError:
-                                        # If parsing fails, treat the content as plain text
-                                        messages.append(
-                                            {
-                                                "role": message["role"],
-                                                "content": [
-                                                    {
-                                                        "type": "text",
-                                                        "text": message["content"],
-                                                    }
-                                                ],
-                                            }
-                                        )
+                                            ],
+                                        }
+                                    )
 
                     # Extract token usage
                     usage = response_data.get("usage", {})

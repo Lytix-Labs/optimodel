@@ -222,14 +222,20 @@
     "openai": [
       {
         "name": "gpt_4o",
-        "pricePer1MInput": 5,
-        "pricePer1MOutput": 15,
+        "pricePer1MInput": 2.5,
+        "pricePer1MOutput": 10,
         "speed": 0.46
       },
       {
         "name": "gpt_4o_2024_08_06",
         "pricePer1MInput": 2.5,
         "pricePer1MOutput": 10,
+        "speed": 0.46
+      },
+      {
+        "name": "gpt_4o_2024_05_13",
+        "pricePer1MInput": 5,
+        "pricePer1MOutput": 15,
         "speed": 0.46
       },
       {
