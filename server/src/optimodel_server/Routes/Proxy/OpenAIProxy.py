@@ -64,6 +64,9 @@ def create_guard(guard_dict):
 
 @openaiRouter.api_route("/{path:path}", methods=["POST"])
 async def openai_chat_proxy(request: Request, path: str):
+    # extract the lytix ioeventid if present
+    ioEventId = request.headers.get("x-lytix-io-event-id")
+
     # Get the request body as JSON
     body = await request.json()
 
@@ -145,6 +148,7 @@ async def openai_chat_proxy(request: Request, path: str):
         raise OptimodelError("model is required")
 
     for index, modelToTry in enumerate(allModelsToTry):
+        logger.info(f"Trying model: {modelToTry}")
         try:
             match modelToTry.lower().replace("-", "_").replace(".", "_"):
                 case (
@@ -156,6 +160,7 @@ async def openai_chat_proxy(request: Request, path: str):
                     | ModelTypes.gpt_4o_mini.name
                     | ModelTypes.gpt_4o_mini_2024_07_18.name
                     | ModelTypes.gpt_4o_2024_08_06.name
+                    | ModelTypes.gpt_4o_2024_05_13.name
                     | ModelTypes.o1_preview.name
                     | ModelTypes.o1_preview_2024_09_12.name
                     | ModelTypes.o1_mini.name
@@ -249,6 +254,7 @@ async def openai_chat_proxy(request: Request, path: str):
                             "cost": responseParsed["cost"],
                             "provider": responseParsed["provider"],
                             "guardErrors": responseParsed["guardErrors"],
+                            "lytixEventId": ioEventId,
                         }
                     except Exception as e:
                         logger.error(
@@ -339,6 +345,7 @@ async def openai_chat_proxy(request: Request, path: str):
                             if "guardErrors" in guardErrors
                             else guardErrors
                         ),
+                        lytixEventId=ioEventId,
                     ).dict()
 
                     return {
@@ -378,6 +385,7 @@ async def openai_chat_proxy(request: Request, path: str):
                         "content-length",
                         "host",
                         "content-type",
+                        "x-lytix-io-event-id",
                     ]
                 },
             }
@@ -453,6 +461,12 @@ async def openai_chat_proxy(request: Request, path: str):
                             f"Unexpected response format from OpenAI API"
                         )
 
+                # If its a non-200 response
+                if response.status_code != 200:
+                    raise OptimodelError(
+                        f"Non-200 response from OpenAI API: {response.status_code}"
+                    )
+
                 lytixProxyPayload = None
                 try:
                     # Extract model messages
@@ -494,6 +508,7 @@ async def openai_chat_proxy(request: Request, path: str):
                             input_tokens / 1_000_000
                         ) + modelData["pricePer1MOutput"] * (output_tokens / 1_000_000)
                     lytixProxyPayload = LytixProxyResponse(
+                        lytixEventId=ioEventId,
                         messagesV2=messages,
                         inputTokens=input_tokens,
                         outputTokens=output_tokens,
@@ -548,7 +563,10 @@ async def openai_chat_proxy(request: Request, path: str):
 
 
 @openaiRouter.api_route("/{path:path}", methods=["GET"])
-async def openai_get_proxy(request: Request, path: str):
+async def openai_get_proxy(
+    request: Request, path: str
+):  # extract the lytix ioeventid if present
+    ioEventId = request.headers.get("x-lytix-io-event-id")
     """
     Blindly forward and get requests, dont intercept anything just proxy
     """

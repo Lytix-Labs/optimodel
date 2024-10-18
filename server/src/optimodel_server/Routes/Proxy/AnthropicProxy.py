@@ -30,7 +30,7 @@ async def anthropic_get_proxy(request: Request, path: str):
         **{
             k: v
             for k, v in request.headers.items()
-            if k.lower() not in ["host", "content-length"]
+            if k.lower() not in ["host", "content-length", "x-lytix-io-event-id"]
         },
     }
 
@@ -52,6 +52,9 @@ async def anthropic_get_proxy(request: Request, path: str):
 
 @anthropicRouter.api_route("/{path:path}", methods=["POST"])
 async def anthropic_chat_proxy(request: Request, path: str):
+    # extract the lytix ioeventid if present
+    ioEventId = request.headers.get("x-lytix-io-event-id")
+
     # Get the request body as JSON
     body = await request.json()
     messages: List[ModelMessage] = []
@@ -74,6 +77,7 @@ async def anthropic_chat_proxy(request: Request, path: str):
                 "x-api-key",
                 "content-length",
                 "host",
+                "x-lytix-io-event-id",
             ]
         },
     }
@@ -135,32 +139,6 @@ async def anthropic_chat_proxy(request: Request, path: str):
                     ],
                 }
             )
-        # if isinstance(message.get("content"), list):
-        #     for content in message["content"]:
-        #         if content["type"] == "text":
-        #             messages.append(
-        #                 {
-        #                     "role": message.get("role"),
-        #                     content: [
-        #                         {
-        #                             "type": "text",
-        #                             "text": content["text"],
-        #                         }
-        #                     ],
-        #                 }
-        #             )
-        # elif isinstance(message.get("content"), str):
-        #     messages.append(
-        #         {
-        #             "role": message.get("role"),
-        #             "content": [
-        #                 {
-        #                     "type": "text",
-        #                     "text": message["content"],
-        #                 }
-        #             ],
-        #         }
-        #     )
 
     # Remove any headers with None values
     headers = {k: str(v) for k, v in headers.items() if v is not None}
@@ -180,15 +158,9 @@ async def anthropic_chat_proxy(request: Request, path: str):
         return StreamingResponse(event_stream(), media_type="text/event-stream")
     else:
         async with httpx.AsyncClient() as client:
-            # print(f"full_url: {full_url}, body: {body}")
             response = await client.post(
                 full_url, json=body, headers=headers, timeout=600
             )
-            # print(f"response: {response}")
-            # print(f"response status: {response.status_code}")
-            # print(f"response headers: {response.headers}")
-            raw_response = response.text
-            # print(f"raw response: {raw_response}")
 
         response_data = response.json()
         # Extract content from response_data
@@ -221,33 +193,43 @@ async def anthropic_chat_proxy(request: Request, path: str):
             )
 
         # Extract model parameters
+        try:
+            # Extract token usage
+            # response_data: {'id': 'msg_01WSAwZBmXhafnXHRTe5oekP', 'type': 'message', 'role': 'assistant', 'model': 'claude-3-haiku-20240307', 'content': [{'type': 'text', 'text': 'Hello! I\'m Claude, an AI assistant created by Anthropic. I don\'t have a name like "beb87629-4be3-457a-9ee0-21c96c0c2a13" - that looks like a unique identifier rather than a name. How can I assist you today?'}], 'stop_reason': 'end_turn', 'stop_sequence': None, 'usage': {'input_tokens': 38, 'output_tokens': 71}}
+            usage = response_data.get("usage", {})
+            input_tokens = usage.get("input_tokens")
+            output_tokens = usage.get("output_tokens")
+            print(f"input_tokens: {input_tokens}, output_tokens: {output_tokens}")
 
-        # Extract token usage
-        # response_data: {'id': 'msg_01WSAwZBmXhafnXHRTe5oekP', 'type': 'message', 'role': 'assistant', 'model': 'claude-3-haiku-20240307', 'content': [{'type': 'text', 'text': 'Hello! I\'m Claude, an AI assistant created by Anthropic. I don\'t have a name like "beb87629-4be3-457a-9ee0-21c96c0c2a13" - that looks like a unique identifier rather than a name. How can I assist you today?'}], 'stop_reason': 'end_turn', 'stop_sequence': None, 'usage': {'input_tokens': 38, 'output_tokens': 71}}
-        usage = response_data.get("usage", {})
-        input_tokens = usage.get("input_tokens")
-        output_tokens = usage.get("output_tokens")
-        print(f"input_tokens: {input_tokens}, output_tokens: {output_tokens}")
+            # Now attempt to calculate cost based on the model
+            modelData = config.modelToProvider.get(
+                model.lower().replace("-", "_").replace(".", "_"), None
+            )
 
-        # Now attempt to calculate cost based on the model
-        modelData = config.modelToProvider.get(
-            model.lower().replace("-", "_").replace(".", "_"), None
-        )
+            # Get the first anthropic provider
+            modelData = next(
+                (x for x in modelData if x["provider"] == "anthropic"), None
+            )
 
-        # Get the first anthropic provider
-        modelData = next((x for x in modelData if x["provider"] == "anthropic"), None)
+            cost = None
+            if (
+                modelData is not None
+                and input_tokens is not None
+                and output_tokens is not None
+            ):
+                cost = modelData["pricePer1MInput"] * (
+                    input_tokens / 1_000_000
+                ) + modelData["pricePer1MOutput"] * (output_tokens / 1_000_000)
 
-        cost = None
-        if modelData is not None:
-            cost = modelData["pricePer1MInput"] * (
-                input_tokens / 1_000_000
-            ) + modelData["pricePer1MOutput"] * (output_tokens / 1_000_000)
+        except Exception as e:
+            print(f"Error attempting to calculate cost", e)
 
         # print(f"cost: {cost}, tokens: {input_tokens}, {output_tokens}")
         return Response(
             content=json.dumps(
                 {
                     "lytix-proxy-payload": LytixProxyResponse(
+                        lytixEventId=ioEventId,
                         messagesV2=messages,
                         inputTokens=input_tokens,
                         outputTokens=output_tokens,

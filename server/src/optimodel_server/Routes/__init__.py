@@ -12,3 +12,4 @@ class LytixProxyResponse(BaseModel):
     provider: Optional[str] = None
     guardErrors: Optional[List[GuardError]] = None
     model: Optional[str] = None
+    lytixEventId: Optional[str] = None

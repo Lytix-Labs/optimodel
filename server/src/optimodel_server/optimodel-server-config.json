@@ -3,8 +3,8 @@
     "gemini": [
       {
         "name": "gemini_1_5_pro",
-        "pricePer1MInput": 3.5,
-        "pricePer1MOutput": 10.5,
+        "pricePer1MInput": 1.25,
+        "pricePer1MOutput": 5,
         "speed": 0.93,
         "metadata": {
           "pricePer1MInputAfter125k": 1.25
@@ -12,62 +12,62 @@
       },
       {
         "name": "gemini_1_5_pro_latest",
-        "pricePer1MInput": 3.5,
-        "pricePer1MOutput": 10.5,
+        "pricePer1MInput": 1.25,
+        "pricePer1MOutput": 5,
         "speed": 0.93
       },
       {
         "name": "gemini_1_5_pro_001",
-        "pricePer1MInput": 3.5,
-        "pricePer1MOutput": 10.5,
+        "pricePer1MInput": 1.25,
+        "pricePer1MOutput": 5,
         "speed": 0.93
       },
       {
         "name": "gemini_1_5_pro_exp_0801",
-        "pricePer1MInput": 3.5,
-        "pricePer1MOutput": 10.5,
+        "pricePer1MInput": 1.25,
+        "pricePer1MOutput": 5,
         "speed": 0.93
       },
       {
         "name": "gemini_1_5_pro_exp_0827",
-        "pricePer1MInput": 3.5,
-        "pricePer1MOutput": 10.5,
+        "pricePer1MInput": 1.25,
+        "pricePer1MOutput": 5,
         "speed": 0.93
       },
       {
         "name": "gemini_1_5_flash",
-        "pricePer1MInput": 0.07,
+        "pricePer1MInput": 0.075,
         "pricePer1MOutput": 0.3,
         "speed": 0.39
       },
       {
         "name": "gemini_1_5_flash_latest",
-        "pricePer1MInput": 3.5,
-        "pricePer1MOutput": 10.5,
-        "speed": 0.93
+        "pricePer1MInput": 0.075,
+        "pricePer1MOutput": 0.3,
+        "speed": 0.39
       },
       {
         "name": "gemini_1_5_flash_001",
-        "pricePer1MInput": 0.07,
+        "pricePer1MInput": 0.075,
         "pricePer1MOutput": 0.3,
         "speed": 0.39
       },
       {
         "name": "gemini_1_5_flash_001_tuning",
-        "pricePer1MInput": 0.07,
+        "pricePer1MInput": 0.075,
         "pricePer1MOutput": 0.3,
         "speed": 0.39
       },
       {
         "name": "gemini_1_5_flash_exp_0827",
-        "pricePer1MInput": 0.07,
+        "pricePer1MInput": 0.075,
         "pricePer1MOutput": 0.3,
         "speed": 0.39
       },
       {
         "name": "gemini_1_5_flash_8b_exp_0827",
-        "pricePer1MInput": 0.07,
-        "pricePer1MOutput": 0.3,
+        "pricePer1MInput": 0.0375,
+        "pricePer1MOutput": 0.15,
         "speed": 0.39
       }
     ],

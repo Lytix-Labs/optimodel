@@ -70,6 +70,8 @@ class GeminiProvider(BaseProviderClass):
         match model:
             case ModelTypes.gemini_1_5_pro.name:
                 modelId = "models/gemini-1.5-pro"
+            case ModelTypes.gemini_1_5_pro_latest.name:
+                modelId = "models/gemini-1.5-pro-latest"
             case ModelTypes.gemini_1_5_pro_001.name:
                 modelId = "models/gemini-1.5-pro-001"
             case ModelTypes.gemini_1_5_pro_exp_0801.name:

@@ -76,7 +76,7 @@ async def queryModel(
                             """
                             Convert model int to string
                             """
-                            modelToUse = ModelTypes(model).name
+                            modelToUse = model.name
                             body = {
                                 "modelToUse": modelToUse,
                                 "messages": messages,

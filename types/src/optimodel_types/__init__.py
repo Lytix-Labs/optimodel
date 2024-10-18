@@ -34,6 +34,7 @@ class ModelTypes(enum.Enum):
     gpt_4o_mini = "gpt_4o_mini"
     gpt_4o_mini_2024_07_18 = "gpt_4o_mini_2024_07_18"
     gpt_4o_2024_08_06 = "gpt_4o_2024_08_06"
+    gpt_4o_2024_05_13 = "gpt_4o_2024_05_13"
     o1_preview = "o1_preview"
     o1_preview_2024_09_12 = "o1_preview_2024_09_12"
     o1_mini = "o1_mini"

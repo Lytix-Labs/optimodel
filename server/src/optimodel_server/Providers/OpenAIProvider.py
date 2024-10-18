@@ -79,6 +79,8 @@ class OpenAIProvider(BaseProviderClass):
                 modelId = "gpt-4o-mini-2024-07-18"
             case ModelTypes.gpt_4o_2024_08_06.name:
                 modelId = "gpt-4o-2024-08-06"
+            case ModelTypes.gpt_4o_2024_05_13.name:
+                modelId = "gpt-4o-2024-05-13"
             case ModelTypes.o1_preview.name:
                 modelId = "o1-preview"
             case ModelTypes.o1_preview_2024_09_12.name:

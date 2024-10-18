@@ -114,9 +114,9 @@ async def queryModelMain(data: QueryBody, guardClientInstance: GuardClient):
                     )
                     if should_return:
                         """
-                        Weird edge case where we want to return the guard error
-                    @TODO: This is horrible code, refactor it
-                    """
+                            Weird edge case where we want to return the guard error
+                        @TODO: This is horrible code, refactor it
+                        """
                         return preQueryGuardErrors
 
                     if preQueryGuardErrors:
@@ -171,12 +171,14 @@ async def queryModelMain(data: QueryBody, guardClientInstance: GuardClient):
                     Check if we have any guards
                     """
                     if postQueryGuards:
-                        postQueryGuardErrors, queryResponse = await check_post_query_guards(
-                            postQueryGuards=postQueryGuards,
-                            guardClientInstance=guardClientInstance,
-                            messages=data.messages,
-                            modelOutput=response.modelOutput,
-                            queryResponse=queryResponse,
+                        postQueryGuardErrors, queryResponse = (
+                            await check_post_query_guards(
+                                postQueryGuards=postQueryGuards,
+                                guardClientInstance=guardClientInstance,
+                                messages=data.messages,
+                                modelOutput=response.modelOutput,
+                                queryResponse=queryResponse,
+                            )
                         )
                         if postQueryGuardErrors:
                             queryResponse["guardErrors"].extend(postQueryGuardErrors)
