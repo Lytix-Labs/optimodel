@@ -179,12 +179,14 @@ async def gemini_chat_proxy(request: Request, path: str):
                     | ModelTypes.gemini_1_5_flash_exp_0827.name
                     | ModelTypes.gemini_1_5_flash_8b_exp_0827.name
                     | ModelTypes.gemini_1_5_pro_latest.name
+                    | ModelTypes.gemini_1_5_pro_002.name
+                    | ModelTypes.gemini_1_5_flash_8b.name
                 ):
                     """
                     Nothing to do here, this is just the normal gemini proxy
                     """
                     pass
-                case modelToTry.lower() if "gemini" in modelToTry.lower():
+                case model if "gemini" in model:
                     """
                     Catch all, if any have the word gemini in them, we need to use the new gemini proxy
                     """
@@ -472,29 +474,35 @@ async def gemini_chat_proxy(request: Request, path: str):
                     )
 
                     # Get the first gemini provider
-                    modelData = next(
-                        (x for x in modelData if x["provider"] == "gemini"), None
-                    )
+                    try:
+                        modelData = next(
+                            (x for x in modelData if x["provider"] == "gemini"), None
+                        )
 
-                    cost = None
-                    if modelData is not None:
-                        """
-                        Attempt to pull out data from the file Uris
-                        """
-
-                        cost = modelData["pricePer1MInput"] * (
-                            input_tokens / 1_000_000
-                        ) + modelData["pricePer1MOutput"] * (output_tokens / 1_000_000)
-                    lytixProxyPayload = LytixProxyResponse(
-                        messagesV2=messages,
-                        model=modelToTry,
-                        inputTokens=input_tokens,
-                        outputTokens=output_tokens,
-                        cost=cost,
-                        provider="gemini",
-                    ).dict()
+                        cost = None
+                        if modelData is not None:
+                            """
+                            Attempt to pull out data from the file Uris
+                            """
+                            cost = modelData["pricePer1MInput"] * (
+                                input_tokens / 1_000_000
+                            ) + modelData["pricePer1MOutput"] * (
+                                output_tokens / 1_000_000
+                            )
+                        lytixProxyPayload = LytixProxyResponse(
+                            messagesV2=messages,
+                            model=modelToTry,
+                            inputTokens=input_tokens,
+                            outputTokens=output_tokens,
+                            cost=cost,
+                            provider="gemini",
+                        ).dict()
+                    except Exception as e:
+                        logger.error(
+                            f"Error attempting to extract usage tokens: {e}, modelToTry={modelToTry}"
+                        )
                 except Exception as e:
-                    logger.error(f"Error attempting to extract usage tokens", e)
+                    logger.error(f"Error attempting to extract usage tokens: {e}")
 
                 if postQueryGuards:
                     if messages is None:
@@ -526,7 +534,9 @@ async def gemini_chat_proxy(request: Request, path: str):
                 )
 
         except Exception as e:
-            logger.error(f"Error attempting to process gemini request", e)
+            logger.error(
+                f"Error attempting to process gemini request: {e}, modelToTry={modelToTry}"
+            )
 
             """
             Unless we are out of models, continue

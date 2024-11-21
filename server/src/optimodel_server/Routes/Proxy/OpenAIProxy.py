@@ -431,9 +431,15 @@ async def openai_chat_proxy(request: Request, path: str):
                         full_url, json=body, headers=headers, timeout=600
                     )
 
+                    # print(f">>> response: {response}")
+                    # import pdb
+
+                    # pdb.set_trace()
+
                     content_type = response.headers.get("Content-Type", "")
                     content_encoding = response.headers.get("Content-Encoding", "")
 
+                    print(f">>> content_type: {content_type}")
                     if "br" in content_encoding.lower():
                         try:
                             # decompressed_data = brotli.decompress(response.content)
@@ -457,9 +463,11 @@ async def openai_chat_proxy(request: Request, path: str):
                                 "Failed to decode JSON response from OpenAI API"
                             )
                     else:
-                        raise OptimodelError(
-                            f"Unexpected response format from OpenAI API"
-                        )
+                        logger.warning(f"Unexpected response format from OpenAI API")
+                        response_data = None
+                        # raise OptimodelError(
+                        #     f"Unexpected response format from OpenAI API"
+                        # )
 
                 # If its a non-200 response
                 if response.status_code != 200:
@@ -469,8 +477,10 @@ async def openai_chat_proxy(request: Request, path: str):
 
                 lytixProxyPayload = None
                 try:
+                    if response_data is None:
+                        continue
                     # Extract model messages
-                    if "choices" in response_data:
+                    elif "choices" in response_data:
                         for choice in response_data["choices"]:
                             if "message" in choice:
                                 message = choice["message"]

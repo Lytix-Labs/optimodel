@@ -1,4 +1,5 @@
 import os
+import base64
 
 from optimodel_server.OptimodelError import OptimodelError
 
@@ -74,6 +75,8 @@ class GeminiProvider(BaseProviderClass):
                 modelId = "models/gemini-1.5-pro-latest"
             case ModelTypes.gemini_1_5_pro_001.name:
                 modelId = "models/gemini-1.5-pro-001"
+            case ModelTypes.gemini_1_5_pro_002.name:
+                modelId = "models/gemini-1.5-pro-002"
             case ModelTypes.gemini_1_5_pro_exp_0801.name:
                 modelId = "models/gemini-1.5-pro-exp-0801"
             case ModelTypes.gemini_1_5_pro_exp_0827.name:
@@ -115,29 +118,71 @@ class GeminiProvider(BaseProviderClass):
         )
         model._client = client
 
-        inputMessage = ""
+        # inputMessage = ""
+        inputMessages: list[str] = []
         fileInput = None
+        imageInput = None
 
         for message in messages:
             if message.role == "user":
                 if isinstance(message.content, str):
-                    inputMessage += message.content
+                    # inputMessage += message.content
+                    inputMessages.append(
+                        {
+                            "role": "user",
+                            "parts": message.content,
+                        }
+                    )
                 else:
+                    partsToAdd = []
                     for entry in message.content:
                         if isinstance(entry, str):
-                            inputMessage += entry
+                            # inputMessage += entry
+                            partsToAdd.append(entry)
+                            # inputMessages.append(
+                            #     {
+                            #         "role": "user",
+                            #         "parts": entry,
+                            #     }
+                            # )
                         elif entry.type == "text":
-                            inputMessage += entry.text
+                            # inputMessage += entry.text
+                            partsToAdd.append(entry.text)
+                            # inputMessages.append({"role": "user", "parts": entry.text})
                         elif entry.type == "video-gemini":
                             file_data = protos.FileData(
                                 mime_type=entry.data.mimeType,
                                 file_uri=entry.data.fileUri,
                             )
                             fileInput = file_data
+                            partsToAdd.append(fileInput)
+                        elif entry.type == "image":
+                            imageInput = {
+                                "mime_type": entry.source.mediaType,
+                                "data": entry.source.data,
+                            }
+                            partsToAdd.append(imageInput)
+                    inputMessages.append({"role": "user", "parts": partsToAdd})
+            elif message.role == "assistant":
+                if isinstance(message.content, str):
+                    # inputMessage += message.content
+                    inputMessages.append({"role": "model", "parts": message.content})
+                else:
+                    for entry in message.content:
+                        if isinstance(entry, str):
+                            # inputMessage += entry
+                            inputMessages.append({"role": "model", "parts": entry})
+                        elif entry.type == "text":
+                            # inputMessage += entry.text
+                            inputMessages.append({"role": "model", "parts": entry.text})
 
-        content = [inputMessage]
-        if fileInput is not None:
-            content.append(fileInput)
+        # if fileInput is not None:
+        #     content.append(fileInput)
+        # if imageInput is not None:
+        #     content.append(imageInput)
+        content = inputMessages
+
+        # print(">>>content", content)
 
         response = model.generate_content(content)
         promptTokenCount = response.usage_metadata.prompt_token_count

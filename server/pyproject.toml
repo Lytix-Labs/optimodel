@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "optimodel-server"
-version = "1.17.14"
+version = "1.19.6"
 authors = [
   { name="Lytix", email="support@lytix.com" },
 ]
@@ -29,7 +29,7 @@ dependencies = [
   "mistralai==1.0.2",
   "google-generativeai==0.7.2",
   "brotli==1.1.0",
-  "optimodel-types==0.2.5"
+  "optimodel-types==0.2.8"
 ]
 
 [project.scripts]

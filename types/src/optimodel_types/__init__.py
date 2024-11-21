@@ -16,6 +16,7 @@ class ModelTypes(enum.Enum):
 
     # Anthropic
     claude_3_5_sonnet_20240620 = "claude_3_5_sonnet_20240620"
+    claude_3_5_sonnet_20241022 = "claude_3_5_sonnet_20241022"
     claude_3_haiku_20240307 = "claude_3_haiku_20240307"
     claude_3_5_sonnet = "claude_3_5_sonnet"
     claude_3_haiku = "claude_3_haiku"
@@ -49,6 +50,7 @@ class ModelTypes(enum.Enum):
     gemini_1_5_pro = "gemini_1_5_pro"
     gemini_1_5_pro_latest = "gemini_1_5_pro_latest"
     gemini_1_5_pro_001 = "gemini_1_5_pro_001"
+    gemini_1_5_pro_002 = "gemini_1_5_pro_002"
     gemini_1_5_pro_exp_0801 = "gemini_1_5_pro_exp_0801"
     gemini_1_5_pro_exp_0827 = "gemini_1_5_pro_exp_0827"
     gemini_1_5_flash = "gemini_1_5_flash"
@@ -57,6 +59,7 @@ class ModelTypes(enum.Enum):
     gemini_1_5_flash_001_tuning = "gemini_1_5_flash_001_tuning"
     gemini_1_5_flash_exp_0827 = "gemini_1_5_flash_exp_0827"
     gemini_1_5_flash_8b_exp_0827 = "gemini_1_5_flash_8b_exp_0827"
+    gemini_1_5_flash_8b = "gemini_1_5_flash_8b"
 
 
 class Providers(enum.Enum):

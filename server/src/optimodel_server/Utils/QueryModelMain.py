@@ -1,3 +1,4 @@
+import json
 from typing import List, Tuple, Dict, Any
 from fastapi.responses import JSONResponse
 from httpx import QueryParams
@@ -146,15 +147,33 @@ async def queryModelMain(data: QueryBody, guardClientInstance: GuardClient):
                 if response:
                     logger.info(f"Query successful with {providerName}")
                     try:
-                        inputCost = (
-                            response.promptTokens
-                            * potentialProvider["costPerTokenInput"]
-                        )
-                        outputCost = (
-                            response.generationTokens
-                            * potentialProvider["costPerTokenOutput"]
-                        )
+                        if response.promptTokens > 128_000 and potentialProvider.get(
+                            "pricePer1MInputAbove125K"
+                        ):
+                            inputCost = response.promptTokens * (
+                                potentialProvider["pricePer1MInputAbove125K"]
+                                / 1_000_000
+                            )
+                        else:
+                            inputCost = response.promptTokens * (
+                                potentialProvider["pricePer1MInput"] / 1_000_000
+                            )
+                        if (
+                            response.generationTokens > 128_000
+                            and potentialProvider.get("pricePer1MOutputAbove125K")
+                        ):
+                            outputCost = response.generationTokens * (
+                                potentialProvider["pricePer1MOutputAbove125K"]
+                                / 1_000_000
+                            )
+                        else:
+                            outputCost = response.generationTokens * (
+                                potentialProvider["pricePer1MOutput"] / 1_000_000
+                            )
                         cost = inputCost + outputCost
+                        logger.info(
+                            f">>>Cost: {cost}, {json.dumps(potentialProvider, indent=2)}"
+                        )
                     except Exception as e:
                         logger.error(f"Error getting cost: {e}")
                         cost = None

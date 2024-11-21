@@ -109,8 +109,10 @@ class BedrockProvider(BaseProviderClass):
                 modelId = "meta.llama3-1-405b-instruct-v1:0"
             case ModelTypes.claude_3_5_sonnet_20240620.name:
                 modelId = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+            case ModelTypes.claude_3_5_sonnet_20241022.name:
+                modelId = "anthropic.claude-3-5-sonnet-20241022-v2:0"
             case ModelTypes.claude_3_5_sonnet.name:
-                modelId = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+                modelId = "anthropic.claude-3-5-sonnet-20241022-v2:0"
             case ModelTypes.claude_3_sonnet.name:
                 modelId = "anthropic.claude-3-sonnet-20240229-v1:0"
             case ModelTypes.claude_3_haiku.name:

@@ -3,91 +3,79 @@
     "gemini": [
       {
         "name": "gemini_1_5_pro",
-        "pricePer1MInput": 1.25,
-        "pricePer1MOutput": 5,
-        "speed": 0.93,
-        "metadata": {
-          "pricePer1MInputAfter125k": 1.25
-        }
+        "liteLLMIndex": "gemini/gemini-1.5-pro",
+        "speed": 0.93
       },
       {
         "name": "gemini_1_5_pro_latest",
-        "pricePer1MInput": 1.25,
-        "pricePer1MOutput": 5,
+        "liteLLMIndex": "gemini/gemini-1.5-pro-latest",
         "speed": 0.93
       },
       {
         "name": "gemini_1_5_pro_001",
-        "pricePer1MInput": 1.25,
-        "pricePer1MOutput": 5,
+        "liteLLMIndex": "gemini/gemini-1.5-pro-001",
+        "speed": 0.93
+      },
+      {
+        "name": "gemini_1_5_pro_002",
+        "liteLLMIndex": "gemini/gemini-1.5-pro-002",
         "speed": 0.93
       },
       {
         "name": "gemini_1_5_pro_exp_0801",
-        "pricePer1MInput": 1.25,
-        "pricePer1MOutput": 5,
+        "liteLLMIndex": "gemini/gemini-1.5-pro-exp-0801",
         "speed": 0.93
       },
       {
         "name": "gemini_1_5_pro_exp_0827",
-        "pricePer1MInput": 1.25,
-        "pricePer1MOutput": 5,
+        "liteLLMIndex": "gemini/gemini-1.5-flash-exp-0827",
         "speed": 0.93
       },
       {
         "name": "gemini_1_5_flash",
-        "pricePer1MInput": 0.075,
-        "pricePer1MOutput": 0.3,
+        "liteLLMIndex": "gemini/gemini-1.5-flash",
         "speed": 0.39
       },
       {
         "name": "gemini_1_5_flash_latest",
-        "pricePer1MInput": 0.075,
-        "pricePer1MOutput": 0.3,
+        "liteLLMIndex": "gemini/gemini-1.5-flash-latest",
         "speed": 0.39
       },
       {
         "name": "gemini_1_5_flash_001",
-        "pricePer1MInput": 0.075,
-        "pricePer1MOutput": 0.3,
-        "speed": 0.39
-      },
-      {
-        "name": "gemini_1_5_flash_001_tuning",
-        "pricePer1MInput": 0.075,
-        "pricePer1MOutput": 0.3,
+        "liteLLMIndex": "gemini/gemini-1.5-flash-001",
         "speed": 0.39
       },
       {
         "name": "gemini_1_5_flash_exp_0827",
-        "pricePer1MInput": 0.075,
-        "pricePer1MOutput": 0.3,
+        "liteLLMIndex": "gemini/gemini-1.5-flash-exp-0827",
         "speed": 0.39
       },
       {
         "name": "gemini_1_5_flash_8b_exp_0827",
-        "pricePer1MInput": 0.0375,
-        "pricePer1MOutput": 0.15,
+        "liteLLMIndex": "gemini/gemini-1.5-flash-8b-exp-0827",
+        "speed": 0.39
+      },
+      {
+        "name": "gemini_1_5_flash_8b",
+        "liteLLMIndex": "gemini/gemini-1.5-flash-8b-exp-0827",
         "speed": 0.39
       }
     ],
     "mistralai": [
       {
         "name": "mistral_large_latest",
-        "pricePer1MInput": 4,
-        "pricePer1MOutput": 12,
+        "liteLLMIndex": "mistral/mistral-large-latest",
         "speed": 0.45
       },
       {
         "name": "codestral_latest",
-        "pricePer1MInput": 1,
-        "pricePer1MOutput": 3,
+        "liteLLMIndex": "mistral/codestral-latest",
         "speed": 0.37
       },
       {
         "name": "open_mistral_nemo",
-        "pricePer1MInput": 0.3,
-        "pricePer1MOutput": 1,
+        "liteLLMIndex": "mistral/open-mistral-nemo",
         "speed": 0.35
       }
     ],
@@ -102,14 +90,12 @@
     "together": [
       {
         "name": "llama_3_8b_instruct",
-        "pricePer1MInput": 0.2,
-        "pricePer1MOutput": 0.2,
+        "liteLLMIndex": "together-ai-4.1b-8b",
         "speed": 0.46
       },
       {
         "name": "llama_3_70b_instruct",
-        "pricePer1MInput": 0.9,
-        "pricePer1MOutput": 0.9,
+        "liteLLMIndex": "together-ai-41.1b-80b",
         "speed": 0.68
       }
     ],
@@ -154,14 +140,12 @@
     "bedrock": [
       {
         "name": "llama_3_8b_instruct",
-        "pricePer1MInput": 0.3,
-        "pricePer1MOutput": 0.3,
+        "liteLLMIndex": "meta.llama3-8b-instruct-v1:0",
         "speed": 0.31
       },
       {
         "name": "llama_3_70b_instruct",
-        "pricePer1MInput": 3.075,
-        "pricePer1MOutput": 3.075,
+        "liteLLMIndex": "meta.llama3-70b-instruct-v1:0",
         "speed": 0.5
       },
       {
@@ -172,157 +156,142 @@
       },
       {
         "name": "claude_3_5_sonnet_20240620",
-        "pricePer1MInput": 3,
-        "pricePer1MOutput": 15,
+        "liteLLMIndex": "anthropic.claude-3-5-sonnet-20240620-v1:0",
+        "speed": 1.14
+      },
+      {
+        "name": "claude_3_5_sonnet_20241022",
+        "liteLLMIndex": "anthropic.claude-3-5-sonnet-20241022-v2:0",
         "speed": 1.14
       },
       {
         "name": "claude_3_sonnet",
         "speed": 0.43,
-        "pricePer1MInput": 3,
-        "pricePer1MOutput": 15
+        "liteLLMIndex": "anthropic.claude-3-5-sonnet-20241022-v2:0"
       },
       {
         "name": "claude_3_haiku",
         "speed": 0.43,
-        "pricePer1MInput": 0.25,
-        "pricePer1MOutput": 1.25
+        "liteLLMIndex": "anthropic.claude-3-haiku-20240307-v1:0"
       },
       {
         "name": "mistral_7b_instruct",
         "speed": 0.35,
-        "pricePer1MInput": 0.15,
-        "pricePer1MOutput": 0.2
+        "liteLLMIndex": "mistral.mistral-7b-instruct-v0:2"
       },
       {
         "name": "mixtral_8x7b_instruct",
         "speed": 0.38,
-        "pricePer1MInput": 0.45,
-        "pricePer1MOutput": 0.7
+        "liteLLMIndex": "mistral.mixtral-8x7b-instruct-v0:1"
       },
       {
         "name": "llama_3_1_8b_instruct",
-        "pricePer1MInput": 0.3,
-        "pricePer1MOutput": 0.3,
+        "liteLLMIndex": "meta.llama3-1-8b-instruct-v1:0",
         "speed": 0.31
       },
       {
         "name": "llama_3_1_70b_instruct",
-        "pricePer1MInput": 3.075,
-        "pricePer1MOutput": 3.075,
+        "liteLLMIndex": "meta.llama3-1-70b-instruct-v1:0",
         "speed": 0.5
       },
       {
         "name": "llama_3_1_405b_instruct",
-        "pricePer1MInput": 5.32,
-        "pricePer1MOutput": 16,
+        "liteLLMIndex": "meta.llama3-1-405b-instruct-v1:0",
         "speed": 0.5
       }
     ],
     "openai": [
       {
         "name": "gpt_4o",
-        "pricePer1MInput": 2.5,
-        "pricePer1MOutput": 10,
+        "liteLLMIndex": "gpt-4o",
         "speed": 0.46
       },
       {
         "name": "gpt_4o_2024_08_06",
-        "pricePer1MInput": 2.5,
-        "pricePer1MOutput": 10,
+        "liteLLMIndex": "gpt-4o-2024-08-06",
         "speed": 0.46
       },
       {
         "name": "gpt_4o_2024_05_13",
-        "pricePer1MInput": 5,
-        "pricePer1MOutput": 15,
+        "liteLLMIndex": "gpt-4o-2024-05-13",
         "speed": 0.46
       },
       {
         "name": "gpt_4_turbo",
-        "pricePer1MInput": 10,
-        "pricePer1MOutput": 30,
+        "liteLLMIndex": "gpt-4-turbo",
         "speed": 0.64
       },
       {
         "name": "gpt_4o_mini_2024_07_18",
-        "pricePer1MInput": 0.15,
-        "pricePer1MOutput": 0.6,
+        "liteLLMIndex": "gpt-4o-mini-2024-07-18",
         "speed": 0.62
       },
       {
         "name": "gpt_4o_mini",
-        "pricePer1MInput": 0.15,
-        "pricePer1MOutput": 0.6,
+        "liteLLMIndex": "gpt-4o-mini",
         "speed": 0.62
       },
       {
         "name": "gpt_4",
-        "pricePer1MInput": 30,
-        "pricePer1MOutput": 60,
+        "liteLLMIndex": "gpt-4",
         "speed": 0.6
       },
       {
         "name": "gpt_3_5_turbo_0125",
-        "pricePer1MInput": 0.5,
-        "pricePer1MOutput": 1.5,
+        "liteLLMIndex": "gpt-3.5-turbo-0125",
         "speed": 0.43
       },
       {
         "name": "gpt_3_5_turbo",
-        "pricePer1MInput": 3,
-        "pricePer1MOutput": 6,
+        "liteLLMIndex": "gpt-3.5-turbo",
         "speed": 0.43
       },
       {
         "name": "o1_preview",
-        "pricePer1MInput": 15,
-        "pricePer1MOutput": 60,
+        "liteLLMIndex": "o1-preview",
         "speed": 0.43
       },
       {
         "name": "o1_preview_2024_09_12",
-        "pricePer1MInput": 15,
-        "pricePer1MOutput": 60,
+        "liteLLMIndex": "o1-preview-2024-09-12",
         "speed": 0.43
       },
       {
         "name": "o1_mini",
-        "pricePer1MInput": 3,
-        "pricePer1MOutput": 12,
+        "liteLLMIndex": "o1-mini",
         "speed": 0.43
       },
       {
         "name": "o1_mini_2024_09_12",
-        "pricePer1MInput": 3,
-        "pricePer1MOutput": 12,
+        "liteLLMIndex": "o1-mini-2024-09-12",
         "speed": 0.43
       }
     ],
     "anthropic": [
       {
         "name": "claude_3_5_sonnet_20240620",
-        "pricePer1MInput": 3,
-        "pricePer1MOutput": 15,
+        "liteLLMIndex": "claude-3-5-sonnet-20240620",
+        "speed": 1.14
+      },
+      {
+        "name": "claude_3_5_sonnet_20241022",
+        "liteLLMIndex": "claude-3-5-sonnet-20241022",
         "speed": 1.14
       },
       {
         "name": "claude_3_5_sonnet",
-        "pricePer1MInput": 3,
-        "pricePer1MOutput": 15,
+        "liteLLMIndex": "claude-3-5-sonnet-20241022",
         "speed": 1.14
       },
       {
         "name": "claude_3_haiku",
         "speed": 0.64,
-        "pricePer1MInput": 0.25,
-        "pricePer1MOutput": 1.25
+        "liteLLMIndex": "claude-3-haiku-20240307"
       },
       {
         "name": "claude_3_haiku_20240307",
         "speed": 0.64,
-        "pricePer1MInput": 0.25,
-        "pricePer1MOutput": 1.25
+        "liteLLMIndex": "claude-3-haiku-20240307"
       }
     ]
   }

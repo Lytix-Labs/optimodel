@@ -67,6 +67,8 @@ class AnthropicProvider(BaseProviderClass):
         match model:
             case ModelTypes.claude_3_5_sonnet_20240620.name:
                 modelId = "claude-3-5-sonnet-20240620"
+            case ModelTypes.claude_3_5_sonnet_20241022.name:
+                modelId = "claude-3-5-sonnet-20241022"
             case ModelTypes.claude_3_5_sonnet.name:
                 modelId = "claude-3-5-sonnet-20240620"
             case ModelTypes.claude_3_haiku.name:

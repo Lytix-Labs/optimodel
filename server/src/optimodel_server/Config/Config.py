@@ -15,15 +15,19 @@ from optimodel_server.Providers import (
 )
 from optimodel_server.Config.types import SAAS_MODE
 from optimodel_types import ModelTypes
+import requests
 
 
 logger = logging.getLogger(__name__)
+
+# URL of the JSON file
+LITELLM_PRICING_URL = "https://raw.githubusercontent.com/BerriAI/litellm/refs/heads/main/model_prices_and_context_window.json"
 
 
 class Config:
     modelToProvider: dict[str, any]
     providerInstances: dict[str, BaseProviderClass]
-
+    liteLLMPricing: dict[str, any]
     """
     Path to the config file. Try to use a custom one if present via 
     env var OPTIMODEL_CONFIG_PATH
@@ -68,6 +72,24 @@ class Config:
                         self.modelToProvider[model["name"]] = [model]
 
     def _validateConfig(self, config: dict):
+        """
+        Attempt to pull the liteLLM pricing json
+        """
+        response = requests.get(LITELLM_PRICING_URL)
+
+        # Check if the request was successful
+        if response.status_code == 200:
+            # Parse the JSON content
+            data = response.json()
+            self.liteLLMPricing = data
+        else:
+            logger.error(
+                f"Failed to retrieve the liteLLM pricing json. Status code: {response.status_code}"
+            )
+            raise Exception(
+                f"Failed to retrieve the liteLLM pricing json. Status code: {response.status_code}"
+            )
+
         """
         Validate the config
         """
@@ -121,6 +143,57 @@ class Config:
                 )
                 continue
 
+            """
+            Now lets see if we have a liteLLM index for this model
+            """
+            for model in models:
+                if model.get("liteLLMIndex") is None:
+                    if (
+                        model.get("pricePer1MInput") is None
+                        and model.get("pricePer1MOutput") is None
+                    ):
+                        logger.error(
+                            f"LiteLLM index {model['name']} not found, and no pricePer1MInput or pricePer1MOutput provided"
+                        )
+                        continue
+                else:
+                    """
+                    We need to pull the pricePer1MInput and pricePer1MOutput from the liteLLM pricing json
+                    """
+                    costPerTokenInput = self.liteLLMPricing[model["liteLLMIndex"]][
+                        "input_cost_per_token"
+                    ]
+                    costPerTokenOutput = self.liteLLMPricing[model["liteLLMIndex"]][
+                        "output_cost_per_token"
+                    ]
+                    model["pricePer1MInput"] = costPerTokenInput * 1_000_000
+                    model["pricePer1MOutput"] = costPerTokenOutput * 1_000_000
+
+                    if (
+                        self.liteLLMPricing[model["liteLLMIndex"]].get(
+                            "input_cost_per_token_above_128k_tokens"
+                        )
+                        is not None
+                        and self.liteLLMPricing[model["liteLLMIndex"]].get(
+                            "output_cost_per_token_above_128k_tokens"
+                        )
+                        is not None
+                    ):
+                        """
+                        Also gemini is weird, save the pricePer1M above
+                        """
+                        costPerTokenAbove125KInput = self.liteLLMPricing[
+                            model["liteLLMIndex"]
+                        ]["input_cost_per_token_above_128k_tokens"]
+                        costPerTokenAbove125KOutput = self.liteLLMPricing[
+                            model["liteLLMIndex"]
+                        ]["output_cost_per_token_above_128k_tokens"]
+                        model["pricePer1MInputAbove125K"] = (
+                            costPerTokenAbove125KInput * 1_000_000
+                        )
+                        model["pricePer1MOutputAbove125K"] = (
+                            costPerTokenAbove125KOutput * 1_000_000
+                        )
             """
             g2g, add to validated config and our provider instances
             """
